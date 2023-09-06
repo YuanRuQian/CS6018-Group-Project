@@ -1,4 +1,4 @@
-package com.cs6018.drawingapp.ui.theme
+package com.cs6018.canvasexample.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -38,7 +38,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun DrawingAppTheme(
+fun CanvasExampleTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,

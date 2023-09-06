@@ -1,4 +1,4 @@
-package com.cs6018.drawingapp
+package com.cs6018.canvasexample
 
 import org.junit.Test
 

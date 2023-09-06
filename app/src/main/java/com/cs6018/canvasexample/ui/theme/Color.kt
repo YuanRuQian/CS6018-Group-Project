@@ -1,4 +1,4 @@
-package com.cs6018.drawingapp.ui.theme
+package com.cs6018.canvasexample.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

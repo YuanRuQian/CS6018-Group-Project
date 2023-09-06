@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Drawing App"
+rootProject.name = "Canvas Example"
 include(":app")
