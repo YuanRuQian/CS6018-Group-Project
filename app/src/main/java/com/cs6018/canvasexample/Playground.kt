@@ -3,18 +3,12 @@ package com.cs6018.canvasexample
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -26,12 +20,10 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 
-// TODO: Allow user to change pen shape
 // TODO: Confine the playground as a square
 @Composable
-fun Playground( navController: NavHostController, viewModel: PathPropertiesViewModel) {
+fun Playground( viewModel: PathPropertiesViewModel, paddingValues: PaddingValues) {
 
     LocalContext.current
 
@@ -87,6 +79,7 @@ fun Playground( navController: NavHostController, viewModel: PathPropertiesViewM
         modifier = Modifier
             .fillMaxSize()
             .background(Color.LightGray)
+            .padding(paddingValues)
     ) {
         val drawModifier = Modifier
             .padding(8.dp)
@@ -187,6 +180,7 @@ fun Playground( navController: NavHostController, viewModel: PathPropertiesViewM
                 else -> Unit
             }
 
+            // TODO: optimize drawing process ( not recreating all paths every time )
             with(drawContext.canvas.nativeCanvas) {
 
                 val checkPoint = saveLayer(null, null)
@@ -249,26 +243,5 @@ fun Playground( navController: NavHostController, viewModel: PathPropertiesViewM
                 restoreToCount(checkPoint)
             }
         }
-
-        // TODO: share the same bottom app bar across all screens
-        BottomAppBar(
-            content = {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    IconButton(
-                        onClick = {
-                            navController.navigate("penCustomizer") // Navigate to penCustomizer
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "Pen Customizer"
-                        )
-                    }
-                }
-            }
-        )
     }
 }

@@ -35,23 +35,26 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun Navigation(viewModel: PathPropertiesViewModel = viewModel()) {
+fun Navigation(pathPropertiesViewModel: PathPropertiesViewModel = viewModel(), drawingInfoViewModel: DrawingInfoViewModel = viewModel()) {
     val navController = rememberNavController()
-    val hexColorCodeString by viewModel.hexColorCode.collectAsState()
-    val currentPathProperty by viewModel.currentPathProperty.collectAsState()
+    val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
+    val currentPathProperty by pathPropertiesViewModel.currentPathProperty.collectAsState()
     val controller = rememberColorPickerController()
 
-    NavHost(navController = navController, startDestination = "playground") {
+
+    // TODO: change startDestination to change the starting screen
+    NavHost(navController = navController, startDestination = "drawingList") {
         // TODO: Pass in the whole viewModel is a bad practice, but if not passing in the whole viewModel, then we need to pass in a ton of variable and functions
-        composable("playground") { Playground(navController, viewModel) }
+        composable("canvasPage") { CanvasPage(navController, pathPropertiesViewModel) }
         composable("penCustomizer") {
             PenCustomizer(
                 hexColorCodeString,
                 currentPathProperty,
-                viewModel::updateHexColorCode,
-                viewModel::updateCurrentPathProperty,
+                pathPropertiesViewModel::updateHexColorCode,
+                pathPropertiesViewModel::updateCurrentPathProperty,
                 controller
             )
         }
+        composable("drawingList") { DrawingListScreen(navController, drawingInfoViewModel.drawingInfoList, drawingInfoViewModel::addDrawingInfo) }
     }
 }
