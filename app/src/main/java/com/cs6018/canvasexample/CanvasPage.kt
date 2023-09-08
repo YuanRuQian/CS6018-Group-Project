@@ -35,23 +35,22 @@ fun CanvasPage(
         bottomBar = {
             BottomAppBar {
                 IconButton(onClick = {
-                    if (pathPropertiesViewModel.isEraseMode()) {
-                        pathPropertiesViewModel.updateDrawMode(DrawMode.Draw)
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
+                    val previousIsEraseMode = pathPropertiesViewModel.isEraseMode()
+                    pathPropertiesViewModel.toggleDrawMode()
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            if (previousIsEraseMode) {
                                 "Draw Mode On!"
-                            )
-                        }
-                    } else {
-                        pathPropertiesViewModel.updateDrawMode(DrawMode.Erase)
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
+                            } else {
                                 "Erase Mode On!"
-                            )
-                        }
+                            }
+                        )
                     }
                 }) {
-                    Icon(imageVector = Icons.Default.Clear, contentDescription = "Toggle Erase Mode")
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Toggle Erase Mode"
+                    )
                 }
                 Spacer(modifier = Modifier.weight(1f)) // Spacer to evenly distribute buttons
                 IconButton(

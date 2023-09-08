@@ -35,9 +35,6 @@ class PathPropertiesViewModel : ViewModel() {
     // Previous motion event before next touch is saved into this current position.
     val previousPosition = mutableStateOf(Offset.Unspecified)
 
-    // Draw mode, erase mode or touch mode
-    val drawMode = mutableStateOf(DrawMode.Draw)
-
     // Path that is being drawn between [MotionEvent.Down] and [MotionEvent.Up]
     val currentPath = mutableStateOf(Path())
 
@@ -75,12 +72,11 @@ class PathPropertiesViewModel : ViewModel() {
     }
 
     fun isEraseMode(): Boolean {
-        return drawMode.value == DrawMode.Erase
+        return currentPathProperty.value.eraseMode
     }
 
-    fun updateDrawMode(newDrawMode: DrawMode) {
-        drawMode.value = newDrawMode
-        currentPathProperty.value.eraseMode = newDrawMode == DrawMode.Erase
+    fun toggleDrawMode() {
+        currentPathProperty.value.eraseMode = !currentPathProperty.value.eraseMode
     }
 
     fun undoLastAction() {

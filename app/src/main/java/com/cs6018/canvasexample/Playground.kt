@@ -1,6 +1,5 @@
 package com.cs6018.canvasexample
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -23,7 +22,7 @@ import androidx.compose.ui.unit.dp
 
 // TODO: Confine the playground as a square
 @Composable
-fun Playground( viewModel: PathPropertiesViewModel, paddingValues: PaddingValues) {
+fun Playground(viewModel: PathPropertiesViewModel, paddingValues: PaddingValues) {
 
     LocalContext.current
 
@@ -57,11 +56,6 @@ fun Playground( viewModel: PathPropertiesViewModel, paddingValues: PaddingValues
      * Previous motion event before next touch is saved into this current position.
      */
     var previousPosition = viewModel.previousPosition
-
-    /**
-     * Draw mode, erase mode or touch mode to
-     */
-    val drawMode = viewModel.drawMode
 
     /**
      * Path that is being drawn between [MotionEvent.Down] and [MotionEvent.Up]. When
@@ -98,15 +92,6 @@ fun Playground( viewModel: PathPropertiesViewModel, paddingValues: PaddingValues
                     viewModel.updateMotionEvent(MotionEvent.Move)
                     viewModel.updateCurrentPosition(pointerInputChange.position)
 
-                    if (drawMode.value == DrawMode.Touch) {
-                        val change = pointerInputChange.positionChange()
-                        Log.d("DRAG", "DRAG: $change")
-                        paths.forEach { entry ->
-                            val path: Path = entry.first
-                            path.translate(change)
-                        }
-                        currentPath.value.translate(change)
-                    }
                     if (pointerInputChange.positionChange() != Offset.Zero) pointerInputChange.consume()
 
                 },
@@ -119,53 +104,48 @@ fun Playground( viewModel: PathPropertiesViewModel, paddingValues: PaddingValues
         Canvas(modifier = drawModifier) {
             when (motionEvent.value) {
                 MotionEvent.Down -> {
-                    if (drawMode.value != DrawMode.Touch) {
-                        currentPath.value.moveTo(currentPosition.value.x, currentPosition.value.y)
-                    }
-
+                    currentPath.value.moveTo(currentPosition.value.x, currentPosition.value.y)
                     previousPosition = currentPosition
-
                 }
 
                 MotionEvent.Move -> {
-                    if (drawMode.value != DrawMode.Touch) {
-                        currentPath.value.quadraticBezierTo(
-                            previousPosition.value.x,
-                            previousPosition.value.y,
-                            (previousPosition.value.x + currentPosition.value.x) / 2,
-                            (previousPosition.value.y + currentPosition.value.y) / 2
-                        )
-                    }
+
+                    currentPath.value.quadraticBezierTo(
+                        previousPosition.value.x,
+                        previousPosition.value.y,
+                        (previousPosition.value.x + currentPosition.value.x) / 2,
+                        (previousPosition.value.y + currentPosition.value.y) / 2
+                    )
 
                     previousPosition = currentPosition
                 }
 
                 MotionEvent.Up -> {
-                    if (drawMode.value != DrawMode.Touch) {
-                        currentPath.value.lineTo(currentPosition.value.x, currentPosition.value.y)
+                    currentPath.value.lineTo(currentPosition.value.x, currentPosition.value.y)
 
-                        // Pointer is up save current path
+                    // Pointer is up save current path
 //                        paths[currentPath] = currentPathProperty
-                        paths.add(Pair(currentPath.value, currentPathProperty.value))
+                    paths.add(Pair(currentPath.value, currentPathProperty.value))
 
-                        // Since paths are keys for map, use new one for each key
-                        // and have separate path for each down-move-up gesture cycle
+                    // Since paths are keys for map, use new one for each key
+                    // and have separate path for each down-move-up gesture cycle
 
-                        viewModel.updateCurrentPath(Path())
+                    viewModel.updateCurrentPath(Path())
 
 
-
-                        // Create new instance of path properties to have new path and properties
-                        // only for the one currently being drawn
-                        // Should update the stroke width & color here!
-                        viewModel.updateCurrentPathProperty(PathProperties(
-                            strokeWidth =  currentPathProperty.value.strokeWidth,
+                    // Create new instance of path properties to have new path and properties
+                    // only for the one currently being drawn
+                    // Should update the stroke width & color here!
+                    viewModel.updateCurrentPathProperty(
+                        PathProperties(
+                            strokeWidth = currentPathProperty.value.strokeWidth,
                             color = currentPathProperty.value.color,
                             strokeCap = currentPathProperty.value.strokeCap,
                             strokeJoin = currentPathProperty.value.strokeJoin,
                             eraseMode = currentPathProperty.value.eraseMode
-                        ))
-                    }
+                        )
+                    )
+
 
                     // Since new path is drawn no need to store paths to undone
                     pathsUndone.clear()
