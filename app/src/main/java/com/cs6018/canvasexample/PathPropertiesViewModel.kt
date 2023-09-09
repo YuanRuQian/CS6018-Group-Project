@@ -1,6 +1,5 @@
 package com.cs6018.canvasexample
 
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
@@ -36,9 +35,6 @@ class PathPropertiesViewModel : ViewModel() {
     // Previous motion event before next touch is saved into this current position.
     val previousPosition = mutableStateOf(Offset.Unspecified)
 
-    // Draw mode, erase mode or touch mode
-    val drawMode = mutableStateOf(DrawMode.Draw)
-
     // Path that is being drawn between [MotionEvent.Down] and [MotionEvent.Up]
     val currentPath = mutableStateOf(Path())
 
@@ -73,5 +69,23 @@ class PathPropertiesViewModel : ViewModel() {
         newStrokeCap?.let { newProperty.strokeCap = it }
         newStrokeJoin?.let { newProperty.strokeJoin = it }
         _currentPathProperty.value = newProperty
+    }
+
+    fun isEraseMode(): Boolean {
+        return currentPathProperty.value.eraseMode
+    }
+
+    fun toggleDrawMode() {
+        currentPathProperty.value.eraseMode = !currentPathProperty.value.eraseMode
+    }
+
+    fun undoLastAction() {
+        if (paths.isNotEmpty()) {
+            val lastItem = paths.last()
+            val lastPath = lastItem.first
+            val lastPathProperty = lastItem.second
+            paths.remove(lastItem)
+            pathsUndone.add(Pair(lastPath, lastPathProperty))
+        }
     }
 }
