@@ -13,12 +13,31 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class PathPropertiesViewModel : ViewModel() {
+    enum class EraseDrawToggleButtonIconEnum(val iconResource: Int) {
+        ERASE_MODE_ICON(R.drawable.ink_eraser_off),
+        DRAW_MODE_ICON(R.drawable.ink_eraser)
+    }
+
+    enum class EraseDrawToggleButtonTextEnum(val text: String) {
+        ERASE_MODE_TEXT("Draw"),
+        DRAW_MODE_TEXT("Erase")
+    }
 
     private val _hexColorCode = MutableStateFlow("#ffffff")
     val hexColorCode: StateFlow<String> = _hexColorCode.asStateFlow()
 
     private val _currentPathProperty = MutableStateFlow(PathProperties())
     val currentPathProperty: StateFlow<PathProperties> = _currentPathProperty.asStateFlow()
+
+    private val _eraseDrawToggleButtonIcon =
+        MutableStateFlow(EraseDrawToggleButtonIconEnum.DRAW_MODE_ICON)
+    val eraseDrawToggleButtonIcon: StateFlow<EraseDrawToggleButtonIconEnum> =
+        _eraseDrawToggleButtonIcon.asStateFlow()
+
+    private val _eraseDrawToggleButtonText =
+        MutableStateFlow(EraseDrawToggleButtonTextEnum.DRAW_MODE_TEXT)
+    val eraseDrawToggleButtonText: StateFlow<EraseDrawToggleButtonTextEnum> =
+        _eraseDrawToggleButtonText.asStateFlow()
 
     // Paths that are added
     val paths = mutableStateListOf<Pair<Path, PathProperties>>()
@@ -62,7 +81,12 @@ class PathPropertiesViewModel : ViewModel() {
         _currentPathProperty.value = newProperty
     }
 
-    fun updateCurrentPathProperty(newColor: Color? = null, newStrokeWidth: Float? = null, newStrokeCap: StrokeCap? = null, newStrokeJoin: StrokeJoin? = null) {
+    fun updateCurrentPathProperty(
+        newColor: Color? = null,
+        newStrokeWidth: Float? = null,
+        newStrokeCap: StrokeCap? = null,
+        newStrokeJoin: StrokeJoin? = null
+    ) {
         val newProperty = currentPathProperty.value.copy()
         newColor?.let { newProperty.color = it }
         newStrokeWidth?.let { newProperty.strokeWidth = it }
@@ -77,6 +101,13 @@ class PathPropertiesViewModel : ViewModel() {
 
     fun toggleDrawMode() {
         currentPathProperty.value.eraseMode = !currentPathProperty.value.eraseMode
+        if (currentPathProperty.value.eraseMode) {
+            _eraseDrawToggleButtonIcon.value = EraseDrawToggleButtonIconEnum.ERASE_MODE_ICON
+            _eraseDrawToggleButtonText.value = EraseDrawToggleButtonTextEnum.ERASE_MODE_TEXT
+        } else {
+            _eraseDrawToggleButtonIcon.value = EraseDrawToggleButtonIconEnum.DRAW_MODE_ICON
+            _eraseDrawToggleButtonText.value = EraseDrawToggleButtonTextEnum.DRAW_MODE_TEXT
+        }
     }
 
     fun undoLastAction() {
