@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
@@ -22,19 +23,102 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
+@Composable
+fun BottomAppBarItem(
+    iconResource: Int,
+    buttonText: String,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        IconButton(onClick = onClick) {
+            Icon(
+                painter = painterResource(id = iconResource),
+                contentDescription = buttonText,
+                modifier = Modifier.size(36.dp)
+            )
+        }
+
+        Text(
+            text = buttonText,
+            fontSize = 12.sp,
+        )
+    }
+}
+
+@Composable
+fun BottomAppBarContent(
+    pathPropertiesViewModel: PathPropertiesViewModel,
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope
+) {
+    BottomAppBar(
+        content = {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Eraser Button
+                BottomAppBarItem(
+                    iconResource = pathPropertiesViewModel.eraseDrawToggleButtonIcon.collectAsState().value.iconResource,
+                    buttonText = pathPropertiesViewModel.eraseDrawToggleButtonText.collectAsState().value.text,
+                    onClick = {
+                        val previousIsEraseMode = pathPropertiesViewModel.isEraseMode()
+                        pathPropertiesViewModel.toggleDrawMode()
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                if (previousIsEraseMode) {
+                                    "Draw Mode On! You could draw with the pen now."
+                                } else {
+                                    "Erase Mode On! You could erase with the eraser now."
+                                }
+                            )
+                        }
+                    }
+                )
+
+                // Palette Button
+                BottomAppBarItem(
+                    iconResource = R.drawable.palette,
+                    buttonText = "Palette",
+                    onClick = {
+                        navController.navigate("penCustomizer")
+                    }
+                )
+
+                // Undo Button
+                BottomAppBarItem(
+                    iconResource = R.drawable.undo,
+                    buttonText = "Undo",
+                    onClick = {
+                        pathPropertiesViewModel.undoLastAction()
+                    }
+                )
+            }
+        }
+    )
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,7 +166,7 @@ fun CanvasPage(
                             navController.popBackStack()
                         }
 
-                    )  {
+                    ) {
                         Text(text = "Done", modifier = Modifier.padding(end = 4.dp))
                         Icon(
                             imageVector = Icons.Default.Done,
@@ -103,93 +187,11 @@ fun CanvasPage(
         },
 
         bottomBar = {
-            BottomAppBar(
-                content = {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Eraser Button
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    val previousIsEraseMode =
-                                        pathPropertiesViewModel.isEraseMode()
-                                    pathPropertiesViewModel.toggleDrawMode()
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            if (previousIsEraseMode) {
-                                                "Draw Mode On!"
-                                            } else {
-                                                "Erase Mode On!"
-                                            }
-                                        )
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.eraser),
-                                    contentDescription = "Toggle Erase Mode"
-                                )
-                            }
-
-                            // Button Description
-                            Text(
-                                text = "Erase/Draw",
-                                fontSize = 12.sp,
-                                color = Color.Black
-                            )
-                        }
-
-                        // Palette Button
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    navController.navigate("penCustomizer") // Navigate to penCustomizer
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.palette),
-                                    contentDescription = "Pen Customizer"
-                                )
-                            }
-
-                            // Button Description
-                            Text(
-                                text = "Palette",
-                                fontSize = 12.sp,
-                            )
-                        }
-
-                        // Undo Button
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            IconButton(
-                                onClick = { pathPropertiesViewModel.undoLastAction() }
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.undo),
-                                    contentDescription = "Undo last action"
-                                )
-                            }
-
-                            // Button Description
-                            Text(
-                                text = "Undo",
-                                fontSize = 12.sp,
-                            )
-                        }
-                    }
-                }
+            BottomAppBarContent(
+                pathPropertiesViewModel,
+                navController,
+                snackbarHostState,
+                scope
             )
         },
         snackbarHost = {
