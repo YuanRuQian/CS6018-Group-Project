@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation ("dev.shreyaspatil:capturable:1.0.3")
     implementation("androidx.navigation:navigation-compose:+")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:+")
     implementation("androidx.core:core-ktx:1.9.0")

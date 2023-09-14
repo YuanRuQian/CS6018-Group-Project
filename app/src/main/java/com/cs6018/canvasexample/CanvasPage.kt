@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -129,8 +130,9 @@ fun CanvasPage(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    Scaffold(
+    val captureController = rememberCaptureController()
 
+    Scaffold(
         // Add a top title bar
         topBar = {
             CenterAlignedTopAppBar(
@@ -164,15 +166,15 @@ fun CanvasPage(
                         modifier = Modifier.clickable {
                             // TODO: Handle Save Button. Save files and go back to the list view
                             navController.popBackStack()
+                            captureController.capture()
                         }
 
                     ) {
                         Text(text = "Done", modifier = Modifier.padding(end = 4.dp))
                         Icon(
                             imageVector = Icons.Default.Done,
-                            contentDescription = "Done"
+                            contentDescription = "Done",
                         )
-
                     }
                 },
 
@@ -205,7 +207,9 @@ fun CanvasPage(
             }
         },
         content = {
-            Playground(pathPropertiesViewModel, it)
+
+            Playground(pathPropertiesViewModel, it, captureController)
+
         }
     )
 }
