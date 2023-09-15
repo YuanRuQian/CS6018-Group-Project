@@ -30,9 +30,6 @@ import dev.shreyaspatil.capturable.Capturable
 import dev.shreyaspatil.capturable.controller.CaptureController
 import java.io.File
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 // TODO: Confine the playground as a square
 @Composable
@@ -287,12 +284,6 @@ fun CapturableWrapper(
     ) {
         content() // Render the content defined by the lambda
     }
-}
-
-fun getCurrentDateTimeString(): String {
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd_HHmm", Locale.getDefault())
-    val currentTime = Date()
-    return dateFormat.format(currentTime)
 }
 
 fun saveImage(image: Bitmap, context: Context): Uri? {

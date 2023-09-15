@@ -1,5 +1,10 @@
 package com.cs6018.canvasexample
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Environment
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,11 +33,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -72,6 +80,7 @@ fun BottomAppBarContent(
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope
 ) {
+    val context = LocalContext.current
     BottomAppBar(
         content = {
             Row(
@@ -115,11 +124,60 @@ fun BottomAppBarContent(
                         pathPropertiesViewModel.undoLastAction()
                     }
                 )
+
+                BottomAppBarItem(
+                    iconResource = R.drawable.share,
+                    buttonText = "Share",
+                    onClick = {
+                        scope.launch {
+                            val uriToImage = getUriOfFirstImageInDirectory(context)
+                            val shareIntent: Intent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_STREAM, uriToImage)
+                                type = "image/jpeg"
+                            }
+                            val chooserIntent = Intent.createChooser(shareIntent, "Share Image")
+                            chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            startActivity(context, chooserIntent, null)
+                        }
+                    }
+                )
             }
         }
     )
 }
 
+
+// TODO: get the proper URI of the image file
+fun getUriOfFirstImageInDirectory(context: Context): Uri? {
+    // Get the directory for storing files in external storage
+    val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+    if (directory != null && directory.exists() && directory.isDirectory) {
+        // List all files in the directory
+        val files = directory.listFiles()
+
+        if (files == null || files.isEmpty()) {
+            Log.d("CanvasPage", "No files found in the directory, please create an image first")
+            return null
+        }
+
+        // Loop through the files to find the first image (you can adjust this logic as needed)
+        for (file in files) {
+            if (isImage(file)) {
+                // Generate a content:// URI using FileProvider
+                return FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    file
+                )
+            }
+        }
+    }
+
+    // If no image is found, return null
+    return null
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -187,7 +245,6 @@ fun CanvasPage(
                 )
             )
         },
-
         bottomBar = {
             BottomAppBarContent(
                 pathPropertiesViewModel,
@@ -207,9 +264,7 @@ fun CanvasPage(
             }
         },
         content = {
-
             Playground(pathPropertiesViewModel, it, captureController)
-
         }
     )
 }
