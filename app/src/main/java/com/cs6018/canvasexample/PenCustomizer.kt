@@ -1,6 +1,5 @@
 package com.cs6018.canvasexample
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,7 +62,6 @@ fun PenCustomizer(
                 if (!isInitialized) {
                     isInitialized = true
                 } else {
-                    Log.d("onColorSelected", "Color changed to: ${it.hexCode} | ${it.color}")
                     updateHexColorCode(it.hexCode)
                     updateCurrentPathProperty(it.color, null, null, null)
                 }
