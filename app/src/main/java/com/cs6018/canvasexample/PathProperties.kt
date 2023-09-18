@@ -7,7 +7,6 @@ import androidx.compose.ui.graphics.StrokeJoin
 class PathProperties(
     var strokeWidth: Float = 10f,
     var color: Color = Color.Black,
-    var alpha: Float = 1f,
     var strokeCap: StrokeCap = StrokeCap.Round,
     var strokeJoin: StrokeJoin = StrokeJoin.Round,
     var eraseMode: Boolean = false
@@ -16,11 +15,10 @@ class PathProperties(
     fun copy(
         strokeWidth: Float = this.strokeWidth,
         color: Color = this.color,
-        alpha: Float = this.alpha,
         strokeCap: StrokeCap = this.strokeCap,
         strokeJoin: StrokeJoin = this.strokeJoin,
         eraseMode: Boolean = this.eraseMode
     ) = PathProperties(
-        strokeWidth, color, alpha, strokeCap, strokeJoin, eraseMode
+        strokeWidth, color, strokeCap, strokeJoin, eraseMode
     )
 }

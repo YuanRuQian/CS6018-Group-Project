@@ -208,7 +208,8 @@ fun Playground(
                                 drawPath(
                                     color = property.color,
                                     path = path,
-                                    style = style
+                                    style = style,
+                                    alpha = property.color.alpha
                                 )
                             }
                         }
@@ -230,7 +231,8 @@ fun Playground(
                                 drawPath(
                                     color = currentPathProperty.value.color,
                                     path = currentPath.value,
-                                    style = style
+                                    style = style,
+                                    alpha = currentPathProperty.value.color.alpha
                                 )
                             }
                         }
