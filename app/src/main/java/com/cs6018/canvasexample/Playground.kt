@@ -1,9 +1,5 @@
 package com.cs6018.canvasexample
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -14,75 +10,66 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
-import dev.shreyaspatil.capturable.Capturable
+import androidx.core.graphics.drawable.toBitmap
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import dev.shreyaspatil.capturable.controller.CaptureController
-import java.io.File
-import java.io.FileOutputStream
 
-// TODO: Confine the playground as a square
 @Composable
 fun Playground(
     viewModel: PathPropertiesViewModel,
     paddingValues: PaddingValues,
     captureController: CaptureController
 ) {
-
-    LocalContext.current
-
-    /**
-     * Paths that are added, this is required to have paths with different options and paths
-     *  ith erase to keep over each other
-     */
     val paths = viewModel.paths
 
-    /**
-     * Paths that are undone via button. These paths are restored if user pushes
-     * redo button if there is no new path drawn.
-     *
-     * If new path is drawn after this list is cleared to not break paths after undoing previous
-     * ones.
-     */
     val pathsUndone = viewModel.pathsUndone
 
-    /**
-     * Canvas touch state. [MotionEvent.Idle] by default, [MotionEvent.Down] at first contact,
-     * [MotionEvent.Move] while dragging and [MotionEvent.Up] when first pointer is up
-     */
     val motionEvent = viewModel.motionEvent
 
-    /**
-     * Current position of the pointer that is pressed or being moved
-     */
     val currentPosition = viewModel.currentPosition
 
-    /**
-     * Previous motion event before next touch is saved into this current position.
-     */
     var previousPosition = viewModel.previousPosition
 
-    /**
-     * Path that is being drawn between [MotionEvent.Down] and [MotionEvent.Up]. When
-     * pointer is up this path is saved to **paths** and new instance is created
-     */
     val currentPath = viewModel.currentPath
 
-    /**
-     * Properties of path that is currently being drawn between
-     * [MotionEvent.Down] and [MotionEvent.Up].
-     */
     val currentPathProperty = viewModel.currentPathProperty
+
+    val backgroundImageUri = getUriOfLastFile(LocalContext.current)
+
+    val basePainter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(backgroundImageUri)
+            .size(coil.size.Size.ORIGINAL)
+            .allowHardware(false)
+            .build()
+    )
+
+    val baseImageLoadedState = basePainter.state
+
+    var baseImageBitmap: ImageBitmap? = null
+
+    if (
+        baseImageLoadedState is AsyncImagePainter.State.Success
+    ) {
+        baseImageBitmap =
+            baseImageLoadedState.result.drawable.toBitmap()
+                .asImageBitmap()
+    }
 
     Column(
         modifier = Modifier
@@ -91,28 +78,51 @@ fun Playground(
             .padding(paddingValues)
     ) {
         val drawModifier = Modifier
+            .drawBehind {
+                if (baseImageBitmap != null) {
+                    drawImage(
+                        image = baseImageBitmap,
+                        topLeft = Offset.Zero,
+                    )
+                    Log.d("CanvasPage", "image width ${baseImageBitmap.width}, height ${baseImageBitmap.height}")
+                    Log.d("CanvasPage", "draw behind $backgroundImageUri")
+                } else {
+                    drawRect(
+                        color = Color.White,
+                        topLeft = Offset.Zero,
+                        size = size
+                    )
+                    Log.d("CanvasPage", "draw white rectangle")
+                }
+            }
+            .background(Color.Transparent)
             .padding(8.dp)
             .shadow(1.dp)
             .fillMaxWidth()
             .weight(1f)
-            .background(Color.White)
             .dragMotionEvent(
                 onDragStart = { pointerInputChange ->
                     viewModel.updateMotionEvent(MotionEvent.Down)
                     viewModel.updateCurrentPosition(pointerInputChange.position)
-                    if (pointerInputChange.pressed != pointerInputChange.previousPressed) pointerInputChange.consume()
+                    if (pointerInputChange.pressed != pointerInputChange.previousPressed) {
+                        pointerInputChange.consume()
+                    }
                 },
                 onDrag = { pointerInputChange ->
 
                     viewModel.updateMotionEvent(MotionEvent.Move)
                     viewModel.updateCurrentPosition(pointerInputChange.position)
 
-                    if (pointerInputChange.positionChange() != Offset.Zero) pointerInputChange.consume()
+                    if (pointerInputChange.positionChange() != Offset.Zero) {
+                        pointerInputChange.consume()
+                    }
 
                 },
                 onDragEnd = { pointerInputChange ->
                     viewModel.updateMotionEvent(MotionEvent.Up)
-                    if (pointerInputChange.pressed != pointerInputChange.previousPressed) pointerInputChange.consume()
+                    if (pointerInputChange.pressed != pointerInputChange.previousPressed) {
+                        pointerInputChange.consume()
+                    }
                 }
             )
 
@@ -120,6 +130,7 @@ fun Playground(
         CapturableWrapper(
             content = {
                 Canvas(modifier = drawModifier) {
+                    Log.d("CanvasPage", "canvas width: ${size.width}, height: ${size.height}")
                     when (motionEvent.value) {
                         MotionEvent.Down -> {
                             currentPath.value.moveTo(
@@ -147,19 +158,10 @@ fun Playground(
                                 currentPosition.value.y
                             )
 
-                            // Pointer is up save current path
-                            //                        paths[currentPath] = currentPathProperty
                             paths.add(Pair(currentPath.value, currentPathProperty.value))
-
-                            // Since paths are keys for map, use new one for each key
-                            // and have separate path for each down-move-up gesture cycle
 
                             viewModel.updateCurrentPath(Path())
 
-
-                            // Create new instance of path properties to have new path and properties
-                            // only for the one currently being drawn
-                            // Should update the stroke width & color here!
                             viewModel.updateCurrentPathProperty(
                                 PathProperties(
                                     strokeWidth = currentPathProperty.value.strokeWidth,
@@ -170,12 +172,8 @@ fun Playground(
                                 )
                             )
 
-
-                            // Since new path is drawn no need to store paths to undone
                             pathsUndone.clear()
 
-                            // If we leave this state at MotionEvent.Up it causes current path to draw
-                            // line from (0,0) if this composable recomposes when draw mode is changed
                             viewModel.updatePreviousPosition(currentPosition.value)
                             viewModel.updateCurrentPosition(Offset.Unspecified)
                             viewModel.updateMotionEvent(MotionEvent.Idle)
@@ -193,54 +191,46 @@ fun Playground(
 
                             val path = it.first
                             val property = it.second
+                            val style = Stroke(
+                                width = property.strokeWidth,
+                                cap = property.strokeCap,
+                                join = property.strokeJoin
+                            )
 
-                            if (!property.eraseMode) {
-                                drawPath(
-                                    color = property.color,
-                                    path = path,
-                                    style = Stroke(
-                                        width = property.strokeWidth,
-                                        cap = property.strokeCap,
-                                        join = property.strokeJoin
-                                    )
-                                )
-                            } else {
-
-                                // Source
+                            if (property.eraseMode) {
                                 drawPath(
                                     color = Color.Transparent,
                                     path = path,
-                                    style = Stroke(
-                                        width = currentPathProperty.value.strokeWidth,
-                                        cap = currentPathProperty.value.strokeCap,
-                                        join = currentPathProperty.value.strokeJoin
-                                    ),
+                                    style = style,
                                     blendMode = BlendMode.Clear
+                                )
+                            } else {
+                                drawPath(
+                                    color = property.color,
+                                    path = path,
+                                    style = style
                                 )
                             }
                         }
 
                         if (motionEvent.value != MotionEvent.Idle) {
-                            if (!currentPathProperty.value.eraseMode) {
-                                drawPath(
-                                    color = currentPathProperty.value.color,
-                                    path = currentPath.value,
-                                    style = Stroke(
-                                        width = currentPathProperty.value.strokeWidth,
-                                        cap = currentPathProperty.value.strokeCap,
-                                        join = currentPathProperty.value.strokeJoin
-                                    )
-                                )
-                            } else {
+                            val style = Stroke(
+                                width = currentPathProperty.value.strokeWidth,
+                                cap = currentPathProperty.value.strokeCap,
+                                join = currentPathProperty.value.strokeJoin
+                            )
+                            if (currentPathProperty.value.eraseMode) {
                                 drawPath(
                                     color = Color.Transparent,
                                     path = currentPath.value,
-                                    style = Stroke(
-                                        width = currentPathProperty.value.strokeWidth,
-                                        cap = currentPathProperty.value.strokeCap,
-                                        join = currentPathProperty.value.strokeJoin
-                                    ),
+                                    style = style,
                                     blendMode = BlendMode.Clear
+                                )
+                            } else {
+                                drawPath(
+                                    color = currentPathProperty.value.color,
+                                    path = currentPath.value,
+                                    style = style
                                 )
                             }
                         }
@@ -250,65 +240,5 @@ fun Playground(
             },
             captureController = captureController
         )
-
     }
 }
-
-@Composable
-fun CapturableWrapper(
-    content: @Composable () -> Unit,
-    captureController: CaptureController
-) {
-    val context = LocalContext.current
-
-    Capturable(
-        modifier = Modifier.fillMaxSize(),
-        controller = captureController,
-        onCaptured = { bitmap, error ->
-            if (bitmap != null) {
-                Log.d("CanvasPage", "Bitmap is captured successfully.")
-                val dataAsBitmap = bitmap.asAndroidBitmap()
-                try {
-                    val uri = saveImage(dataAsBitmap, context)
-                    Log.d("CanvasPage", "Bitmap is saved successfully to $uri.")
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Log.d("CanvasPage", "Error occurred while saving bitmap.")
-                }
-            }
-
-            if (error != null) {
-                Log.d("CanvasPage", "Error occurred while capturing bitmap.")
-            }
-        }
-    ) {
-        content() // Render the content defined by the lambda
-    }
-}
-
-fun saveImage(image: Bitmap, context: Context): Uri? {
-    val timeStamp = getCurrentDateTimeString()
-    val name = "$timeStamp.jpg"
-
-    // Get the directory for storing files in external storage
-    val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-
-    if (directory != null) {
-        val pictureFile = File(directory, name)
-
-        return try {
-            val fos = FileOutputStream(pictureFile)
-            image.compress(Bitmap.CompressFormat.JPEG, 90, fos)
-            fos.close()
-            pictureFile.toUri()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    } else {
-        Log.e("CanvasPage", "no directory.")
-        // Handle the case where the external storage directory is not available
-        return null
-    }
-}
-
