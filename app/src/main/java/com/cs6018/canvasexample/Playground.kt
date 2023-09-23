@@ -100,10 +100,6 @@ fun Playground(
                         image = baseImageBitmap,
                         topLeft = Offset.Zero,
                     )
-                    Log.d(
-                        "CanvasPage",
-                        "image width ${baseImageBitmap.width}, height ${baseImageBitmap.height}"
-                    )
                     Log.d("CanvasPage", "draw behind $backgroundImageUri")
                 } else {
                     drawRect(

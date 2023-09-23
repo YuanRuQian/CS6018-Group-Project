@@ -41,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -118,14 +117,7 @@ fun DrawingCard(drawingInfo: DrawingInfo, onClick: () -> Unit) {
                 )
             }
             // TODO: replace placeholder with the actual preview
-            if (drawingInfo.thumbnail == null) {
-                Image(
-                    painter = painterResource(id = R.drawable.placeholder),
-                    contentDescription = "placeholder",
-                    modifier = Modifier
-                        .size(100.dp)
-                )
-            } else {
+            if (drawingInfo.thumbnail != null) {
                 val thumbnail = BitmapFactory
                     .decodeByteArray(drawingInfo.thumbnail, 0, drawingInfo.thumbnail!!.size);
                 Image(
@@ -139,12 +131,6 @@ fun DrawingCard(drawingInfo: DrawingInfo, onClick: () -> Unit) {
     }
 }
 
-
-@Composable
-fun formatDate(date: Date): String {
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    return dateFormat.format(date)
-}
 
 // TODO: when get back / first landing, scroll to top
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

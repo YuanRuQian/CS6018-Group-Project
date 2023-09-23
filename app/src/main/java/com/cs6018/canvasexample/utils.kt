@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
-import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -15,51 +14,15 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-fun isImage(file: File): Boolean {
-    val imageExtensions = arrayOf(".jpg", ".jpeg", ".png", ".gif")
-    val fileName = file.name.lowercase()
-
-    for (extension in imageExtensions) {
-        if (fileName.endsWith(extension)) {
-            return true
-        }
-    }
-
-    return false
+fun formatDate(date: Date): String {
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    return dateFormat.format(date)
 }
 
 fun getCurrentDateTimeString(): String {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd_HHmm", Locale.getDefault())
     val currentTime = Date()
     return dateFormat.format(currentTime)
-}
-
-
-// TODO: get the proper URI of the image file
-fun getUriOfLastFile(context: Context): Uri? {
-    // Get the directory for storing files in external storage
-    val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-
-    if (directory != null && directory.exists() && directory.isDirectory) {
-        // List all files in the directory
-        val files = directory.listFiles()
-
-        if (files == null || files.isEmpty()) {
-            Log.d("CanvasPage", "No files found in the directory, please create an image first")
-            return null
-        }
-
-        if (isImage(files[files.size - 1])) {
-            return FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.provider",
-                files[files.size - 1]
-            )
-        }
-
-    }
-
-    return null
 }
 
 fun saveImage(bitmap: Bitmap, context: Context): String? {
