@@ -1,10 +1,8 @@
 package com.cs6018.canvasexample
 
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Environment
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +27,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -36,16 +36,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
-import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import dev.shreyaspatil.capturable.controller.CaptureController
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -75,10 +74,12 @@ fun BottomAppBarItem(
 
 @Composable
 fun BottomAppBarContent(
+    drawingInfoViewModel: DrawingInfoViewModel,
     pathPropertiesViewModel: PathPropertiesViewModel,
     navController: NavController,
     snackbarHostState: SnackbarHostState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    captureController: CaptureController
 ) {
     val context = LocalContext.current
     BottomAppBar(
@@ -130,7 +131,14 @@ fun BottomAppBarContent(
                     buttonText = "Share",
                     onClick = {
                         scope.launch {
-                            val uriToImage = getUriOfFirstImageInDirectory(context)
+                            // TODO: delete the current image after sharing or use caching
+                            captureController.capture()
+                            val uriToImage = drawingInfoViewModel.getActiveDrawingInfoImagePath()
+                            if (uriToImage == null) {
+                                Toast.makeText(context, "Image capture failed, please try again", Toast.LENGTH_LONG).show()
+                                Log.d("CanvasPage", "No image found, please create an image first")
+                                return@launch
+                            }
                             val shareIntent: Intent = Intent().apply {
                                 action = Intent.ACTION_SEND
                                 putExtra(Intent.EXTRA_STREAM, uriToImage)
@@ -147,48 +155,21 @@ fun BottomAppBarContent(
     )
 }
 
-
-// TODO: get the proper URI of the image file
-fun getUriOfFirstImageInDirectory(context: Context): Uri? {
-    // Get the directory for storing files in external storage
-    val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-
-    if (directory != null && directory.exists() && directory.isDirectory) {
-        // List all files in the directory
-        val files = directory.listFiles()
-
-        if (files == null || files.isEmpty()) {
-            Log.d("CanvasPage", "No files found in the directory, please create an image first")
-            return null
-        }
-
-        // Loop through the files to find the first image (you can adjust this logic as needed)
-        for (file in files) {
-            if (isImage(file)) {
-                // Generate a content:// URI using FileProvider
-                return FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.provider",
-                    file
-                )
-            }
-        }
-    }
-
-    // If no image is found, return null
-    return null
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CanvasPage(
     navController: NavHostController,
-    pathPropertiesViewModel: PathPropertiesViewModel
+    pathPropertiesViewModel: PathPropertiesViewModel,
+    drawingInfoViewModel: DrawingInfoViewModel
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     val captureController = rememberCaptureController()
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    val activeDrawingInfo by drawingInfoViewModel.activeDrawingInfo.observeAsState()
 
     Scaffold(
         // Add a top title bar
@@ -196,16 +177,17 @@ fun CanvasPage(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Canvas",
+                        text = activeDrawingInfo?.drawingTitle ?: "Untitled",
                     )
                 },
 
-                // Back Button
+
                 navigationIcon = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
                             navController.popBackStack()
+                            drawingInfoViewModel.setActiveDrawingInfoId(null)
                         }
 
                     ) {
@@ -217,14 +199,26 @@ fun CanvasPage(
                     }
                 },
 
-                // Save Button
+
                 actions = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
-                            // TODO: Handle Save Button. Save files and go back to the list view
-                            navController.popBackStack()
-                            captureController.capture()
+                            coroutineScope.launch {
+                                // TODO: Handle Save Button. Save files and go back to the list view
+                                captureController.capture()
+                                // TODO: find some way to singal the capture is done instead of using delay
+                                delay(200)
+                                val savedImagePath = drawingInfoViewModel.addDrawingInfoWithRecentCapturedImage(context)
+                                Toast.makeText(
+                                    context,
+                                    "Your drawing is successfully saved!",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                Log.d("CanvasPage", "Image saved to $savedImagePath")
+                                drawingInfoViewModel.setActiveDrawingInfoId(null)
+                                navController.popBackStack()
+                            }
                         }
 
                     ) {
@@ -247,10 +241,12 @@ fun CanvasPage(
         },
         bottomBar = {
             BottomAppBarContent(
+                drawingInfoViewModel,
                 pathPropertiesViewModel,
                 navController,
                 snackbarHostState,
-                scope
+                scope,
+                captureController
             )
         },
         snackbarHost = {
@@ -264,17 +260,9 @@ fun CanvasPage(
             }
         },
         content = {
-            Playground(pathPropertiesViewModel, it, captureController)
+            Playground(pathPropertiesViewModel, it, captureController, drawingInfoViewModel)
         }
     )
 }
 
-// Preview the Canvas UI
-@Preview
-@Composable
-fun CanvasPagePreview() {
-    CanvasPage(
-        navController = rememberNavController(),
-        pathPropertiesViewModel = PathPropertiesViewModel()
-    )
-}
+// TODO: add preview for CanvasPage

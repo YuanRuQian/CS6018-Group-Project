@@ -6,9 +6,9 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
-import android.widget.Toast.LENGTH_LONG
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -62,11 +62,12 @@ fun getUriOfLastFile(context: Context): Uri? {
     return null
 }
 
-fun saveImage(bitmap: Bitmap, context: Context) {
+fun saveImage(bitmap: Bitmap, context: Context): String? {
     try {
+        val imageFileName = "${getCurrentDateTimeString()}.jpg"
         val imageFile = File(
             context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-            "${getCurrentDateTimeString()}.jpg"
+            imageFileName
         )
 
         val outputStream = FileOutputStream(imageFile)
@@ -75,11 +76,50 @@ fun saveImage(bitmap: Bitmap, context: Context) {
         outputStream.flush()
         outputStream.close()
 
-        Log.d("CanvasPage", "Image saved to ${imageFile.toUri()}")
-        Toast.makeText(context, "Image saved to ${imageFile.toUri()}", LENGTH_LONG).show()
+        val imageUri = imageFile.toUri().toString() // Convert the URI to a string
+
+        Log.d("CanvasPage", "Image saved to $imageUri")
+        Toast.makeText(context, "Image saved to $imageUri", Toast.LENGTH_LONG).show()
+
+        return imageUri // Return the saved image's URI as a string
     } catch (e: Exception) {
         e.printStackTrace()
         Log.e("CanvasPage", "Error occurred while saving image: ${e.message}")
-        Toast.makeText(context, "Error occurred while saving image: ${e.message}", LENGTH_LONG).show()
+        Toast.makeText(context, "Error occurred while saving image: ${e.message}", Toast.LENGTH_LONG).show()
     }
+
+    return null // Return null in case of an error
+}
+
+
+fun saveImageToFilePath(bitmap: Bitmap, context: Context, filePath: String): String? {
+    try {
+        val imageFile = File(filePath)
+
+        val outputStream = FileOutputStream(imageFile)
+        val quality = 100
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+        outputStream.flush()
+        outputStream.close()
+
+        val imageUri = imageFile.toUri().toString() // Convert the URI to a string
+
+        Log.d("CanvasPage", "Image saved to $imageUri")
+        Toast.makeText(context, "Image saved to $imageUri", Toast.LENGTH_LONG).show()
+
+        return imageUri // Return the saved image's URI as a string
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Log.e("CanvasPage", "Error occurred while saving image: ${e.message}")
+        Toast.makeText(context, "Error occurred while saving image: ${e.message}", Toast.LENGTH_LONG).show()
+    }
+
+    return null // Return null in case of an error
+}
+
+
+fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+    val outputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream) // Compress as PNG or JPEG based on your preference
+    return outputStream.toByteArray()
 }

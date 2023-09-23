@@ -52,7 +52,13 @@ fun Navigation(
     // TODO: change startDestination to change the starting screen
     NavHost(navController = navController, startDestination = "drawingList") {
         // TODO: Pass in the whole viewModel is a bad practice, but if not passing in the whole viewModel, then we need to pass in a ton of variable and functions
-        composable("canvasPage") { CanvasPage(navController, pathPropertiesViewModel) }
+        composable("canvasPage") {
+            CanvasPage(
+                navController,
+                pathPropertiesViewModel,
+                drawingInfoViewModel
+            )
+        }
         composable("penCustomizer") {
             PenCustomizer(
                 hexColorCodeString,

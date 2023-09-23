@@ -1,6 +1,7 @@
 package com.cs6018.canvasexample
 
 import android.annotation.SuppressLint
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -38,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -52,7 +54,8 @@ import java.util.Locale
 fun DrawingList(
     navController: NavHostController,
     dataList: List<DrawingInfo>?,
-    state: LazyListState
+    state: LazyListState,
+    drawingInfoViewModel: DrawingInfoViewModel
 ) {
 
     if (dataList == null) {
@@ -69,6 +72,7 @@ fun DrawingList(
             it.id
         }) { drawingInfo ->
             DrawingCard(drawingInfo) {
+                drawingInfoViewModel.setActiveDrawingInfoId(drawingInfo.id)
                 navController.navigate("canvasPage")
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -108,12 +112,23 @@ fun DrawingCard(drawingInfo: DrawingInfo, onClick: () -> Unit) {
                 )
             }
             // TODO: replace placeholder with the actual preview
-            Image(
-                painter = painterResource(id = R.drawable.placeholder),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(100.dp)
-            )
+            if (drawingInfo.thumbnail == null) {
+                Image(
+                    painter = painterResource(id = R.drawable.placeholder),
+                    contentDescription = "placeholder",
+                    modifier = Modifier
+                        .size(100.dp)
+                )
+            } else {
+                val thumbnail = BitmapFactory
+                    .decodeByteArray(drawingInfo.thumbnail, 0, drawingInfo.thumbnail!!.size);
+                Image(
+                    bitmap = thumbnail.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(100.dp)
+                )
+            }
         }
     }
 }
@@ -178,6 +193,7 @@ fun DrawingListScreen(
                     FloatingActionButton(
                         modifier = Modifier.padding(end = 16.dp),
                         onClick = {
+                            drawingInfoViewModel.setActiveDrawingInfoId(null)
                             coroutineScope.launch {
                                 // Add a small delay for better UX
                                 delay(100)
@@ -201,7 +217,7 @@ fun DrawingListScreen(
                 .fillMaxSize()
                 .padding(top = 56.dp, bottom = 56.dp)
         ) {
-            DrawingList(navController, dataList, state)
+            DrawingList(navController, dataList, state, drawingInfoViewModel)
         }
     }
 }

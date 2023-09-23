@@ -24,6 +24,7 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.net.toUri
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -33,7 +34,8 @@ import dev.shreyaspatil.capturable.controller.CaptureController
 fun Playground(
     viewModel: PathPropertiesViewModel,
     paddingValues: PaddingValues,
-    captureController: CaptureController
+    captureController: CaptureController,
+    drawingInfoViewModel: DrawingInfoViewModel
 ) {
     val paths = viewModel.paths
 
@@ -49,7 +51,7 @@ fun Playground(
 
     val currentPathProperty = viewModel.currentPathProperty
 
-    val backgroundImageUri = getUriOfLastFile(LocalContext.current)
+    val backgroundImageUri = drawingInfoViewModel.getActiveDrawingInfoImagePath()?.toUri()
 
     val basePainter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
@@ -84,7 +86,10 @@ fun Playground(
                         image = baseImageBitmap,
                         topLeft = Offset.Zero,
                     )
-                    Log.d("CanvasPage", "image width ${baseImageBitmap.width}, height ${baseImageBitmap.height}")
+                    Log.d(
+                        "CanvasPage",
+                        "image width ${baseImageBitmap.width}, height ${baseImageBitmap.height}"
+                    )
                     Log.d("CanvasPage", "draw behind $backgroundImageUri")
                 } else {
                     drawRect(
@@ -240,7 +245,8 @@ fun Playground(
                     }
                 }
             },
-            captureController = captureController
+            captureController = captureController,
+            drawingInfoViewModel = drawingInfoViewModel
         )
     }
 }
