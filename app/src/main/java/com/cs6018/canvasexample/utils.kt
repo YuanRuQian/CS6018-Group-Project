@@ -92,9 +92,11 @@ fun saveImage(bitmap: Bitmap, context: Context): String? {
 }
 
 
-fun saveImageToFilePath(bitmap: Bitmap, context: Context, filePath: String): String? {
+fun overwriteCurrentImageFile(bitmap: Bitmap, context: Context, filePath: String): String? {
+    Log.d("CanvasPage", "Overwriting the current image file at $filePath")
     try {
-        val imageFile = File(filePath)
+        val imageUri = Uri.parse(filePath)
+        val imageFile = imageUri.path?.let { File(it) }
 
         val outputStream = FileOutputStream(imageFile)
         val quality = 100
@@ -102,12 +104,10 @@ fun saveImageToFilePath(bitmap: Bitmap, context: Context, filePath: String): Str
         outputStream.flush()
         outputStream.close()
 
-        val imageUri = imageFile.toUri().toString() // Convert the URI to a string
-
         Log.d("CanvasPage", "Image saved to $imageUri")
         Toast.makeText(context, "Image saved to $imageUri", Toast.LENGTH_LONG).show()
 
-        return imageUri // Return the saved image's URI as a string
+        return imageUri.toString()
     } catch (e: Exception) {
         e.printStackTrace()
         Log.e("CanvasPage", "Error occurred while saving image: ${e.message}")

@@ -2,6 +2,7 @@ package com.cs6018.canvasexample
 
 import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -62,6 +63,8 @@ fun DrawingList(
         return
     }
 
+    val scope = rememberCoroutineScope()
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -72,7 +75,10 @@ fun DrawingList(
             it.id
         }) { drawingInfo ->
             DrawingCard(drawingInfo) {
-                drawingInfoViewModel.setActiveDrawingInfoId(drawingInfo.id)
+                Log.d("DrawingList", "Clicked on drawing ${drawingInfo.id}")
+                scope.launch {
+                    drawingInfoViewModel.setActiveDrawingInfoById(drawingInfo.id)
+                }
                 navController.navigate("canvasPage")
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -193,8 +199,8 @@ fun DrawingListScreen(
                     FloatingActionButton(
                         modifier = Modifier.padding(end = 16.dp),
                         onClick = {
-                            drawingInfoViewModel.setActiveDrawingInfoId(null)
                             coroutineScope.launch {
+                                drawingInfoViewModel.setActiveDrawingInfoById(null)
                                 // Add a small delay for better UX
                                 delay(100)
                                 navController.navigate("canvasPage")

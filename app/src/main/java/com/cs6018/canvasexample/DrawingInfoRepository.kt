@@ -1,22 +1,18 @@
 package com.cs6018.canvasexample
 
-import androidx.lifecycle.LiveData
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 
 class DrawingInfoRepository(private val scope: CoroutineScope, private val dao: DrawingInfoDAO) {
 
-    private var activeDrawingInfoId: LiveData<Int?> = MutableLiveData(null)
-
-    // Function to set the active drawing info ID
-    fun setActiveDrawingInfoId(id: Int?) {
-        activeDrawingInfoId = MutableLiveData(id)
-    }
-
-    val activeDrawingInfo = dao.activeDrawingInfo(activeDrawingInfoId.value ?: 0).asLiveData()
+    var activeDrawingInfo: MutableLiveData<DrawingInfo?> = MutableLiveData(null)
 
     val allDrawingInfo = dao.allDrawingInfo().asLiveData()
     fun addNewDrawingInfo(drawingInfo: DrawingInfo) {
@@ -28,6 +24,16 @@ class DrawingInfoRepository(private val scope: CoroutineScope, private val dao: 
     fun updateDrawingInfoThumbnail(bitmapToByteArray: ByteArray, id: Int) {
         scope.launch {
             dao.updateDrawingInfoThumbnailAndLastModifiedTimeWithId(bitmapToByteArray, Date() ,id)
+        }
+    }
+
+
+    suspend fun setActiveDrawingInfoById(i: Int) {
+        withContext(Dispatchers.IO) {
+            Log.d("DrawingInfoRepository", "setActiveDrawingInfoById($i)")
+            val newActiveDrawingInfo = dao.fetchDrawingInfoWithId(i).firstOrNull()
+            activeDrawingInfo.postValue(newActiveDrawingInfo)
+            Log.d("DrawingInfoRepository", "activeDrawingInfo is set to ${activeDrawingInfo.value?.imagePath}")
         }
     }
 }

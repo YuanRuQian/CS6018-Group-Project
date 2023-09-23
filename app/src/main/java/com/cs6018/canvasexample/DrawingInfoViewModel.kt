@@ -13,14 +13,14 @@ import java.util.Date
 
 class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : ViewModel() {
 
-    val activeCapturedImage: LiveData<Bitmap?> = MutableLiveData(null)
+    var activeDrawingInfo: LiveData<DrawingInfo?> = repository.activeDrawingInfo
+
+    private val activeCapturedImage: LiveData<Bitmap?> = MutableLiveData(null)
 
     val allDrawingInfo: LiveData<List<DrawingInfo>> = repository.allDrawingInfo
 
-    val activeDrawingInfo: LiveData<DrawingInfo?> = repository.activeDrawingInfo
-
-    fun setActiveDrawingInfoId(id: Int?) {
-        repository.setActiveDrawingInfoId(id)
+    suspend fun setActiveDrawingInfoById(id: Int?) {
+        repository.setActiveDrawingInfoById(id ?: 0)
     }
 
     private fun addDrawingInfo(title: String, imageUrl: String?, thumbnail: ByteArray?) {
@@ -62,7 +62,7 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
         } else {
             // TODO: update the current drawing's title
             val imagePath =
-                saveImageToFilePath(bitmap, context, activeDrawingInfo.value?.imagePath ?: "")
+                overwriteCurrentImageFile(bitmap, context, activeDrawingInfo.value?.imagePath ?: "")
             if (imagePath == null) {
                 Log.d("DrawingInfoViewModel", "Image path is null.")
                 return null
@@ -78,6 +78,4 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
     private fun updateThumbnailForActiveDrawingInfo(thumbnail: ByteArray) {
         repository.updateDrawingInfoThumbnail(thumbnail, activeDrawingInfo.value?.id ?: 0)
     }
-
-
 }

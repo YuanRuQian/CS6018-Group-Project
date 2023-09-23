@@ -8,6 +8,8 @@ import java.util.Date
 
 @Dao
 interface DrawingInfoDAO {
+
+
     @Insert
     suspend fun addDrawingInfo(data: DrawingInfo)
 
@@ -15,7 +17,7 @@ interface DrawingInfoDAO {
     fun allDrawingInfo(): Flow<List<DrawingInfo>>
 
     @Query("SELECT * FROM drawing_info WHERE id = :id")
-    fun activeDrawingInfo(id: Int): Flow<DrawingInfo?>
+    fun fetchDrawingInfoWithId(id: Int): Flow<DrawingInfo?>
 
     @Query("UPDATE drawing_info SET thumbnail = :thumbnailByteArray, lastModifiedDate = :lastModifiedTime WHERE id = :id")
     suspend fun updateDrawingInfoThumbnailAndLastModifiedTimeWithId(

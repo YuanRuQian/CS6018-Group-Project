@@ -10,8 +10,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.CanvasExample"
-        >
+        android:theme="@style/Theme.CanvasExample">
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

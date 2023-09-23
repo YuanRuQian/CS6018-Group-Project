@@ -1,8 +1,10 @@
 package com.cs6018.canvasexample
 
+import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -135,7 +137,11 @@ fun BottomAppBarContent(
                             captureController.capture()
                             val uriToImage = drawingInfoViewModel.getActiveDrawingInfoImagePath()
                             if (uriToImage == null) {
-                                Toast.makeText(context, "Image capture failed, please try again", Toast.LENGTH_LONG).show()
+                                Toast.makeText(
+                                    context,
+                                    "Image capture failed, please try again",
+                                    Toast.LENGTH_LONG
+                                ).show()
                                 Log.d("CanvasPage", "No image found, please create an image first")
                                 return@launch
                             }
@@ -155,6 +161,17 @@ fun BottomAppBarContent(
     )
 }
 
+fun customBackNavigation(
+    navController: NavController,
+    scope: CoroutineScope,
+    drawingInfoViewModel: DrawingInfoViewModel
+) {
+    navController.popBackStack()
+    scope.launch {
+        drawingInfoViewModel.setActiveDrawingInfoById(null)
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CanvasPage(
@@ -171,6 +188,12 @@ fun CanvasPage(
 
     val activeDrawingInfo by drawingInfoViewModel.activeDrawingInfo.observeAsState()
 
+    Log.d("CanvasPage", "activeDrawingInfo | id: ${activeDrawingInfo?.id}")
+
+    BackHandler() {
+        customBackNavigation(navController, scope, drawingInfoViewModel)
+    }
+
     Scaffold(
         // Add a top title bar
         topBar = {
@@ -186,8 +209,7 @@ fun CanvasPage(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
-                            navController.popBackStack()
-                            drawingInfoViewModel.setActiveDrawingInfoId(null)
+                            customBackNavigation(navController, scope, drawingInfoViewModel)
                         }
 
                     ) {
@@ -204,21 +226,13 @@ fun CanvasPage(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
-                            coroutineScope.launch {
-                                // TODO: Handle Save Button. Save files and go back to the list view
-                                captureController.capture()
-                                // TODO: find some way to singal the capture is done instead of using delay
-                                delay(200)
-                                val savedImagePath = drawingInfoViewModel.addDrawingInfoWithRecentCapturedImage(context)
-                                Toast.makeText(
-                                    context,
-                                    "Your drawing is successfully saved!",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                Log.d("CanvasPage", "Image saved to $savedImagePath")
-                                drawingInfoViewModel.setActiveDrawingInfoId(null)
-                                navController.popBackStack()
-                            }
+                            saveCurrentDrawing(
+                                drawingInfoViewModel,
+                                coroutineScope,
+                                context,
+                                captureController,
+                                navController
+                            )
                         }
 
                     ) {
@@ -263,6 +277,30 @@ fun CanvasPage(
             Playground(pathPropertiesViewModel, it, captureController, drawingInfoViewModel)
         }
     )
+}
+
+fun saveCurrentDrawing(
+    drawingInfoViewModel: DrawingInfoViewModel,
+    coroutineScope: CoroutineScope,
+    context: Context,
+    captureController: CaptureController,
+    navController: NavController
+) {
+    coroutineScope.launch {
+        // TODO: Handle Save Button. Save files and go back to the list view
+        captureController.capture()
+        // TODO: find some way to singal the capture is done instead of using delay
+        delay(200)
+        val savedImagePath = drawingInfoViewModel.addDrawingInfoWithRecentCapturedImage(context)
+        Toast.makeText(
+            context,
+            "Your drawing is successfully saved!",
+            Toast.LENGTH_LONG
+        ).show()
+        Log.d("CanvasPage", "Image saved to $savedImagePath")
+        drawingInfoViewModel.setActiveDrawingInfoById(null)
+        navController.popBackStack()
+    }
 }
 
 // TODO: add preview for CanvasPage
