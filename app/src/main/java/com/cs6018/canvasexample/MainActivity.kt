@@ -3,6 +3,7 @@ package com.cs6018.canvasexample
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -10,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -20,13 +20,17 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val pathPropertiesViewModel: PathPropertiesViewModel by viewModels()
+        val drawingInfoViewModel: DrawingInfoViewModel by viewModels { DrawingInfoViewModelFactory((application as DrawingApplication).drawingInfoRepository) }
+
         setContent {
             CanvasExampleTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Navigation()
+                    Navigation(pathPropertiesViewModel, drawingInfoViewModel)
                 }
             }
         }
@@ -35,7 +39,10 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun Navigation(pathPropertiesViewModel: PathPropertiesViewModel = viewModel(), drawingInfoViewModel: DrawingInfoViewModel = viewModel()) {
+fun Navigation(
+    pathPropertiesViewModel: PathPropertiesViewModel,
+    drawingInfoViewModel: DrawingInfoViewModel
+) {
     val navController = rememberNavController()
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
     val currentPathProperty by pathPropertiesViewModel.currentPathProperty.collectAsState()
@@ -55,6 +62,11 @@ fun Navigation(pathPropertiesViewModel: PathPropertiesViewModel = viewModel(), d
                 controller
             )
         }
-        composable("drawingList") { DrawingListScreen(navController, drawingInfoViewModel.drawingInfoList, drawingInfoViewModel::addDrawingInfo) }
+        composable("drawingList") {
+            DrawingListScreen(
+                navController,
+                drawingInfoViewModel
+            )
+        }
     }
 }

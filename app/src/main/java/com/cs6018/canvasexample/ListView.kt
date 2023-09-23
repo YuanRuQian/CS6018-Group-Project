@@ -32,7 +32,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,11 +49,14 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun DrawingList(navController: NavHostController, dataList: List<DrawingInfo>, comparator: DrawingInfoComparator, state: LazyListState) {
+fun DrawingList(
+    navController: NavHostController,
+    dataList: List<DrawingInfo>?,
+    state: LazyListState
+) {
 
-    // Sort the data list by last modified date, so that the latest drawing is at the top of the list
-    val sortedDataList = remember(dataList, comparator) {
-        dataList.sortedWith(comparator)
+    if (dataList == null) {
+        return
     }
 
     LazyColumn(
@@ -61,7 +65,7 @@ fun DrawingList(navController: NavHostController, dataList: List<DrawingInfo>, c
             .padding(16.dp),
         state = state,
     ) {
-        items(sortedDataList, key = {
+        items(dataList, key = {
             it.id
         }) { drawingInfo ->
             DrawingCard(drawingInfo) {
@@ -127,15 +131,16 @@ fun formatDate(date: Date): String {
 @Composable
 fun DrawingListScreen(
     navController: NavHostController,
-    dataList: List<DrawingInfo>,
-    addNewDrawing: (drawingInfo: DrawingInfo) -> Unit
+    drawingInfoViewModel: DrawingInfoViewModel
 ) {
 
     val state = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
+    val dataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
+
     // Calculate the number of drawings
-    val numberOfDrawings = dataList.size
+    val numberOfDrawings = dataList?.size ?: 0
 
     // Scroll to top when the screen is first displayed or when returning from another screen
     DisposableEffect(Unit) {
@@ -173,14 +178,6 @@ fun DrawingListScreen(
                     FloatingActionButton(
                         modifier = Modifier.padding(end = 16.dp),
                         onClick = {
-                            addNewDrawing(
-                                DrawingInfo(
-                                    id = dataList.size,
-                                    lastModifiedDate = Date(),
-                                    createdDate = Date(),
-                                    drawingTitle = "Drawing ${dataList.size}"
-                                )
-                            )
                             coroutineScope.launch {
                                 // Add a small delay for better UX
                                 delay(100)
@@ -204,7 +201,7 @@ fun DrawingListScreen(
                 .fillMaxSize()
                 .padding(top = 56.dp, bottom = 56.dp)
         ) {
-            DrawingList(navController, dataList, DrawingInfoComparator(), state)
+            DrawingList(navController, dataList, state)
         }
     }
 }
