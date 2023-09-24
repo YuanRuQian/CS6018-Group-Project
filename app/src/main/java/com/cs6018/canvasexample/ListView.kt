@@ -46,9 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun DrawingList(
@@ -186,6 +183,7 @@ fun DrawingListScreen(
                         modifier = Modifier.padding(end = 16.dp),
                         onClick = {
                             coroutineScope.launch {
+                                drawingInfoViewModel.setActiveCapturedImage(null)
                                 drawingInfoViewModel.setActiveDrawingInfoById(null)
                                 // Add a small delay for better UX
                                 delay(100)

@@ -57,6 +57,19 @@ class PathPropertiesViewModel : ViewModel() {
     // Path that is being drawn between [MotionEvent.Down] and [MotionEvent.Up]
     val currentPath = mutableStateOf(Path())
 
+    fun reset() {
+        _hexColorCode.value = "#ffffff"
+        _currentPathProperty.value = PathProperties()
+        _eraseDrawToggleButtonIcon.value = EraseDrawToggleButtonIconEnum.DRAW_MODE_ICON
+        _eraseDrawToggleButtonText.value = EraseDrawToggleButtonTextEnum.DRAW_MODE_TEXT
+        paths.clear()
+        pathsUndone.clear()
+        motionEvent.value = MotionEvent.Idle
+        currentPosition.value = Offset.Unspecified
+        previousPosition.value = Offset.Unspecified
+        currentPath.value = Path()
+    }
+
     fun updateHexColorCode(newHexColorCode: String) {
         _hexColorCode.value = newHexColorCode
     }

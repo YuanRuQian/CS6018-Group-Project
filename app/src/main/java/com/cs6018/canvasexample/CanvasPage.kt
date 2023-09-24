@@ -74,6 +74,7 @@ fun BottomAppBarItem(
     }
 }
 
+
 @Composable
 fun BottomAppBarContent(
     drawingInfoViewModel: DrawingInfoViewModel,
@@ -132,28 +133,7 @@ fun BottomAppBarContent(
                     iconResource = R.drawable.share,
                     buttonText = "Share",
                     onClick = {
-                        scope.launch {
-                            // TODO: delete the current image after sharing or use caching
-                            captureController.capture()
-                            val uriToImage = drawingInfoViewModel.getActiveDrawingInfoImagePath()
-                            if (uriToImage == null) {
-                                Toast.makeText(
-                                    context,
-                                    "Image capture failed, please try again",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                Log.d("CanvasPage", "No image found, please create an image first")
-                                return@launch
-                            }
-                            val shareIntent: Intent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_STREAM, uriToImage)
-                                type = "image/jpeg"
-                            }
-                            val chooserIntent = Intent.createChooser(shareIntent, "Share Image")
-                            chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            startActivity(context, chooserIntent, null)
-                        }
+                        onShareClick(scope, context, captureController, drawingInfoViewModel)
                     }
                 )
             }
@@ -161,14 +141,48 @@ fun BottomAppBarContent(
     )
 }
 
+// capture the current screenshot and share it
+fun onShareClick(
+    scope: CoroutineScope,
+    context: Context,
+    captureController: CaptureController,
+    drawingInfoViewModel: DrawingInfoViewModel
+) {
+    scope.launch {
+        // TODO: delete the current image after sharing or use caching
+        captureController.capture()
+        val imageUri = drawingInfoViewModel.getActiveDrawingInfoImageUri()
+        if (imageUri == null) {
+            Toast.makeText(
+                context,
+                "Image capture failed, please try again",
+                Toast.LENGTH_LONG
+            ).show()
+            Log.d("CanvasPage", "No image found, please create an image first")
+            return@launch
+        }
+        val shareIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, imageUri)
+            type = "image/jpeg"
+        }
+        val chooserIntent = Intent.createChooser(shareIntent, "Share Image")
+        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        startActivity(context, chooserIntent, null)
+    }
+}
+
 fun customBackNavigation(
     navController: NavController,
     scope: CoroutineScope,
-    drawingInfoViewModel: DrawingInfoViewModel
+    drawingInfoViewModel: DrawingInfoViewModel,
+    pathPropertiesViewModel: PathPropertiesViewModel
 ) {
     navController.popBackStack()
+    pathPropertiesViewModel.reset()
     scope.launch {
         drawingInfoViewModel.setActiveDrawingInfoById(null)
+        drawingInfoViewModel.setActiveCapturedImage(null)
     }
 }
 
@@ -190,8 +204,8 @@ fun CanvasPage(
 
     Log.d("CanvasPage", "activeDrawingInfo | id: ${activeDrawingInfo?.id}")
 
-    BackHandler() {
-        customBackNavigation(navController, scope, drawingInfoViewModel)
+    BackHandler {
+        customBackNavigation(navController, scope, drawingInfoViewModel, pathPropertiesViewModel)
     }
 
     Scaffold(
@@ -209,7 +223,12 @@ fun CanvasPage(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
-                            customBackNavigation(navController, scope, drawingInfoViewModel)
+                            customBackNavigation(
+                                navController,
+                                scope,
+                                drawingInfoViewModel,
+                                pathPropertiesViewModel
+                            )
                         }
 
                     ) {
@@ -231,7 +250,8 @@ fun CanvasPage(
                                 coroutineScope,
                                 context,
                                 captureController,
-                                navController
+                                navController,
+                                pathPropertiesViewModel
                             )
                         }
 
@@ -284,7 +304,8 @@ fun saveCurrentDrawing(
     coroutineScope: CoroutineScope,
     context: Context,
     captureController: CaptureController,
-    navController: NavController
+    navController: NavController,
+    pathPropertiesViewModel: PathPropertiesViewModel
 ) {
     coroutineScope.launch {
         // TODO: Handle Save Button. Save files and go back to the list view
@@ -292,13 +313,10 @@ fun saveCurrentDrawing(
         // TODO: find some way to singal the capture is done instead of using delay
         delay(200)
         val savedImagePath = drawingInfoViewModel.addDrawingInfoWithRecentCapturedImage(context)
-        Toast.makeText(
-            context,
-            "Your drawing is successfully saved!",
-            Toast.LENGTH_LONG
-        ).show()
         Log.d("CanvasPage", "Image saved to $savedImagePath")
         drawingInfoViewModel.setActiveDrawingInfoById(null)
+        drawingInfoViewModel.setActiveCapturedImage(null)
+        pathPropertiesViewModel.reset()
         navController.popBackStack()
     }
 }
