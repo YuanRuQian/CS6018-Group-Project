@@ -24,22 +24,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
@@ -84,7 +79,6 @@ fun BottomAppBarContent(
     drawingInfoViewModel: DrawingInfoViewModel,
     pathPropertiesViewModel: PathPropertiesViewModel,
     navController: NavController,
-    snackbarHostState: SnackbarHostState,
     scope: CoroutineScope,
     captureController: CaptureController
 ) {
@@ -104,13 +98,19 @@ fun BottomAppBarContent(
                         val previousIsEraseMode = pathPropertiesViewModel.isEraseMode()
                         pathPropertiesViewModel.toggleDrawMode()
                         scope.launch {
-                            snackbarHostState.showSnackbar(
-                                if (previousIsEraseMode) {
-                                    "Draw Mode On! You could draw with the pen now."
-                                } else {
-                                    "Erase Mode On! You could erase with the eraser now."
-                                }
-                            )
+                            if (previousIsEraseMode) {
+                                Toast.makeText(
+                                    context,
+                                    "Draw Mode On! You could draw with the pen now.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Erase Mode On! You could erase with the eraser now.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
                 )
@@ -162,12 +162,17 @@ fun onShareClick(
 
         if (bitmap == null) {
             Log.e("CanvasPage", "Error occurred while sharing image: bitmap is null")
-            Toast.makeText(context, "Error occurred while sharing image: bitmap is null", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                "Error occurred while sharing image: bitmap is null",
+                Toast.LENGTH_LONG
+            ).show()
             return@launch
         }
 
         // Get the active drawing info's title
-        val activeDrawingInfoDrawingTitle = drawingInfoViewModel.activeDrawingInfo.value?.drawingTitle
+        val activeDrawingInfoDrawingTitle =
+            drawingInfoViewModel.activeDrawingInfo.value?.drawingTitle
 
         // Convert the bitmap to a temporary file and get its URI
         val uri = saveBitmapAsTemporaryImage(context, bitmap)
@@ -225,7 +230,6 @@ fun CanvasPage(
     pathPropertiesViewModel: PathPropertiesViewModel,
     drawingInfoViewModel: DrawingInfoViewModel
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     val captureController = rememberCaptureController()
@@ -310,20 +314,9 @@ fun CanvasPage(
                 drawingInfoViewModel,
                 pathPropertiesViewModel,
                 navController,
-                snackbarHostState,
                 scope,
                 captureController
             )
-        },
-        snackbarHost = {
-            SnackbarHost(snackbarHostState) { data ->
-                Snackbar(
-                    modifier = Modifier
-                        .padding(12.dp)
-                ) {
-                    Text(data.visuals.message, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                }
-            }
         },
         content = {
             Playground(pathPropertiesViewModel, it, captureController, drawingInfoViewModel)
