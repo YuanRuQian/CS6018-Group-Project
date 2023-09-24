@@ -113,10 +113,9 @@ fun DrawingCard(drawingInfo: DrawingInfo, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            // TODO: replace placeholder with the actual preview
             if (drawingInfo.thumbnail != null) {
                 val thumbnail = BitmapFactory
-                    .decodeByteArray(drawingInfo.thumbnail, 0, drawingInfo.thumbnail!!.size);
+                    .decodeByteArray(drawingInfo.thumbnail, 0, drawingInfo.thumbnail!!.size)
                 Image(
                     bitmap = thumbnail.asImageBitmap(),
                     contentDescription = null,

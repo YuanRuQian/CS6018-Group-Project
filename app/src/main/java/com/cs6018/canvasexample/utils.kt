@@ -15,12 +15,12 @@ import java.util.Date
 import java.util.Locale
 
 fun formatDate(date: Date): String {
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
     return dateFormat.format(date)
 }
 
 fun getCurrentDateTimeString(): String {
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd_HHmm", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd_HHmmss", Locale.getDefault())
     val currentTime = Date()
     return dateFormat.format(currentTime)
 }
@@ -86,3 +86,5 @@ fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream) // Compress as PNG or JPEG based on your preference
     return outputStream.toByteArray()
 }
+
+

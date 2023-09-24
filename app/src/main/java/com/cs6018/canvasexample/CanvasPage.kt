@@ -2,6 +2,8 @@ package com.cs6018.canvasexample
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -40,7 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import dev.shreyaspatil.capturable.controller.CaptureController
@@ -48,6 +50,8 @@ import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
 @Composable
 fun BottomAppBarItem(
@@ -141,7 +145,6 @@ fun BottomAppBarContent(
     )
 }
 
-// capture the current screenshot and share it
 fun onShareClick(
     scope: CoroutineScope,
     context: Context,
@@ -149,28 +152,57 @@ fun onShareClick(
     drawingInfoViewModel: DrawingInfoViewModel
 ) {
     scope.launch {
-        // TODO: delete the current image after sharing or use caching
+        // Capture the current screenshot
         captureController.capture()
-        val imageUri = drawingInfoViewModel.getActiveDrawingInfoImageUri()
-        if (imageUri == null) {
-            Toast.makeText(
-                context,
-                "Image capture failed, please try again",
-                Toast.LENGTH_LONG
-            ).show()
-            Log.d("CanvasPage", "No image found, please create an image first")
+
+        // TODO: find some way to singal the capture is done instead of using delay
+        delay(200)
+
+        val bitmap = drawingInfoViewModel.getActiveCapturedImage().value
+
+        if (bitmap == null) {
+            Log.e("CanvasPage", "Error occurred while sharing image: bitmap is null")
+            Toast.makeText(context, "Error occurred while sharing image: bitmap is null", Toast.LENGTH_LONG).show()
             return@launch
         }
+
+        // Get the active drawing info's title
+        val activeDrawingInfoDrawingTitle = drawingInfoViewModel.activeDrawingInfo.value?.drawingTitle
+
+        // Convert the bitmap to a temporary file and get its URI
+        val uri = saveBitmapAsTemporaryImage(context, bitmap)
+
+        // Create an Intent for sharing
         val shareIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_STREAM, imageUri)
+            putExtra(Intent.EXTRA_STREAM, uri)
             type = "image/jpeg"
         }
-        val chooserIntent = Intent.createChooser(shareIntent, "Share Image")
+
+        // Create a chooser dialog for sharing
+        val chooserIntent = Intent.createChooser(shareIntent, activeDrawingInfoDrawingTitle)
+
+        // Grant read URI permission to the receiving app
         chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        startActivity(context, chooserIntent, null)
+
+        // Start the sharing process
+        context.startActivity(chooserIntent)
     }
 }
+
+private fun saveBitmapAsTemporaryImage(context: Context, bitmap: Bitmap): Uri {
+    val cacheDir = context.cacheDir
+    val imageFile = File.createTempFile(getCurrentDateTimeString(), ".jpg", cacheDir)
+
+    val outputStream = FileOutputStream(imageFile)
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+    outputStream.flush()
+    outputStream.close()
+
+    Log.d("CanvasPage", "authority: ${context.packageName + ".provider"}")
+    return FileProvider.getUriForFile(context, context.packageName + ".provider", imageFile)
+}
+
 
 fun customBackNavigation(
     navController: NavController,
@@ -308,7 +340,6 @@ fun saveCurrentDrawing(
     pathPropertiesViewModel: PathPropertiesViewModel
 ) {
     coroutineScope.launch {
-        // TODO: Handle Save Button. Save files and go back to the list view
         captureController.capture()
         // TODO: find some way to singal the capture is done instead of using delay
         delay(200)

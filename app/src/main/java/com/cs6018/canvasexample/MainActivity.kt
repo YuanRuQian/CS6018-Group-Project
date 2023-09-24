@@ -10,7 +10,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,7 +47,6 @@ fun Navigation(
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
     val currentPathProperty by pathPropertiesViewModel.currentPathProperty.collectAsState()
     val controller = rememberColorPickerController()
-    val activeDrawingInfo by drawingInfoViewModel.activeDrawingInfo.observeAsState()
 
 
     // TODO: change startDestination to change the starting screen

@@ -6,7 +6,7 @@ import kotlinx.coroutines.SupervisorJob
 
 class DrawingApplication : Application() {
 
-    val scope = CoroutineScope(SupervisorJob())
-    val db by lazy { DrawingInfoDatabase.getDatabase(applicationContext) }
+    private val scope = CoroutineScope(SupervisorJob())
+    private val db by lazy { DrawingInfoDatabase.getDatabase(applicationContext) }
     val drawingInfoRepository by lazy { DrawingInfoRepository(scope, db.drawingInfoDao()) }
 }

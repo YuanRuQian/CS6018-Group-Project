@@ -4,7 +4,6 @@ package com.cs6018.canvasexample
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.ThumbnailUtils
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,6 +18,10 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
     private val activeCapturedImage: LiveData<Bitmap?> = MutableLiveData(null)
 
     val allDrawingInfo: LiveData<List<DrawingInfo>> = repository.allDrawingInfo
+
+    fun getActiveCapturedImage(): LiveData<Bitmap?> {
+        return activeCapturedImage
+    }
 
     suspend fun setActiveDrawingInfoById(id: Int?) {
         repository.setActiveDrawingInfoById(id ?: 0)
@@ -76,8 +79,4 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
         repository.updateDrawingInfoThumbnail(thumbnail, activeDrawingInfo.value?.id ?: 0)
     }
 
-    fun getActiveDrawingInfoImageUri(): Uri? {
-        val imagePath = activeDrawingInfo.value?.imagePath ?: return null
-        return Uri.parse(imagePath)
-    }
 }
