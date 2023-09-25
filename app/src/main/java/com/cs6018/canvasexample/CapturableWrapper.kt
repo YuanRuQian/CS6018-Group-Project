@@ -1,6 +1,7 @@
 package com.cs6018.canvasexample
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -12,6 +13,7 @@ import dev.shreyaspatil.capturable.controller.CaptureController
 
 @Composable
 fun CapturableWrapper(
+    drawingInfoViewModel: DrawingInfoViewModel,
     content: @Composable () -> Unit,
     captureController: CaptureController
 ) {
@@ -27,14 +29,20 @@ fun CapturableWrapper(
                 Log.d("CanvasPage", "Bitmap is captured successfully.")
                 val dataAsBitmap = bitmap.asAndroidBitmap()
                 try {
-                    saveImage(dataAsBitmap, context)
+                    drawingInfoViewModel.setActiveCapturedImage(dataAsBitmap)
                 } catch (e: Exception) {
                     e.printStackTrace()
+                    Toast.makeText(context, "Error occurred while saving bitmap.",
+                        Toast.LENGTH_LONG
+                    ).show()
                     Log.d("CanvasPage", "Error occurred while saving bitmap.")
                 }
             }
 
             if (error != null) {
+                Toast.makeText(context, "Error occurred while capturing bitmap.",
+                    Toast.LENGTH_LONG
+                ).show()
                 Log.d("CanvasPage", "Error occurred while capturing bitmap.")
             }
         }

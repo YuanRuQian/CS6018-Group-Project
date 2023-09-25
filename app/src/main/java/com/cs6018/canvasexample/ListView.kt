@@ -1,6 +1,8 @@
 package com.cs6018.canvasexample
 
 import android.annotation.SuppressLint
+import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,28 +34,32 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
-fun DrawingList(navController: NavHostController, dataList: List<DrawingInfo>, comparator: DrawingInfoComparator, state: LazyListState) {
+fun DrawingList(
+    navController: NavHostController,
+    dataList: List<DrawingInfo>?,
+    state: LazyListState,
+    drawingInfoViewModel: DrawingInfoViewModel
+) {
 
-    // Sort the data list by last modified date, so that the latest drawing is at the top of the list
-    val sortedDataList = remember(dataList, comparator) {
-        dataList.sortedWith(comparator)
+    if (dataList == null) {
+        return
     }
+
+    val scope = rememberCoroutineScope()
 
     LazyColumn(
         modifier = Modifier
@@ -61,10 +67,14 @@ fun DrawingList(navController: NavHostController, dataList: List<DrawingInfo>, c
             .padding(16.dp),
         state = state,
     ) {
-        items(sortedDataList, key = {
+        items(dataList, key = {
             it.id
         }) { drawingInfo ->
             DrawingCard(drawingInfo) {
+                Log.d("DrawingList", "Clicked on drawing ${drawingInfo.id}")
+                scope.launch {
+                    drawingInfoViewModel.setActiveDrawingInfoById(drawingInfo.id)
+                }
                 navController.navigate("canvasPage")
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -103,23 +113,20 @@ fun DrawingCard(drawingInfo: DrawingInfo, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            // TODO: replace placeholder with the actual preview
-            Image(
-                painter = painterResource(id = R.drawable.placeholder),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(100.dp)
-            )
+            if (drawingInfo.thumbnail != null) {
+                val thumbnail = BitmapFactory
+                    .decodeByteArray(drawingInfo.thumbnail, 0, drawingInfo.thumbnail!!.size)
+                Image(
+                    bitmap = thumbnail.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(100.dp)
+                )
+            }
         }
     }
 }
 
-
-@Composable
-fun formatDate(date: Date): String {
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    return dateFormat.format(date)
-}
 
 // TODO: when get back / first landing, scroll to top
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -127,15 +134,16 @@ fun formatDate(date: Date): String {
 @Composable
 fun DrawingListScreen(
     navController: NavHostController,
-    dataList: List<DrawingInfo>,
-    addNewDrawing: (drawingInfo: DrawingInfo) -> Unit
+    drawingInfoViewModel: DrawingInfoViewModel
 ) {
 
     val state = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
+    val dataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
+
     // Calculate the number of drawings
-    val numberOfDrawings = dataList.size
+    val numberOfDrawings = dataList?.size ?: 0
 
     // Scroll to top when the screen is first displayed or when returning from another screen
     DisposableEffect(Unit) {
@@ -173,15 +181,9 @@ fun DrawingListScreen(
                     FloatingActionButton(
                         modifier = Modifier.padding(end = 16.dp),
                         onClick = {
-                            addNewDrawing(
-                                DrawingInfo(
-                                    id = dataList.size,
-                                    lastModifiedDate = Date(),
-                                    createdDate = Date(),
-                                    drawingTitle = "Drawing ${dataList.size}"
-                                )
-                            )
                             coroutineScope.launch {
+                                drawingInfoViewModel.setActiveCapturedImage(null)
+                                drawingInfoViewModel.setActiveDrawingInfoById(null)
                                 // Add a small delay for better UX
                                 delay(100)
                                 navController.navigate("canvasPage")
@@ -204,7 +206,7 @@ fun DrawingListScreen(
                 .fillMaxSize()
                 .padding(top = 56.dp, bottom = 56.dp)
         ) {
-            DrawingList(navController, dataList, DrawingInfoComparator(), state)
+            DrawingList(navController, dataList, state, drawingInfoViewModel)
         }
     }
 }

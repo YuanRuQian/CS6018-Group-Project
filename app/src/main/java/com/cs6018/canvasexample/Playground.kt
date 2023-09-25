@@ -1,5 +1,6 @@
 package com.cs6018.canvasexample
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
@@ -33,7 +36,8 @@ import dev.shreyaspatil.capturable.controller.CaptureController
 fun Playground(
     viewModel: PathPropertiesViewModel,
     paddingValues: PaddingValues,
-    captureController: CaptureController
+    captureController: CaptureController,
+    drawingInfoViewModel: DrawingInfoViewModel
 ) {
     val paths = viewModel.paths
 
@@ -49,7 +53,19 @@ fun Playground(
 
     val currentPathProperty = viewModel.currentPathProperty
 
-    val backgroundImageUri = getUriOfLastFile(LocalContext.current)
+    val activeDrawingInfo by drawingInfoViewModel.activeDrawingInfo.observeAsState()
+
+    Log.d("CanvasPage", "active image path: ${activeDrawingInfo?.imagePath}")
+
+    var backgroundImageUri: Uri? = null
+
+    try {
+        backgroundImageUri = Uri.parse(activeDrawingInfo?.imagePath)
+    } catch (e: Exception) {
+        Log.d("CanvasPage", "Uri.parse failed $e")
+    }
+
+    Log.d("CanvasPage", "backgroundImageUri: $backgroundImageUri")
 
     val basePainter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
@@ -84,7 +100,6 @@ fun Playground(
                         image = baseImageBitmap,
                         topLeft = Offset.Zero,
                     )
-                    Log.d("CanvasPage", "image width ${baseImageBitmap.width}, height ${baseImageBitmap.height}")
                     Log.d("CanvasPage", "draw behind $backgroundImageUri")
                 } else {
                     drawRect(
@@ -240,7 +255,8 @@ fun Playground(
                     }
                 }
             },
-            captureController = captureController
+            captureController = captureController,
+            drawingInfoViewModel = drawingInfoViewModel
         )
     }
 }

@@ -1,62 +1,82 @@
 package com.cs6018.canvasexample
 
 
-
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import android.content.Context
+import android.graphics.Bitmap
+import android.media.ThumbnailUtils
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import java.util.Date
 
-class DrawingInfoViewModel : ViewModel() {
-    // State holding a list of DrawingInfo objects
-    private var _drawingInfoList by mutableStateOf<List<DrawingInfo>>(emptyList())
 
-    // Expose the list as a read-only property
-    val drawingInfoList: List<DrawingInfo>
-        get() = _drawingInfoList
+class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : ViewModel() {
 
-    // TODO: replace this with your data source
-    init {
-        val randomData = generateRandomDrawingInfoList(10)
-        _drawingInfoList = randomData
+    var activeDrawingInfo: LiveData<DrawingInfo?> = repository.activeDrawingInfo
+
+    private val activeCapturedImage: LiveData<Bitmap?> = MutableLiveData(null)
+
+    val allDrawingInfo: LiveData<List<DrawingInfo>> = repository.allDrawingInfo
+
+    fun getActiveCapturedImage(): LiveData<Bitmap?> {
+        return activeCapturedImage
     }
 
-    // Helper function to generate random DrawingInfo data (replace with your data source)
-    private fun generateRandomDrawingInfoList(count: Int): List<DrawingInfo> {
-        val dataList = mutableListOf<DrawingInfo>()
-        val random = java.util.Random(System.currentTimeMillis())
-        val currentDate = Date()
+    suspend fun setActiveDrawingInfoById(id: Int?) {
+        repository.setActiveDrawingInfoById(id ?: 0)
+    }
 
-        for (index in 0 until count) {
-            dataList.add(
-                DrawingInfo(
-                    id = index,
-                    lastModifiedDate = Date(currentDate.time - random.nextInt(30) * 24 * 60 * 60 * 1000L),
-                    createdDate = Date(currentDate.time - random.nextInt(365) * 24 * 60 * 60 * 1000L),
-                    drawingTitle = "Drawing $index"
-                )
-            )
+    private fun addDrawingInfo(title: String, imageUrl: String?, thumbnail: ByteArray?) {
+        val drawingInfo = DrawingInfo(Date(), Date(), title, imageUrl, thumbnail)
+        repository.addNewDrawingInfo(drawingInfo)
+    }
+
+    fun setActiveCapturedImage(imageBitmap: Bitmap?) {
+        (activeCapturedImage as MutableLiveData).value = imageBitmap
+        Log.d("DrawingInfoViewModel", "Bitmap is set as activeCapturedImage.")
+    }
+
+    fun addDrawingInfoWithRecentCapturedImage(context: Context): String? {
+
+        val bitmap = activeCapturedImage.value
+        if (bitmap == null) {
+            Log.d("DrawingInfoViewModel", "Bitmap is null.")
+            return null
         }
 
-        return dataList
-    }
+        if (activeDrawingInfo.value == null) {
+            val title = "Untitled"
 
-    fun addDrawingInfo(drawingInfo: DrawingInfo) {
-        _drawingInfoList = _drawingInfoList + drawingInfo
-    }
 
-    fun removeDrawingInfo(drawingInfo: DrawingInfo) {
-        _drawingInfoList = _drawingInfoList - drawingInfo
-    }
-
-    fun updateDrawingInfoLastModifiedDate(id: Int, lastModifiedDate: Date) {
-        val index = _drawingInfoList.indexOfFirst { it.id == id }
-        if (index != -1) {
-            val drawingInfo = _drawingInfoList[index]
-            _drawingInfoList = _drawingInfoList.toMutableList().apply {
-                set(index, drawingInfo.copy(lastModifiedDate = lastModifiedDate))
+            val imagePath = saveImage(bitmap, context)
+            if (imagePath == null) {
+                Log.d("DrawingInfoViewModel", "Image path is null.")
+                return null
             }
+
+            val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, 256, 256)
+            // TODO: save the thumbnail of the image
+            addDrawingInfo(title, imagePath, bitmapToByteArray(thumbnail))
+            return imagePath
+        } else {
+            // TODO: update the current drawing's title
+            val imagePath =
+                overwriteCurrentImageFile(bitmap, context, activeDrawingInfo.value?.imagePath ?: "")
+            if (imagePath == null) {
+                Log.d("DrawingInfoViewModel", "Image path is null.")
+                return null
+            }
+
+            val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, 256, 256)
+            updateThumbnailForActiveDrawingInfo(bitmapToByteArray(thumbnail))
+
+            return imagePath
         }
     }
+
+    private fun updateThumbnailForActiveDrawingInfo(thumbnail: ByteArray) {
+        repository.updateDrawingInfoThumbnail(thumbnail, activeDrawingInfo.value?.id ?: 0)
+    }
+
 }
