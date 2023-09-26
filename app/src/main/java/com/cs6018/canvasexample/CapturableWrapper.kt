@@ -14,6 +14,7 @@ import dev.shreyaspatil.capturable.controller.CaptureController
 @Composable
 fun CapturableWrapper(
     drawingInfoViewModel: DrawingInfoViewModel,
+    capturableImageViewModel: CapturableImageViewModel,
     content: @Composable () -> Unit,
     captureController: CaptureController
 ) {
@@ -25,6 +26,9 @@ fun CapturableWrapper(
             .fillMaxHeight(),
         controller = captureController,
         onCaptured = { bitmap, error ->
+
+            capturableImageViewModel.markAsInProcess()
+
             if (bitmap != null) {
                 Log.d("CanvasPage", "Bitmap is captured successfully.")
                 val dataAsBitmap = bitmap.asAndroidBitmap()
@@ -32,9 +36,6 @@ fun CapturableWrapper(
                     drawingInfoViewModel.setActiveCapturedImage(dataAsBitmap)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(context, "Error occurred while saving bitmap.",
-                        Toast.LENGTH_LONG
-                    ).show()
                     Log.d("CanvasPage", "Error occurred while saving bitmap.")
                 }
             }
@@ -45,6 +46,8 @@ fun CapturableWrapper(
                 ).show()
                 Log.d("CanvasPage", "Error occurred while capturing bitmap.")
             }
+
+            capturableImageViewModel.markAsDone()
         }
     ) {
         content() // Render the content defined by the lambda

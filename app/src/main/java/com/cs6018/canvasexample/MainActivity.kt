@@ -21,6 +21,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val capturableImageViewModel: CapturableImageViewModel by viewModels()
         val pathPropertiesViewModel: PathPropertiesViewModel by viewModels()
         val drawingInfoViewModel: DrawingInfoViewModel by viewModels { DrawingInfoViewModelFactory((application as DrawingApplication).drawingInfoRepository) }
 
@@ -30,7 +31,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Navigation(pathPropertiesViewModel, drawingInfoViewModel)
+                    Navigation(pathPropertiesViewModel, drawingInfoViewModel, capturableImageViewModel)
                 }
             }
         }
@@ -41,7 +42,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Navigation(
     pathPropertiesViewModel: PathPropertiesViewModel,
-    drawingInfoViewModel: DrawingInfoViewModel
+    drawingInfoViewModel: DrawingInfoViewModel,
+    capturableImageViewModel: CapturableImageViewModel
 ) {
     val navController = rememberNavController()
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
@@ -56,7 +58,8 @@ fun Navigation(
             CanvasPage(
                 navController,
                 pathPropertiesViewModel,
-                drawingInfoViewModel
+                drawingInfoViewModel,
+                capturableImageViewModel
             )
         }
         composable("penCustomizer") {
