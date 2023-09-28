@@ -26,9 +26,6 @@ fun CapturableWrapper(
             .fillMaxHeight(),
         controller = captureController,
         onCaptured = { bitmap, error ->
-
-            capturableImageViewModel.markAsInProcess()
-
             if (bitmap != null) {
                 Log.d("CanvasPage", "Bitmap is captured successfully.")
                 val dataAsBitmap = bitmap.asAndroidBitmap()
@@ -47,7 +44,7 @@ fun CapturableWrapper(
                 Log.d("CanvasPage", "Error occurred while capturing bitmap.")
             }
 
-            capturableImageViewModel.markAsDone()
+            capturableImageViewModel.fireSignal()
         }
     ) {
         content() // Render the content defined by the lambda

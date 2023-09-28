@@ -137,7 +137,13 @@ fun BottomAppBarContent(
                     iconResource = R.drawable.share,
                     buttonText = "Share",
                     onClick = {
-                        onShareClick(scope, context, captureController, drawingInfoViewModel, capturableImageViewModel)
+                        onShareClick(
+                            scope,
+                            context,
+                            captureController,
+                            drawingInfoViewModel,
+                            capturableImageViewModel
+                        )
                     }
                 )
             }
@@ -155,54 +161,45 @@ fun onShareClick(
     scope.launch {
         // Capture the current screenshot
         captureController.capture()
+    }
 
-        // TODO: remove the observer
-        // Observe the capturableImageState
-        capturableImageViewModel.capturableImageState.observeForever { state ->
-            when (state) {
-                null -> {
-                    // Handle the null case here
-                    throw NullPointerException("capturableImageState is null")
-                }
-                CapturableImageState.IN_PROCESS -> {
-                    // Wait for the capture to complete (do nothing here)
-                }
-                CapturableImageState.DONE -> {
-                    val bitmap = drawingInfoViewModel.getActiveCapturedImage().value
+    scope.launch {
+        Log.d("CanvasPage", "onShareClick | Waiting for signal")
 
-                    if (bitmap == null) {
-                        Log.e("CanvasPage", "Error occurred while sharing image: bitmap is null")
-                    } else {
-                        // Get the active drawing info's title
-                        val activeDrawingInfoDrawingTitle =
-                            drawingInfoViewModel.activeDrawingInfo.value?.drawingTitle
+        capturableImageViewModel.signalChannel.value?.receive()
 
-                        // Convert the bitmap to a temporary file and get its URI
-                        val uri = saveBitmapAsTemporaryImage(context, bitmap)
+        capturableImageViewModel.setNewSignalChannel()
 
-                        // Create an Intent for sharing
-                        val shareIntent: Intent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_STREAM, uri)
-                            type = "image/jpeg"
-                        }
+        val bitmap = drawingInfoViewModel.getActiveCapturedImage().value
 
-                        // Create a chooser dialog for sharing
-                        val chooserIntent =
-                            Intent.createChooser(shareIntent, activeDrawingInfoDrawingTitle)
+        if (bitmap == null) {
+            Log.e("CanvasPage", "Error occurred while sharing image: bitmap is null")
+        } else {
+            // Get the active drawing info's title
+            val activeDrawingInfoDrawingTitle =
+                drawingInfoViewModel.activeDrawingInfo.value?.drawingTitle
 
-                        // Grant read URI permission to the receiving app
-                        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            // Convert the bitmap to a temporary file and get its URI
+            val uri = saveBitmapAsTemporaryImage(context, bitmap)
 
-                        // Start the sharing process
-                        context.startActivity(chooserIntent)
-                    }
-
-                    // Exit the coroutine
-                    return@observeForever
-                }
+            // Create an Intent for sharing
+            val shareIntent: Intent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_STREAM, uri)
+                type = "image/jpeg"
             }
+
+            // Create a chooser dialog for sharing
+            val chooserIntent =
+                Intent.createChooser(shareIntent, activeDrawingInfoDrawingTitle)
+
+            // Grant read URI permission to the receiving app
+            chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+            // Start the sharing process
+            context.startActivity(chooserIntent)
         }
+
     }
 }
 
@@ -334,7 +331,13 @@ fun CanvasPage(
             )
         },
         content = {
-            Playground(pathPropertiesViewModel, it, captureController, drawingInfoViewModel, capturableImageViewModel)
+            Playground(
+                pathPropertiesViewModel,
+                it,
+                captureController,
+                drawingInfoViewModel,
+                capturableImageViewModel
+            )
         }
     )
 }
@@ -350,25 +353,18 @@ fun saveCurrentDrawing(
 ) {
     coroutineScope.launch {
         captureController.capture()
+    }
 
-        // Observe the capturableImageState
-        // TODO: remove the observer
-        captureableImageViewModel.capturableImageState.observeForever { state ->
-            when (state) {
-                null -> {
-                    // Handle the null case here
-                    throw NullPointerException("capturableImageState is null")
-                }
-                CapturableImageState.IN_PROCESS -> {
-                    // Wait for the capture to complete (do nothing here)
-                }
-                CapturableImageState.DONE -> {
-                    val savedImagePath = drawingInfoViewModel.addDrawingInfoWithRecentCapturedImage(context)
-                    Log.d("CanvasPage", "Image saved to $savedImagePath")
-                    return@observeForever
-                }
-            }
-        }
+    coroutineScope.launch {
+        Log.d("CanvasPage", "saveCurrentDrawing | Waiting for signal")
+        captureableImageViewModel.signalChannel.value?.receive()
+        captureableImageViewModel.setNewSignalChannel()
+
+        val savedImagePath =
+            drawingInfoViewModel.addDrawingInfoWithRecentCapturedImage(context)
+        Log.d("CanvasPage", "Image saved to $savedImagePath")
+
+
         drawingInfoViewModel.setActiveDrawingInfoById(null)
         drawingInfoViewModel.setActiveCapturedImage(null)
         pathPropertiesViewModel.reset()
