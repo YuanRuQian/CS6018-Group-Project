@@ -37,7 +37,8 @@ fun Playground(
     viewModel: PathPropertiesViewModel,
     paddingValues: PaddingValues,
     captureController: CaptureController,
-    drawingInfoViewModel: DrawingInfoViewModel
+    drawingInfoViewModel: DrawingInfoViewModel,
+    capturableImageViewModel: CapturableImageViewModel
 ) {
     val paths = viewModel.paths
 
@@ -143,6 +144,7 @@ fun Playground(
 
 
         CapturableWrapper(
+            capturableImageViewModel = capturableImageViewModel,
             content = {
                 Canvas(modifier = drawModifier) {
                     Log.d("CanvasPage", "canvas width: ${size.width}, height: ${size.height}")
