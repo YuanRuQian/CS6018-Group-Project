@@ -38,8 +38,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import dev.shreyaspatil.capturable.controller.CaptureController
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.CoroutineScope
@@ -77,10 +75,10 @@ fun BottomAppBarItem(
 fun BottomAppBarContent(
     drawingInfoViewModel: DrawingInfoViewModel,
     pathPropertiesViewModel: PathPropertiesViewModel,
-    navController: NavController,
     scope: CoroutineScope,
     captureController: CaptureController,
-    capturableImageViewModel: CapturableImageViewModel
+    capturableImageViewModel: CapturableImageViewModel,
+    navigateToPenCustomizer: () -> Unit
 ) {
     val context = LocalContext.current
     BottomAppBar(
@@ -120,7 +118,7 @@ fun BottomAppBarContent(
                     iconResource = R.drawable.palette,
                     buttonText = "Palette",
                     onClick = {
-                        navController.navigate("penCustomizer")
+                        navigateToPenCustomizer()
                     }
                 )
 
@@ -219,12 +217,12 @@ private fun saveBitmapAsTemporaryImage(context: Context, bitmap: Bitmap): Uri {
 
 
 fun customBackNavigation(
-    navController: NavController,
     scope: CoroutineScope,
     drawingInfoViewModel: DrawingInfoViewModel,
-    pathPropertiesViewModel: PathPropertiesViewModel
+    pathPropertiesViewModel: PathPropertiesViewModel,
+    navigateToPopBack: () -> Boolean
 ) {
-    navController.popBackStack()
+    navigateToPopBack()
     pathPropertiesViewModel.reset()
     scope.launch {
         drawingInfoViewModel.setActiveDrawingInfoById(null)
@@ -235,10 +233,11 @@ fun customBackNavigation(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CanvasPage(
-    navController: NavHostController,
     pathPropertiesViewModel: PathPropertiesViewModel,
     drawingInfoViewModel: DrawingInfoViewModel,
-    capturableImageViewModel: CapturableImageViewModel
+    capturableImageViewModel: CapturableImageViewModel,
+    navigateToPenCustomizer: () -> Unit,
+    navigateToPopBack: () -> Boolean
 ) {
     val scope = rememberCoroutineScope()
 
@@ -251,7 +250,12 @@ fun CanvasPage(
     Log.d("CanvasPage", "activeDrawingInfo | id: ${activeDrawingInfo?.id}")
 
     BackHandler {
-        customBackNavigation(navController, scope, drawingInfoViewModel, pathPropertiesViewModel)
+        customBackNavigation(
+            scope,
+            drawingInfoViewModel,
+            pathPropertiesViewModel,
+            navigateToPopBack
+        )
     }
 
     Scaffold(
@@ -270,10 +274,10 @@ fun CanvasPage(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
                             customBackNavigation(
-                                navController,
                                 scope,
                                 drawingInfoViewModel,
-                                pathPropertiesViewModel
+                                pathPropertiesViewModel,
+                                navigateToPopBack
                             )
                         }
 
@@ -296,9 +300,9 @@ fun CanvasPage(
                                 coroutineScope,
                                 context,
                                 captureController,
-                                navController,
                                 pathPropertiesViewModel,
-                                capturableImageViewModel
+                                capturableImageViewModel,
+                                navigateToPopBack
                             )
                         }
 
@@ -324,10 +328,10 @@ fun CanvasPage(
             BottomAppBarContent(
                 drawingInfoViewModel,
                 pathPropertiesViewModel,
-                navController,
                 scope,
                 captureController,
-                capturableImageViewModel
+                capturableImageViewModel,
+                navigateToPenCustomizer
             )
         },
         content = {
@@ -347,9 +351,9 @@ fun saveCurrentDrawing(
     coroutineScope: CoroutineScope,
     context: Context,
     captureController: CaptureController,
-    navController: NavController,
     pathPropertiesViewModel: PathPropertiesViewModel,
-    captureableImageViewModel: CapturableImageViewModel
+    captureableImageViewModel: CapturableImageViewModel,
+    navigateToPopBack: () -> Boolean
 ) {
     coroutineScope.launch {
         captureController.capture()
@@ -368,8 +372,6 @@ fun saveCurrentDrawing(
         drawingInfoViewModel.setActiveDrawingInfoById(null)
         drawingInfoViewModel.setActiveCapturedImage(null)
         pathPropertiesViewModel.reset()
-        navController.popBackStack()
+        navigateToPopBack()
     }
 }
-
-// TODO: add preview for CanvasPage

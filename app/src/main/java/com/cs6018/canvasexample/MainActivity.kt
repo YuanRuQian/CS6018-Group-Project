@@ -31,7 +31,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Navigation(pathPropertiesViewModel, drawingInfoViewModel, capturableImageViewModel)
+                    Navigation(
+                        pathPropertiesViewModel,
+                        drawingInfoViewModel,
+                        capturableImageViewModel
+                    )
                 }
             }
         }
@@ -50,16 +54,27 @@ fun Navigation(
     val currentPathProperty by pathPropertiesViewModel.currentPathProperty.collectAsState()
     val controller = rememberColorPickerController()
 
+    val navigateToPenCustomizer = {
+        navController.navigate("penCustomizer")
+    }
+    val navigateToCanvasPage = {
+        navController.navigate("canvasPage")
+    }
+    val navigateToPopBack = {
+        navController.popBackStack()
+    }
+
 
     // TODO: change startDestination to change the starting screen
     NavHost(navController = navController, startDestination = "drawingList") {
         // TODO: Pass in the whole viewModel is a bad practice, but if not passing in the whole viewModel, then we need to pass in a ton of variable and functions
         composable("canvasPage") {
             CanvasPage(
-                navController,
                 pathPropertiesViewModel,
                 drawingInfoViewModel,
-                capturableImageViewModel
+                capturableImageViewModel,
+                navigateToPenCustomizer,
+                navigateToPopBack
             )
         }
         composable("penCustomizer") {
@@ -73,7 +88,7 @@ fun Navigation(
         }
         composable("drawingList") {
             DrawingListScreen(
-                navController,
+                navigateToCanvasPage,
                 drawingInfoViewModel
             )
         }

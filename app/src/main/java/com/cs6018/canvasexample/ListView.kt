@@ -43,13 +43,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun DrawingList(
-    navController: NavHostController,
+    navigateToCanvasPage: () -> Unit,
     dataList: List<DrawingInfo>?,
     state: LazyListState,
     drawingInfoViewModel: DrawingInfoViewModel
@@ -75,7 +74,7 @@ fun DrawingList(
                 scope.launch {
                     drawingInfoViewModel.setActiveDrawingInfoById(drawingInfo.id)
                 }
-                navController.navigate("canvasPage")
+                navigateToCanvasPage()
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -133,7 +132,7 @@ fun DrawingCard(drawingInfo: DrawingInfo, onClick: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawingListScreen(
-    navController: NavHostController,
+    navigateToCanvasPage: () -> Unit,
     drawingInfoViewModel: DrawingInfoViewModel
 ) {
 
@@ -186,7 +185,7 @@ fun DrawingListScreen(
                                 drawingInfoViewModel.setActiveDrawingInfoById(null)
                                 // Add a small delay for better UX
                                 delay(100)
-                                navController.navigate("canvasPage")
+                                navigateToCanvasPage()
                             }
                         },
                         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
@@ -206,7 +205,7 @@ fun DrawingListScreen(
                 .fillMaxSize()
                 .padding(top = 56.dp, bottom = 56.dp)
         ) {
-            DrawingList(navController, dataList, state, drawingInfoViewModel)
+            DrawingList(navigateToCanvasPage, dataList, state, drawingInfoViewModel)
         }
     }
 }
