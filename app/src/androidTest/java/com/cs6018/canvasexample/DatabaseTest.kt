@@ -1,11 +1,15 @@
 package com.cs6018.canvasexample
 
 import android.content.Context
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -32,36 +36,19 @@ class DatabaseTest {
     fun closeDb() {
         db.close()
     }
-
     @Test
-    fun addADrawing() = runBlocking {
-        var beforeSize = -1
-        var newSize = -1
-
-        // Collect the old size
-        val beforeJob = launch {
-            dao.allDrawingInfo().collect { list ->
-                beforeSize = list.size
-                println("Collected beforeSize: $beforeSize")
+    fun addADrawing() {
+        runBlocking {
+            val lifecycleOwner = TestLifecycleOwner()
+            val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    dao.allDrawingInfo().asLiveData().observe(lifecycleOwner) {
+                        Assert.assertTrue(it.contains(info))
+                    }
+                    dao.addDrawingInfo(info)
+                }
             }
         }
-
-        // Add a new drawing info
-        val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
-        dao.addDrawingInfo(info)
-
-        // Collect the new size
-        val newJob = launch {
-            dao.allDrawingInfo().collect { list ->
-                newSize = list.size
-            }
-        }
-
-        // Wait for both jobs to complete
-        beforeJob.join()
-        newJob.join()
-
-        // Assert that the new size is one greater than the old size
-        Assert.assertEquals(beforeSize + 1, newSize)
     }
 }
