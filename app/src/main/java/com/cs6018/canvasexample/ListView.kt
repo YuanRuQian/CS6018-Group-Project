@@ -1,6 +1,7 @@
 package com.cs6018.canvasexample
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -34,8 +35,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,7 +50,7 @@ fun DrawingList(
     navigateToCanvasPage: () -> Unit,
     dataList: List<DrawingInfo>?,
     state: LazyListState,
-    drawingInfoViewModel: DrawingInfoViewModel
+    setActiveDrawingInfoById: suspend (Int?) -> Unit
 ) {
 
     if (dataList == null) {
@@ -72,7 +71,7 @@ fun DrawingList(
             DrawingCard(drawingInfo) {
                 Log.d("DrawingList", "Clicked on drawing ${drawingInfo.id}")
                 scope.launch {
-                    drawingInfoViewModel.setActiveDrawingInfoById(drawingInfo.id)
+                    setActiveDrawingInfoById(drawingInfo.id)
                 }
                 navigateToCanvasPage()
             }
@@ -133,13 +132,13 @@ fun DrawingCard(drawingInfo: DrawingInfo, onClick: () -> Unit) {
 @Composable
 fun DrawingListScreen(
     navigateToCanvasPage: () -> Unit,
-    drawingInfoViewModel: DrawingInfoViewModel
+    setActiveCapturedImage: (Bitmap?) -> Unit,
+    setActiveDrawingInfoById: suspend (Int?) -> Unit,
+    dataList: List<DrawingInfo>?
 ) {
 
     val state = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-
-    val dataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
 
     // Calculate the number of drawings
     val numberOfDrawings = dataList?.size ?: 0
@@ -181,8 +180,8 @@ fun DrawingListScreen(
                         modifier = Modifier.padding(end = 16.dp),
                         onClick = {
                             coroutineScope.launch {
-                                drawingInfoViewModel.setActiveCapturedImage(null)
-                                drawingInfoViewModel.setActiveDrawingInfoById(null)
+                                setActiveCapturedImage(null)
+                                setActiveDrawingInfoById(null)
                                 // Add a small delay for better UX
                                 delay(100)
                                 navigateToCanvasPage()
@@ -205,7 +204,7 @@ fun DrawingListScreen(
                 .fillMaxSize()
                 .padding(top = 56.dp, bottom = 56.dp)
         ) {
-            DrawingList(navigateToCanvasPage, dataList, state, drawingInfoViewModel)
+            DrawingList(navigateToCanvasPage, dataList, state, setActiveDrawingInfoById)
         }
     }
 }

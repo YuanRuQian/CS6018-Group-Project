@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -64,6 +65,8 @@ fun Navigation(
         navController.popBackStack()
     }
 
+    val drawingInfoDataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
+
 
     // TODO: change startDestination to change the starting screen
     NavHost(navController = navController, startDestination = "drawingList") {
@@ -89,7 +92,9 @@ fun Navigation(
         composable("drawingList") {
             DrawingListScreen(
                 navigateToCanvasPage,
-                drawingInfoViewModel
+                drawingInfoViewModel::setActiveCapturedImage,
+                drawingInfoViewModel::setActiveDrawingInfoById,
+                drawingInfoDataList
             )
         }
     }

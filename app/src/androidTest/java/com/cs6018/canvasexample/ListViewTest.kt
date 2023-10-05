@@ -1,11 +1,12 @@
 package com.cs6018.canvasexample
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.launchActivity
 import org.junit.Before
 import org.junit.Rule
 
@@ -27,17 +28,11 @@ class ListViewTest {
     @Composable
     fun TestListView() {
 
-        val drawingInfoList = generateTestDrawingInfoList()
+        launchActivity<MainActivity>().use { scenario ->
+            scenario.moveToState(Lifecycle.State.CREATED)
+        }
 
-        val coroutineScope = rememberCoroutineScope()
 
-
-//        DrawingList(
-//            navigateToCanvasPage = {},
-//            dataList = drawingInfoList,
-//            state = rememberLazyListState(),
-//            drawingInfoViewModel = DrawingInfoViewModel()
-//        )
     }
 
 }
