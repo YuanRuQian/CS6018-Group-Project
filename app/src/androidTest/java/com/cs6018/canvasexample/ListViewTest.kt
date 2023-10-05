@@ -2,9 +2,12 @@ package com.cs6018.canvasexample
 
 import android.graphics.Bitmap
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -67,7 +70,7 @@ class ListViewTest {
     @get:Rule
     var rule: TestRule = InstantTaskExecutorRule()
 
-    private val listSize = 3
+    private val listSize = 10
 
     // Lazy list, only a few cards are loaded at a time
     private val drawingInfoList = generateRandomTestDrawingInfoList(listSize)
@@ -114,14 +117,13 @@ class ListViewTest {
         // TODO: test if the cards are ordered by last modified date
         // Test: when clicking on a card if the correct callbacks are triggered
         dataList?.forEach { drawingInfo ->
-            println(drawingInfo.drawingTitle)
+            val drawingCardTag = "DrawingCard${drawingInfo.id}"
+            composeTestRule.onNodeWithTag("DrawingList").performScrollToNode(hasTestTag(drawingCardTag))
             composeTestRule.onNodeWithText(drawingInfo.drawingTitle).assertExists()
             composeTestRule.onNodeWithText(drawingInfo.drawingTitle).performClick()
         }
 
         assert(testViewModel.navigateToCanvasPageClickCounter.value == listSize)
         assert(testViewModel.setActiveDrawingInfoByIdClickCounter.value == listSize)
-
-
     }
 }

@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -62,7 +63,8 @@ fun DrawingList(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .testTag("DrawingList"),
         state = state,
     ) {
         items(dataList, key = {
@@ -84,7 +86,9 @@ fun DrawingList(
 @Composable
 fun DrawingCard(drawingInfo: DrawingInfo, onClick: () -> Unit) {
     ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("DrawingCard${drawingInfo.id}"),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
         ),
