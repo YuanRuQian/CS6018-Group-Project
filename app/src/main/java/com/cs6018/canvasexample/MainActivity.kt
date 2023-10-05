@@ -2,6 +2,7 @@ package com.cs6018.canvasexample
 
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -149,10 +150,9 @@ fun SplashScreen(
         )
     }
 
-    // TODO: handler is deprecated, use looper instead
     // TODO: add animation
     // Call onSplashScreenComplete to navigate to the main screen
-    Handler().postDelayed({
+    Handler(Looper.getMainLooper()).postDelayed({
         onSplashScreenComplete()
     }, 2000) // Delay for 2 seconds
 }
