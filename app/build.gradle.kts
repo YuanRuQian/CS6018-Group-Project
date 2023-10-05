@@ -64,6 +64,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation ("dev.shreyaspatil:capturable:1.0.3")
     implementation("androidx.navigation:navigation-compose:2.7.4")
+    implementation("androidx.navigation:navigation-testing:2.7.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.7.2")
@@ -80,4 +81,7 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    testImplementation("app.cash.turbine:turbine:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }
