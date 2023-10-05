@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -148,6 +149,8 @@ fun SplashScreen(
         )
     }
 
+    // TODO: handler is deprecated, use looper instead
+    // TODO: add animation
     // Call onSplashScreenComplete to navigate to the main screen
     Handler().postDelayed({
         onSplashScreenComplete()
