@@ -82,6 +82,10 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.0-rc01")
-    implementation("androidx.navigation:navigation-compose:$2.7.4")
+    testImplementation("app.cash.turbine:turbine:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    androidTestImplementation("androidx.test:core-ktx:1.6.0-alpha02")
+    implementation("androidx.tracing:tracing:1.3.0-alpha02")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
 }
