@@ -25,4 +25,7 @@ interface DrawingInfoDAO {
         lastModifiedTime: Date,
         id: Int
     )
+
+    @Query("DELETE FROM drawing_info WHERE id = :id")
+    suspend fun deleteDrawingInfoWithId(id: Int)
 }

@@ -79,4 +79,9 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
         repository.updateDrawingInfoThumbnail(thumbnail, activeDrawingInfo.value?.id ?: 0)
     }
 
+    // TODO: delete actual image file'
+
+    suspend fun deleteDrawingInfoWithId(id: Int) {
+        repository.deleteDrawingInfoWithId(id)
+    }
 }

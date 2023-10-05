@@ -36,4 +36,11 @@ class DrawingInfoRepository(private val scope: CoroutineScope, private val dao: 
             Log.d("DrawingInfoRepository", "activeDrawingInfo is set to ${activeDrawingInfo.value?.imagePath}")
         }
     }
+
+    suspend fun deleteDrawingInfoWithId(id: Int) {
+        withContext(Dispatchers.IO) {
+            Log.d("DrawingInfoRepository", "deleteDrawingInfoWithId($id)")
+            dao.deleteDrawingInfoWithId(id)
+        }
+    }
 }
