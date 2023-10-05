@@ -88,4 +88,6 @@ dependencies {
     androidTestImplementation("androidx.test:core-ktx:1.6.0-alpha02")
     implementation("androidx.tracing:tracing:1.3.0-alpha02")
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+    androidTestImplementation("androidx.navigation:navigation-testing:2.7.4")
+    testImplementation("io.mockk:mockk:1.13.0")
 }

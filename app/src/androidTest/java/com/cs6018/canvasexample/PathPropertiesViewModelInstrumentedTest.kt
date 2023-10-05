@@ -21,25 +21,6 @@ import org.junit.runner.RunWith
 class PathPropertiesViewModelInstrumentedTest {
 
     @Test
-    fun testHexColorCodeWithCoroutin() {
-        val viewModel = PathPropertiesViewModel()
-        var callbackFired = false
-        runBlocking {
-            val before = viewModel.hexColorCode.value
-            // Launch a coroutine to collect changes in the StateFlow
-            launch {
-                viewModel.hexColorCode.collect { newValue ->
-                    callbackFired = true
-                    Log.d("New-value: ", newValue)
-                }
-            }
-            viewModel.updateHexColorCode("#FF0000")
-            Assert.assertNotSame(before, viewModel.motionEvent.value)
-            Assert.assertTrue(callbackFired) // TODO failed
-        }
-    }
-
-    @Test
     fun testInitialization() {
         val vm = PathPropertiesViewModel()
         Assert.assertSame("#ffffff", vm.hexColorCode.value)

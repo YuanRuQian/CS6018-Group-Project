@@ -49,7 +49,8 @@ class MainActivity : ComponentActivity() {
                     Navigation(
                         pathPropertiesViewModel,
                         drawingInfoViewModel,
-                        capturableImageViewModel
+                        capturableImageViewModel,
+                        rememberNavController()
                     )
                 }
             }
@@ -62,9 +63,10 @@ class MainActivity : ComponentActivity() {
 fun Navigation(
     pathPropertiesViewModel: PathPropertiesViewModel,
     drawingInfoViewModel: DrawingInfoViewModel,
-    capturableImageViewModel: CapturableImageViewModel
+    capturableImageViewModel: CapturableImageViewModel,
+    navController: NavHostController
 ) {
-    val navController = rememberNavController()
+//    val navController = rememberNavController()
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
     val currentPathProperty by pathPropertiesViewModel.currentPathProperty.collectAsState()
     val controller = rememberColorPickerController()
