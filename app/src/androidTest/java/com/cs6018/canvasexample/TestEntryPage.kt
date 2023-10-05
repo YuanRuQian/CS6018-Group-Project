@@ -49,6 +49,8 @@ class TestEntryPage {
 
     @Test
     fun testEntryPage() {
+        // wait for splash screen to finish, then check for the presence of the drawing list
+        Thread.sleep(2000)
         composeTestRule.onNodeWithText("Drawing App").assertIsDisplayed()
         composeTestRule.onNodeWithText("3 drawings").assertIsDisplayed()
         composeTestRule.onNodeWithContentDescription("Add a new drawing").performClick()

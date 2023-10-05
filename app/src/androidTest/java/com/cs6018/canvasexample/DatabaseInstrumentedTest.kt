@@ -1,7 +1,6 @@
 package com.cs6018.canvasexample
 
 import android.content.Context
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.room.Room
@@ -53,10 +52,11 @@ class DatabaseInstrumentedTest {
         }
     }
 
-    @Test
-    fun testUpdateADrawing() {
-        runBlocking {
-            // TODO
-        }
-    }
+    // TODO: Write a test for deleting a drawing
+//    @Test
+//    fun testUpdateADrawing() {
+//        runBlocking {
+//
+//        }
+//    }
 }
