@@ -1,17 +1,31 @@
 package com.cs6018.canvasexample
 
 import android.os.Bundle
+import android.os.Handler
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -68,9 +82,16 @@ fun Navigation(
     val drawingInfoDataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
 
 
-    // TODO: change startDestination to change the starting screen
-    NavHost(navController = navController, startDestination = "drawingList") {
+    // Completed SplashScreen: change startDestination to splash screen
+    NavHost(navController = navController, startDestination = "splash") {
         // TODO: Pass in the whole viewModel is a bad practice, but if not passing in the whole viewModel, then we need to pass in a ton of variable and functions
+
+        composable("splash") {
+            SplashScreen {
+                navController.navigate("drawingList")
+            }
+        }
+
         composable("canvasPage") {
             CanvasPage(
                 pathPropertiesViewModel,
@@ -98,4 +119,35 @@ fun Navigation(
             )
         }
     }
+}
+
+@Composable
+fun SplashScreen(
+    onSplashScreenComplete: ()-> Unit){
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier.size(150.dp)
+        ){
+            Image(
+                painter = painterResource(id = R.drawable.splash),
+                contentDescription = "Splash Icon"
+            )
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = "Draw Better Than It",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+
+    // Call onSplashScreenComplete to navigate to the main screen
+    Handler().postDelayed({
+        onSplashScreenComplete()
+    }, 2000) // Delay for 2 seconds
 }
