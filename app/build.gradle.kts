@@ -51,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
     ksp("androidx.room:room-compiler:2.5.2")
     implementation("androidx.room:room-common:2.5.2")
     implementation("androidx.room:room-ktx:2.5.2")
@@ -85,4 +86,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     androidTestImplementation("androidx.test:core-ktx:1.6.0-alpha02")
+    implementation("androidx.tracing:tracing:1.3.0-alpha02")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+    androidTestImplementation("androidx.navigation:navigation-testing:2.7.4")
 }
