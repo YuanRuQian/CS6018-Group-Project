@@ -19,7 +19,7 @@ import java.io.IOException
 import java.util.Date
 
 @RunWith(AndroidJUnit4::class)
-class DatabaseTest {
+class DatabaseInstrumentedTest {
     private lateinit var dao: DrawingInfoDAO
     private lateinit var db: DrawingInfoDatabase
 
@@ -36,8 +36,9 @@ class DatabaseTest {
     fun closeDb() {
         db.close()
     }
+
     @Test
-    fun addADrawing() {
+    fun testAddADrawing() {
         runBlocking {
             val lifecycleOwner = TestLifecycleOwner()
             val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
@@ -49,6 +50,13 @@ class DatabaseTest {
                     dao.addDrawingInfo(info)
                 }
             }
+        }
+    }
+
+    @Test
+    fun testUpdateADrawing() {
+        runBlocking {
+            // TODO
         }
     }
 }
