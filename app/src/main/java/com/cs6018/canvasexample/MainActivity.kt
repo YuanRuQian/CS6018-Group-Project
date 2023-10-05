@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,7 +32,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Navigation(pathPropertiesViewModel, drawingInfoViewModel, capturableImageViewModel)
+                    Navigation(
+                        pathPropertiesViewModel,
+                        drawingInfoViewModel,
+                        capturableImageViewModel
+                    )
                 }
             }
         }
@@ -50,16 +55,29 @@ fun Navigation(
     val currentPathProperty by pathPropertiesViewModel.currentPathProperty.collectAsState()
     val controller = rememberColorPickerController()
 
+    val navigateToPenCustomizer = {
+        navController.navigate("penCustomizer")
+    }
+    val navigateToCanvasPage = {
+        navController.navigate("canvasPage")
+    }
+    val navigateToPopBack = {
+        navController.popBackStack()
+    }
+
+    val drawingInfoDataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
+
 
     // TODO: change startDestination to change the starting screen
     NavHost(navController = navController, startDestination = "drawingList") {
         // TODO: Pass in the whole viewModel is a bad practice, but if not passing in the whole viewModel, then we need to pass in a ton of variable and functions
         composable("canvasPage") {
             CanvasPage(
-                navController,
                 pathPropertiesViewModel,
                 drawingInfoViewModel,
-                capturableImageViewModel
+                capturableImageViewModel,
+                navigateToPenCustomizer,
+                navigateToPopBack
             )
         }
         composable("penCustomizer") {
@@ -73,8 +91,10 @@ fun Navigation(
         }
         composable("drawingList") {
             DrawingListScreen(
-                navController,
-                drawingInfoViewModel
+                navigateToCanvasPage,
+                drawingInfoViewModel::setActiveCapturedImage,
+                drawingInfoViewModel::setActiveDrawingInfoById,
+                drawingInfoDataList
             )
         }
     }
