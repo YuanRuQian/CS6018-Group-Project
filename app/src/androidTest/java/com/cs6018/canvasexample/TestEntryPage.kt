@@ -1,30 +1,21 @@
 package com.cs6018.canvasexample
 
+import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-
-
-class DrawingInfoRepository  {
-    // Implement the repository methods with fake data or behavior for testing
-    // For example:
-    var activeDrawingInfo: MutableLiveData<DrawingInfo?> = MutableLiveData(null)
-    var _allDrawingInfo: LiveData<List<DrawingInfo>> = MutableLiveData(generateRandomTestDrawingInfoList(3))
-    var allDrawingInfo = _allDrawingInfo
-
-    suspend fun setActiveDrawingInfoById(i: Int) {}
-}
 
 
 class TestEntryPage {
@@ -32,16 +23,34 @@ class TestEntryPage {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    lateinit var navController: TestNavHostController
+    private lateinit var navController: TestNavHostController
+    private lateinit var dao: DrawingInfoDAO
+    private lateinit var db: DrawingInfoDatabase
+    private lateinit var scope: CoroutineScope
+    private lateinit var repository: DrawingInfoRepository
 
     @Before
-    fun setupAppNavHost() {
+    fun setup() {
+        // create a database in memory
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        db = Room.inMemoryDatabaseBuilder(
+            context, DrawingInfoDatabase::class.java).build()
+        dao = db.drawingInfoDao()
+        scope = CoroutineScope(Dispatchers.IO)
+        repository = DrawingInfoRepository(scope, dao)
+
+        val drawingInfoList = generateRandomTestDrawingInfoList(3)
+        drawingInfoList.forEach {
+            repository.addNewDrawingInfo(it)
+        }
+
+
         composeTestRule.setContent {
             navController = TestNavHostController(LocalContext.current)
             navController.navigatorProvider.addNavigator(ComposeNavigator())
             Navigation(
                 pathPropertiesViewModel = PathPropertiesViewModel(),
-                drawingInfoViewModel = DrawingInfoViewModel(DrawingInfoRepository()),
+                drawingInfoViewModel = DrawingInfoViewModel(repository),
                 capturableImageViewModel = CapturableImageViewModel(),
                 navController = navController
             )
@@ -60,38 +69,3 @@ class TestEntryPage {
     }
 }
 
-
-class TestCanvasPage {
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
-    val navigateToPopBack: () -> Boolean = {
-        false
-    }
-
-    @Before
-    fun setUp() {
-        composeTestRule.setContent {
-            // Your Compose UI hierarchy
-            CanvasPage(
-                pathPropertiesViewModel = PathPropertiesViewModel(),
-                drawingInfoViewModel = DrawingInfoViewModel(DrawingInfoRepository()),
-                capturableImageViewModel = CapturableImageViewModel(),
-                navigateToPenCustomizer = {},
-                navigateToPopBack = navigateToPopBack
-            )
-        }
-    }
-
-    @Test
-    fun testMyComposable() {
-        composeTestRule.onNodeWithText("Untitled").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Back").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Done").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Palette").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Undo").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Share").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("Erase").performClick()
-        composeTestRule.onNodeWithText("Draw").assertIsDisplayed()
-    }
-}

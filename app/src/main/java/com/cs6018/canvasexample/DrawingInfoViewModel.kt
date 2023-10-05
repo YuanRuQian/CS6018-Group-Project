@@ -27,7 +27,7 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
         repository.setActiveDrawingInfoById(id ?: 0)
     }
 
-    private fun addDrawingInfo(title: String, imageUrl: String?, thumbnail: ByteArray?) {
+    fun addDrawingInfo(title: String, imageUrl: String?, thumbnail: ByteArray?) {
         val drawingInfo = DrawingInfo(Date(), Date(), title, imageUrl, thumbnail)
         repository.addNewDrawingInfo(drawingInfo)
     }
@@ -75,7 +75,7 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
         }
     }
 
-    private fun updateThumbnailForActiveDrawingInfo(thumbnail: ByteArray) {
+    fun updateThumbnailForActiveDrawingInfo(thumbnail: ByteArray) {
         repository.updateDrawingInfoThumbnail(thumbnail, activeDrawingInfo.value?.id ?: 0)
     }
 
