@@ -21,6 +21,7 @@ import java.util.Date
 class DatabaseTest {
     private lateinit var dao: DrawingInfoDAO
     private lateinit var db: DrawingInfoDatabase
+    private var count = 0
 
     @Before
     fun createDb() {
@@ -47,6 +48,7 @@ class DatabaseTest {
                         Assert.assertEquals("TestImage", dao.fetchDrawingInfoWithId(0).asLiveData().value?.drawingTitle)
                     }
                     dao.addDrawingInfo(info)
+                    count += 1
                 }
             }
         }
@@ -57,7 +59,6 @@ class DatabaseTest {
         runBlocking {
             val lifecycleOwner = TestLifecycleOwner()
             val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
-            var count = 0
             lifecycleOwner.run {
                 withContext(Dispatchers.Main) {
                     dao.allDrawingInfo().asLiveData().observe(lifecycleOwner) {
