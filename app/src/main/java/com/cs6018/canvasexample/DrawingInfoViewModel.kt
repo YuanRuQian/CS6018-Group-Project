@@ -56,7 +56,6 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
             }
 
             val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, 256, 256)
-            // TODO: save the thumbnail of the image
             addDrawingInfo(title, imagePath, bitmapToByteArray(thumbnail))
             return imagePath
         } else {
@@ -79,9 +78,8 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
         repository.updateDrawingInfoThumbnail(thumbnail, activeDrawingInfo.value?.id ?: 0)
     }
 
-    // TODO: delete actual image file'
-
-    suspend fun deleteDrawingInfoWithId(id: Int) {
-        repository.deleteDrawingInfoWithId(id)
+    suspend fun deleteDrawingInfoWithId(drawingInfo: DrawingInfo, context: Context) {
+        deleteImageFile(drawingInfo.imagePath, context)
+        repository.deleteDrawingInfoWithId(drawingInfo.id)
     }
 }

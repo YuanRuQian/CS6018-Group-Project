@@ -119,7 +119,8 @@ fun Navigation(
                 navigateToCanvasPage,
                 drawingInfoViewModel::setActiveCapturedImage,
                 drawingInfoViewModel::setActiveDrawingInfoById,
-                drawingInfoDataList
+                drawingInfoDataList,
+                drawingInfoViewModel::deleteDrawingInfoWithId
             )
         }
     }
