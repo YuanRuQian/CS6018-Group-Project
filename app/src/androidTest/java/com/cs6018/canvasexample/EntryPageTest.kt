@@ -11,14 +11,18 @@ import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
 
-class TestEntryPage {
+@RunWith(AndroidJUnit4::class)
+class EntryPageTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -64,8 +68,8 @@ class TestEntryPage {
         composeTestRule.onNodeWithText("Drawing App").assertIsDisplayed()
         composeTestRule.onNodeWithText("3 drawings").assertIsDisplayed()
         composeTestRule.onNodeWithContentDescription("Add a new drawing").performClick()
-//        val route = navController.currentBackStackEntry?.destination?.route
-//        assertEquals(route, "canvasPage")
+        val route = navController.currentBackStackEntry?.destination?.route
+        assertEquals(route, "canvasPage")
     }
 }
 

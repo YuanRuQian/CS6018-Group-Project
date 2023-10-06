@@ -15,7 +15,7 @@ import org.junit.Rule
 import org.junit.Test
 
 
-class TestCanvasPage {
+class CanvasPageTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 

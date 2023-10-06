@@ -18,7 +18,7 @@ import java.io.IOException
 import java.util.Date
 
 @RunWith(AndroidJUnit4::class)
-class DatabaseInstrumentedTest {
+class DatabaseTest {
     private lateinit var dao: DrawingInfoDAO
     private lateinit var db: DrawingInfoDatabase
 
@@ -44,7 +44,7 @@ class DatabaseInstrumentedTest {
             lifecycleOwner.run {
                 withContext(Dispatchers.Main) {
                     dao.allDrawingInfo().asLiveData().observe(lifecycleOwner) {
-                        Assert.assertTrue(it.contains(info))
+                        Assert.assertEquals("TestImage", dao.fetchDrawingInfoWithId(0).asLiveData().value?.drawingTitle)
                     }
                     dao.addDrawingInfo(info)
                 }
@@ -52,11 +52,24 @@ class DatabaseInstrumentedTest {
         }
     }
 
-    // TODO: Write a test for deleting a drawing
-//    @Test
-//    fun testUpdateADrawing() {
-//        runBlocking {
-//
-//        }
-//    }
+    @Test
+    fun testDeleteADrawing() {
+        runBlocking {
+            val lifecycleOwner = TestLifecycleOwner()
+            val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
+            var count = 0
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    dao.allDrawingInfo().asLiveData().observe(lifecycleOwner) {
+                        Assert.assertEquals(count, it.size)
+                    }
+                    dao.addDrawingInfo(info)
+                    count += 1
+                    dao.deleteDrawingInfoWithId(0)
+                    count -= 1
+                }
+            }
+        }
+    }
+
 }
