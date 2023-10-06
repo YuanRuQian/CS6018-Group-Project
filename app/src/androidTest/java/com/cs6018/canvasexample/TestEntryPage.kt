@@ -13,6 +13,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -60,10 +62,13 @@ class TestEntryPage {
     @Test
     fun testEntryPage() {
         // wait for splash screen to finish, then check for the presence of the drawing list
-        Thread.sleep(2000)
-        composeTestRule.onNodeWithText("Drawing App").assertIsDisplayed()
-        composeTestRule.onNodeWithText("3 drawings").assertIsDisplayed()
-        composeTestRule.onNodeWithContentDescription("Add a new drawing").performClick()
+        scope.launch {
+            delay(2000)
+            composeTestRule.onNodeWithText("Drawing App").assertIsDisplayed()
+            composeTestRule.onNodeWithText("3 drawings").assertIsDisplayed()
+            composeTestRule.onNodeWithContentDescription("Add a new drawing").performClick()
+        }
+
 //        val route = navController.currentBackStackEntry?.destination?.route
 //        assertEquals(route, "canvasPage")
     }
