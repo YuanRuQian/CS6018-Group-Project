@@ -1,5 +1,6 @@
 package com.cs6018.canvasexample
 
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.compose.ui.test.hasTestTag
@@ -29,6 +30,14 @@ class TestListViewViewModel : ViewModel() {
 
     private val _setActiveDrawingInfoByIdClickCounter = MutableLiveData(0)
     val setActiveDrawingInfoByIdClickCounter: LiveData<Int> = _setActiveDrawingInfoByIdClickCounter
+
+    private val _removeListItemClickCounter = MutableLiveData(0)
+    val removeListItemClickCounter: LiveData<Int> = _removeListItemClickCounter
+
+    fun incrementRemoveListItemClickCounter() {
+        _removeListItemClickCounter.value = (_removeListItemClickCounter.value ?: 0) + 1
+        println("incrementRemoveListItemClickCounter : ${_removeListItemClickCounter.value}")
+    }
 
     fun incrementNavigateToCanvasPageClickCounter() {
         _navigateToCanvasPageClickCounter.value = (_navigateToCanvasPageClickCounter.value ?: 0) + 1
@@ -103,13 +112,19 @@ class ListViewTest {
             testViewModel.incrementSetActiveDrawingInfoByIdClickCounter()
         }
 
+        val removeListItemMock = { _: DrawingInfo, _: Context ->
+            println("removeListItemMock")
+            testViewModel.incrementRemoveListItemClickCounter()
+        }
+
         composeTestRule.setContent {
             CanvasExampleTheme {
                 DrawingListScreen(
                     navigateToCanvasPageMock,
                     setActiveCapturedImageMock,
                     setActiveDrawingInfoByIdMock,
-                    dataList
+                    dataList,
+                    removeListItemMock
                 )
             }
         }

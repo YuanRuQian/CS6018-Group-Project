@@ -42,16 +42,55 @@ fun saveImage(bitmap: Bitmap, context: Context): String? {
         val imageUri = imageFile.toUri().toString() // Convert the URI to a string
 
         Log.d("CanvasPage", "Image saved to $imageUri")
-        Toast.makeText(context, "Image saved to $imageUri", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "Image was saved to successfully", Toast.LENGTH_LONG).show()
 
         return imageUri // Return the saved image's URI as a string
     } catch (e: Exception) {
         e.printStackTrace()
         Log.e("CanvasPage", "Error occurred while saving image: ${e.message}")
-        Toast.makeText(context, "Error occurred while saving image: ${e.message}", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            context,
+            "Error occurred while saving image: ${e.message}",
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     return null // Return null in case of an error
+}
+
+fun deleteImageFile(imagePath: String?, context: Context): Boolean {
+    if (imagePath != null) {
+        try {
+            val imageFile = File(Uri.parse(imagePath).path ?: "")
+            if (imageFile.exists()) {
+                val deleted = imageFile.delete()
+                if (deleted) {
+                    Log.d("CanvasPage", "Image deleted: $imagePath")
+                    Toast.makeText(context, "Image deleted", Toast.LENGTH_LONG).show()
+                    return true
+                } else {
+                    Log.e("CanvasPage", "Failed to delete image: $imagePath")
+                    Toast.makeText(context, "Failed to delete image", Toast.LENGTH_LONG).show()
+                }
+            } else {
+                Log.e("CanvasPage", "Image file not found: $imagePath")
+                Toast.makeText(context, "Image file not found", Toast.LENGTH_LONG).show()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("CanvasPage", "Error occurred while deleting image: ${e.message}")
+            Toast.makeText(
+                context,
+                "Error occurred while deleting image: ${e.message}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    } else {
+        Log.e("CanvasPage", "Invalid image path")
+        Toast.makeText(context, "Invalid image path", Toast.LENGTH_LONG).show()
+    }
+
+    return false
 }
 
 
@@ -68,13 +107,17 @@ fun overwriteCurrentImageFile(bitmap: Bitmap, context: Context, filePath: String
         outputStream.close()
 
         Log.d("CanvasPage", "Image saved to $imageUri")
-        Toast.makeText(context, "Image saved to $imageUri", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "Image changes were saved successfully", Toast.LENGTH_LONG).show()
 
         return imageUri.toString()
     } catch (e: Exception) {
         e.printStackTrace()
         Log.e("CanvasPage", "Error occurred while saving image: ${e.message}")
-        Toast.makeText(context, "Error occurred while saving image: ${e.message}", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            context,
+            "Error occurred while saving image: ${e.message}",
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     return null // Return null in case of an error
@@ -83,7 +126,11 @@ fun overwriteCurrentImageFile(bitmap: Bitmap, context: Context, filePath: String
 
 fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
     val outputStream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream) // Compress as PNG or JPEG based on your preference
+    bitmap.compress(
+        Bitmap.CompressFormat.PNG,
+        100,
+        outputStream
+    ) // Compress as PNG or JPEG based on your preference
     return outputStream.toByteArray()
 }
 

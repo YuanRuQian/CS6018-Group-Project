@@ -94,4 +94,20 @@ class DrawingInfoViewModelTest {
             println("Image path: $imagePath")
         }
     }
+
+    @Test
+    fun testDeleteDrawingInfo() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        scope.launch {
+            val drawingInfoList = viewModel.allDrawingInfo.value
+            if (drawingInfoList != null) {
+                for (drawingInfo in drawingInfoList) {
+                    viewModel.deleteDrawingInfoWithId(drawingInfo, context)
+                    assert(viewModel.allDrawingInfo.value?.contains(drawingInfo) == false)
+                }
+            } else {
+                assert(false)
+            }
+        }
+    }
 }
