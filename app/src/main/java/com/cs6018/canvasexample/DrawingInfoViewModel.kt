@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.media.ThumbnailUtils
 import android.util.Log
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -34,7 +33,7 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
     }
 
     fun setActiveCapturedImage(imageBitmap: Bitmap?) {
-        (activeCapturedImage as MutableLiveData).postValue(imageBitmap)
+        (activeCapturedImage as MutableLiveData).value = imageBitmap
         Log.d("DrawingInfoViewModel", "Bitmap is set as activeCapturedImage.")
     }
 
