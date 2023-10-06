@@ -1,12 +1,11 @@
 package com.cs6018.canvasexample
 
 import android.os.Bundle
-import android.view.animation.OvershootInterpolator
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,15 +18,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,8 +33,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cs6018.canvasexample.ui.theme.CanvasExampleTheme
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,29 +130,6 @@ fun Navigation(
 fun SplashScreen(
     onSplashScreenComplete: ()-> Unit){
 
-    val scale = remember{
-        Animatable(0f)
-    }
-
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(key1 = true ){
-        scale.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(
-                durationMillis = 2000,
-                easing = {
-                    OvershootInterpolator(1.5f).getInterpolation(it)
-                }
-            )
-        )
-        delay(1500)
-
-        coroutineScope.launch {
-            onSplashScreenComplete()
-        }
-    }
-
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -170,16 +140,20 @@ fun SplashScreen(
         ){
             Image(
                 painter = painterResource(id = R.drawable.splash),
-                contentDescription = "Splash Icon",
-                modifier = Modifier.scale(scale.value)
+                contentDescription = "Splash Icon"
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = "Draw Better Than It",
             fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.scale(scale.value)
+            fontWeight = FontWeight.Bold
         )
     }
+
+    // TODO: add animation
+    // Call onSplashScreenComplete to navigate to the main screen
+    Handler(Looper.getMainLooper()).postDelayed({
+        onSplashScreenComplete()
+    }, 2000) // Delay for 2 seconds
 }
