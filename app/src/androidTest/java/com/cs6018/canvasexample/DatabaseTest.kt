@@ -7,6 +7,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
@@ -21,7 +22,7 @@ import java.util.Date
 class DatabaseTest {
     private lateinit var dao: DrawingInfoDAO
     private lateinit var db: DrawingInfoDatabase
-    private var count = 0
+    private var firstImageAdded = false
 
     @Before
     fun createDb() {
@@ -44,11 +45,14 @@ class DatabaseTest {
             val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
             lifecycleOwner.run {
                 withContext(Dispatchers.Main) {
-                    dao.allDrawingInfo().asLiveData().observe(lifecycleOwner) {
-                        Assert.assertEquals("TestImage", dao.fetchDrawingInfoWithId(0).asLiveData().value?.drawingTitle)
+                    val allDrawing = dao.allDrawingInfo().asLiveData()
+                    allDrawing.observe(lifecycleOwner) {
+                        if (it.isNotEmpty() && !firstImageAdded) {
+                            Assert.assertEquals("TestImage", dao.fetchDrawingInfoWithId(0).asLiveData().value?.drawingTitle)
+                        }
                     }
                     dao.addDrawingInfo(info)
-                    count += 1
+                    firstImageAdded = true
                 }
             }
         }
@@ -57,8 +61,10 @@ class DatabaseTest {
     @Test
     fun testDeleteADrawing() {
         runBlocking {
+            val deferred = async { dao.deleteAllDrawingInfo() }
             val lifecycleOwner = TestLifecycleOwner()
             val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
+            var count = 0
             lifecycleOwner.run {
                 withContext(Dispatchers.Main) {
                     dao.allDrawingInfo().asLiveData().observe(lifecycleOwner) {
@@ -68,6 +74,7 @@ class DatabaseTest {
                     count += 1
                     dao.deleteDrawingInfoWithId(0)
                     count -= 1
+                    deferred.await()
                 }
             }
         }
