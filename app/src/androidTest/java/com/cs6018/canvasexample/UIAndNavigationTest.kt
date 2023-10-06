@@ -5,6 +5,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.ComposeNavigator
@@ -14,7 +15,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 
 
 @RunWith(AndroidJUnit4::class)
-class EntryPageTest {
+class UIAndNavigationTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -68,8 +68,21 @@ class EntryPageTest {
         composeTestRule.onNodeWithText("Drawing App").assertIsDisplayed()
         composeTestRule.onNodeWithText("3 drawings").assertIsDisplayed()
         composeTestRule.onNodeWithContentDescription("Add a new drawing").performClick()
-        val route = navController.currentBackStackEntry?.destination?.route
-        assertEquals(route, "canvasPage")
+        Thread.sleep(2000)
+
+        composeTestRule.onNodeWithText("Untitled").assertIsDisplayed()
+        val backBtn = composeTestRule.onNodeWithText("Back")
+        backBtn.assertIsDisplayed()
+        composeTestRule.onNodeWithText("Done").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Palette").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Undo").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Share").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("Erase").performClick()
+        composeTestRule.onNodeWithText("Draw").assertIsDisplayed()
+        backBtn.performClick()
+        Thread.sleep(2000)
+
+        composeTestRule.onNodeWithText("Drawing App").assertIsDisplayed()
     }
 }
 
