@@ -1,16 +1,11 @@
 package com.cs6018.canvasexample
 
-import android.util.Log
-import androidx.compose.material3.AssistChip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 import org.junit.Assert
 
@@ -18,7 +13,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class PathPropertiesViewModelInstrumentedTest {
+class PathPropertiesViewModelTest {
 
     @Test
     fun testInitialization() {

@@ -5,20 +5,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
 
-class TestEntryPage {
+@RunWith(AndroidJUnit4::class)
+class UIAndNavigationTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -34,7 +39,8 @@ class TestEntryPage {
         // create a database in memory
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
-            context, DrawingInfoDatabase::class.java).build()
+            context, DrawingInfoDatabase::class.java
+        ).build()
         dao = db.drawingInfoDao()
         scope = CoroutineScope(Dispatchers.IO)
         repository = DrawingInfoRepository(scope, dao)
@@ -63,9 +69,24 @@ class TestEntryPage {
         Thread.sleep(2000)
         composeTestRule.onNodeWithText("Drawing App").assertIsDisplayed()
         composeTestRule.onNodeWithText("3 drawings").assertIsDisplayed()
-        composeTestRule.onNodeWithContentDescription("Add a new drawing").performClick()
-//        val route = navController.currentBackStackEntry?.destination?.route
-//        assertEquals(route, "canvasPage")
+
+        scope.launch {
+            composeTestRule.onNodeWithContentDescription("Add a new drawing").performClick()
+
+            composeTestRule.onNodeWithText("Untitled").assertIsDisplayed()
+            val backBtn = composeTestRule.onNodeWithText("Back")
+            backBtn.assertIsDisplayed()
+            composeTestRule.onNodeWithText("Done").assertIsDisplayed()
+            composeTestRule.onNodeWithText("Palette").assertIsDisplayed()
+            composeTestRule.onNodeWithText("Undo").assertIsDisplayed()
+            composeTestRule.onNodeWithText("Share").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("Erase").performClick()
+            composeTestRule.onNodeWithText("Draw").assertIsDisplayed()
+
+            backBtn.performClick()
+
+            composeTestRule.onNodeWithText("Drawing App").assertIsDisplayed()
+        }
     }
 }
 

@@ -9,7 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class PathPropertiesInstrumentedTest {
+class PathPropertiesTest {
     @Test
     fun testInitialization() {
         val pathProperties = PathProperties()
