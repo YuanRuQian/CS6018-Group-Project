@@ -72,7 +72,6 @@ fun DrawingList(
     }
 }
 
-// TODO: when get back / first landing, scroll to top
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
