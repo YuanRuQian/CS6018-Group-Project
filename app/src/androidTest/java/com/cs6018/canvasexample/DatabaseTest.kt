@@ -39,27 +39,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun testAddADrawing() {
-        runBlocking {
-            val lifecycleOwner = TestLifecycleOwner()
-            val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
-            lifecycleOwner.run {
-                withContext(Dispatchers.Main) {
-                    val allDrawing = dao.allDrawingInfo().asLiveData()
-                    allDrawing.observe(lifecycleOwner, object : Observer<List<DrawingInfo>> {
-                        override fun onChanged(value: List<DrawingInfo>) {
-                            Assert.assertEquals("TestImage", value[0].drawingTitle)
-                            allDrawing.removeObserver(this)
-                        }
-                    })
-                    dao.addDrawingInfo(info)
-                }
-            }
-        }
-    }
-
-    @Test
-    fun testDeleteADrawing() {
+    fun testAddAndDeleteADrawing() {
         runBlocking {
             val lifecycleOwner = TestLifecycleOwner()
             val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
