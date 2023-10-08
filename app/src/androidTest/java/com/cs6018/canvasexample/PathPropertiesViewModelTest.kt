@@ -19,15 +19,12 @@ class PathPropertiesViewModelTest {
     fun testInitialization() {
         val vm = PathPropertiesViewModel()
         Assert.assertSame("#ffffff", vm.hexColorCode.value)
-        // currentPathProperties is test in PathPropertiesInstrumentedTest
-        // TODO test eraseDrawToggleButtonIcon?
+        // currentPathProperties is test in PathPropertiesTest
         Assert.assertEquals(PathPropertiesViewModel.EraseDrawToggleButtonTextEnum.DRAW_MODE_TEXT, vm.eraseDrawToggleButtonText.value)
         Assert.assertEquals(MotionEvent.Idle, vm.motionEvent.value);
         Assert.assertEquals(Offset.Unspecified, vm.currentPosition.value)
         Assert.assertEquals(Offset.Unspecified, vm.previousPosition.value)
     }
-
-    // TODO test update paths an paths undone
 
     @Test
     fun testReset() {
@@ -76,7 +73,6 @@ class PathPropertiesViewModelTest {
         Assert.assertTrue(vm.isEraseMode())
     }
 
-    // TODO test toggleDrawMode?
 
     @Test
     fun testUndoLastAction() {

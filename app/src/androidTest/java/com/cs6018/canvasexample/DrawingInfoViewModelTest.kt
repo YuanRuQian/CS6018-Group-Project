@@ -94,7 +94,7 @@ class DrawingInfoViewModelTest {
         scope.launch {
             viewModel.setActiveCapturedImage(bitmap)
             viewModel.setActiveDrawingInfoById(1)
-            val imagePath = viewModel.addDrawingInfoWithRecentCapturedImage(context)
+            val imagePath = viewModel.addDrawingInfoWithRecentCapturedImage(context, "Untitled")
             assert(imagePath != null)
             println("Image path: $imagePath")
 

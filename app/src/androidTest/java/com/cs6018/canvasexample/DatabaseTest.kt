@@ -1,6 +1,7 @@
 package com.cs6018.canvasexample
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.testing.TestLifecycleOwner
@@ -52,11 +53,13 @@ class DatabaseTest {
                             override fun onChanged(value: List<DrawingInfo>) {
                                 when (count) {
                                     1 -> {
+                                        Log.d("DBTest", "1-add test")
                                         Assert.assertEquals(1, value.size)
                                         Assert.assertEquals("TestImage", value[0].drawingTitle)
                                     }
 
                                     2 -> {
+                                        Log.d("DBTest", "2-delete test")
                                         Assert.assertEquals(0, value.size)
                                         allDrawing.removeObserver(this)
                                     }
@@ -67,7 +70,42 @@ class DatabaseTest {
                     dao.addDrawingInfo(info)
                     count += 1
                     dao.deleteDrawingInfoWithId(0)
-                    count += 2
+                    count += 1
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testUpdateDrawingInfoTitle() {
+        runBlocking {
+            val lifecycleOwner = TestLifecycleOwner()
+            val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
+            var count = 0
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    val allDrawing = dao.allDrawingInfo().asLiveData()
+                    allDrawing
+                        .observe(lifecycleOwner, object : Observer<List<DrawingInfo>> {
+                            override fun onChanged(value: List<DrawingInfo>) {
+                                when (count) {
+                                    1 -> {
+                                        Assert.assertEquals(1, value.size)
+                                        Assert.assertEquals("TestImage", value[0].drawingTitle)
+                                    }
+
+                                    2 -> {
+                                        Assert.assertEquals(1, value.size)
+                                        Assert.assertEquals("New Title", value[0].drawingTitle)
+                                        allDrawing.removeObserver(this)
+                                    }
+                                }
+                            }
+                        })
+                    dao.addDrawingInfo(info)
+                    count += 1
+                    dao.updateDrawingInfoTitle("New Title", 0)
+                    count += 1
                 }
             }
         }
