@@ -32,12 +32,16 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
         repository.addNewDrawingInfo(drawingInfo)
     }
 
+    private fun updateDrawingInfoTitle(title:String) {
+        repository.updateDrawingInfoTitle(title, activeDrawingInfo.value?.id ?: 0)
+    }
+
     fun setActiveCapturedImage(imageBitmap: Bitmap?) {
         (activeCapturedImage as MutableLiveData).value = imageBitmap
         Log.d("DrawingInfoViewModel", "Bitmap is set as activeCapturedImage.")
     }
 
-    fun addDrawingInfoWithRecentCapturedImage(context: Context): String? {
+    fun addDrawingInfoWithRecentCapturedImage(context: Context, drawingTitle: String): String? {
 
         val bitmap = activeCapturedImage.value
         if (bitmap == null) {
@@ -46,8 +50,6 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
         }
 
         if (activeDrawingInfo.value == null) {
-            val title = "Untitled"
-
 
             val imagePath = saveImage(bitmap, context)
             if (imagePath == null) {
@@ -56,7 +58,7 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
             }
 
             val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, 256, 256)
-            addDrawingInfo(title, imagePath, bitmapToByteArray(thumbnail))
+            addDrawingInfo(drawingTitle, imagePath, bitmapToByteArray(thumbnail))
             return imagePath
         } else {
             // TODO: update the current drawing's title
@@ -65,6 +67,10 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
             if (imagePath == null) {
                 Log.d("DrawingInfoViewModel", "Image path is null.")
                 return null
+            }
+            if (drawingTitle != activeDrawingInfo.value?.drawingTitle) {
+                Log.d("DrawingInfoViewModel",  "$drawingTitle, ${activeDrawingInfo.value?.drawingTitle}")
+                updateDrawingInfoTitle(drawingTitle)
             }
 
             val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, 256, 256)

@@ -15,9 +15,16 @@ class DrawingInfoRepository(private val scope: CoroutineScope, private val dao: 
     var activeDrawingInfo: MutableLiveData<DrawingInfo?> = MutableLiveData(null)
 
     val allDrawingInfo = dao.allDrawingInfo().asLiveData()
+
     fun addNewDrawingInfo(drawingInfo: DrawingInfo) {
         scope.launch {
             dao.addDrawingInfo(drawingInfo)
+        }
+    }
+
+    fun updateDrawingInfoTitle(title: String, id: Int) {
+        scope.launch {
+            dao.updateDrawingInfoTitle(title, id)
         }
     }
 

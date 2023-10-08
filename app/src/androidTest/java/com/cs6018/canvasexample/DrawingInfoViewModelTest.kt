@@ -1,6 +1,7 @@
 package com.cs6018.canvasexample
 
 import android.content.Context
+import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.room.Room
@@ -50,9 +51,13 @@ class DrawingInfoViewModelTest {
 
             lifecycleOwner.run {
                 withContext(Dispatchers.Main) {
-                    dao.allDrawingInfo().asLiveData().observe(lifecycleOwner) {
-                        viewModel.allDrawingInfo.value?.containsAll(it)
-                    }
+                    val allDrawing = dao.allDrawingInfo().asLiveData()
+                    allDrawing.observe(lifecycleOwner, object : Observer<List<DrawingInfo>> {
+                        override fun onChanged(value: List<DrawingInfo>) {
+                            assert(value.containsAll(drawingInfoList))
+                            allDrawing.removeObserver(this)
+                        }
+                    })
                 }
             }
         }
@@ -73,7 +78,7 @@ class DrawingInfoViewModelTest {
     fun testUpdateThumbnail() {
         val thumbnail = generateRandomByteArray(100)
 
-        scope.launch{
+        scope.launch {
             viewModel.setActiveDrawingInfoById(1)
             viewModel.updateThumbnailForActiveDrawingInfo(thumbnail)
             val fetchedDrawingInfo = db.drawingInfoDao().fetchDrawingInfoWithId(1).firstOrNull()
@@ -89,9 +94,13 @@ class DrawingInfoViewModelTest {
         scope.launch {
             viewModel.setActiveCapturedImage(bitmap)
             viewModel.setActiveDrawingInfoById(1)
-            val imagePath = viewModel.addDrawingInfoWithRecentCapturedImage(context)
+            val imagePath = viewModel.addDrawingInfoWithRecentCapturedImage(context, "Untitled")
             assert(imagePath != null)
             println("Image path: $imagePath")
+
+            // delete test image to prevent memory leak
+            deleteImageFile(imagePath, context)
+            assert(!doesFileExist(imagePath))
         }
     }
 

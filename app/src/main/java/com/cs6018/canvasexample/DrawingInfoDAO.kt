@@ -19,6 +19,12 @@ interface DrawingInfoDAO {
     @Query("SELECT * FROM drawing_info WHERE id = :id")
     fun fetchDrawingInfoWithId(id: Int): Flow<DrawingInfo?>
 
+    @Query("UPDATE drawing_info SET drawingTitle = :title WHERE id = :id")
+    suspend fun updateDrawingInfoTitle(
+        title: String,
+        id: Int
+    )
+
     @Query("UPDATE drawing_info SET thumbnail = :thumbnailByteArray, lastModifiedDate = :lastModifiedTime WHERE id = :id")
     suspend fun updateDrawingInfoThumbnailAndLastModifiedTimeWithId(
         thumbnailByteArray: ByteArray,
@@ -28,4 +34,7 @@ interface DrawingInfoDAO {
 
     @Query("DELETE FROM drawing_info WHERE id = :id")
     suspend fun deleteDrawingInfoWithId(id: Int)
+
+    @Query("DELETE FROM drawing_info")
+    suspend fun deleteAllDrawingInfo()
 }
