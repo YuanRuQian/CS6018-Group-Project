@@ -16,7 +16,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.junit.Before
@@ -76,7 +75,7 @@ class UIAndNavigationTest {
         scope.launch {
             // test EntryPage UI + navigation from EntryPage to CanvasPage
             composeTestRule.onNodeWithContentDescription("Add a new drawing").performClick()
-            Thread.sleep(200)
+            delay(100)
             composeTestRule.onNodeWithText("Untitled").assertIsDisplayed()
 
             // test CanvasPage UI
