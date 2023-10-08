@@ -30,6 +30,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -257,13 +258,24 @@ fun CanvasPage(
 
     val activeDrawingInfo by drawingInfoViewModel.activeDrawingInfo.observeAsState()
 
+
     var drawingTitle by rememberSaveable {
         mutableStateOf(
             activeDrawingInfo?.drawingTitle ?: "Untitled"
         )
     }
 
-    Log.d("CanvasPage", "activeDrawingInfo | id: ${activeDrawingInfo?.id}, title: ${activeDrawingInfo?.drawingTitle}")
+    // Use LaunchedEffect to reset drawingTitle when activeDrawingInfo?.drawingTitle changes
+    LaunchedEffect(activeDrawingInfo?.drawingTitle) {
+        val newDrawingTitle = activeDrawingInfo?.drawingTitle ?: "Untitled"
+        drawingTitle = newDrawingTitle
+        Log.d("CanvasPage", "LaunchedEffect | update drawing title: $newDrawingTitle")
+    }
+
+    Log.d(
+        "CanvasPage",
+        "activeDrawingInfo | id: ${activeDrawingInfo?.id}, title: ${activeDrawingInfo?.drawingTitle}, drawingTitle $drawingTitle"
+    )
 
     BackHandler {
         customBackNavigation(
