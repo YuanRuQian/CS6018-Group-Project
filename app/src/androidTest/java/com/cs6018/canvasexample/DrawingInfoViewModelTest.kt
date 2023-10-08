@@ -97,6 +97,10 @@ class DrawingInfoViewModelTest {
             val imagePath = viewModel.addDrawingInfoWithRecentCapturedImage(context)
             assert(imagePath != null)
             println("Image path: $imagePath")
+
+            // delete test image to prevent memory leak
+            deleteImageFile(imagePath, context)
+            assert(!doesFileExist(imagePath))
         }
     }
 

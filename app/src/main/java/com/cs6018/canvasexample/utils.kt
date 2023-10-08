@@ -58,6 +58,15 @@ fun saveImage(bitmap: Bitmap, context: Context): String? {
     return null // Return null in case of an error
 }
 
+fun doesFileExist(filePath: String?): Boolean {
+    if (filePath != null) {
+        val imageFile = File(Uri.parse(filePath).path ?: "")
+        return imageFile.exists()
+    }
+
+    return false
+}
+
 fun deleteImageFile(imagePath: String?, context: Context): Boolean {
     if (imagePath != null) {
         try {
