@@ -2,7 +2,6 @@ package com.cs6018.canvasexample
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.testing.TestLifecycleOwner
@@ -96,8 +95,9 @@ class DatabaseTest {
                                     }
 
                                     2 -> {
-                                        Assert.assertEquals(0, value.size)
+                                        Assert.assertEquals(1, value.size)
                                         Assert.assertEquals("New Title", value[0].drawingTitle)
+                                        allDrawing.removeObserver(this)
                                     }
                                 }
                             }
