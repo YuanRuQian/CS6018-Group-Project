@@ -72,7 +72,7 @@ class UIAndNavigationTest {
 
         scope.launch {
             composeTestRule.onNodeWithContentDescription("Add a new drawing").performClick()
-
+            Thread.sleep(200)
             composeTestRule.onNodeWithText("Untitled").assertIsDisplayed()
             val backBtn = composeTestRule.onNodeWithText("Back")
             backBtn.assertIsDisplayed()
