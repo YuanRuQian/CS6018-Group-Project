@@ -263,7 +263,7 @@ fun CanvasPage(
         )
     }
 
-    Log.d("CanvasPage", "activeDrawingInfo | id: ${activeDrawingInfo?.id}")
+    Log.d("CanvasPage", "activeDrawingInfo | id: ${activeDrawingInfo?.id}, title: ${activeDrawingInfo?.drawingTitle}")
 
     BackHandler {
         customBackNavigation(
@@ -330,6 +330,7 @@ fun CanvasPage(
                                 captureController,
                                 pathPropertiesViewModel,
                                 capturableImageViewModel,
+                                drawingTitle,
                                 navigateToPopBack
                             )
                         }
@@ -381,11 +382,13 @@ fun saveCurrentDrawing(
     captureController: CaptureController,
     pathPropertiesViewModel: PathPropertiesViewModel,
     captureableImageViewModel: CapturableImageViewModel,
+    drawingTitle: String,
     navigateToPopBack: () -> Boolean
 ) {
     coroutineScope.launch {
         captureController.capture()
     }
+    Log.d("CanvasPage", "SaveCurrentDrawing: $drawingTitle")
 
     coroutineScope.launch {
         Log.d("CanvasPage", "saveCurrentDrawing | Waiting for signal")
@@ -393,7 +396,7 @@ fun saveCurrentDrawing(
         captureableImageViewModel.setNewSignalChannel()
 
         val savedImagePath =
-            drawingInfoViewModel.addDrawingInfoWithRecentCapturedImage(context)
+            drawingInfoViewModel.addDrawingInfoWithRecentCapturedImage(context, drawingTitle)
         Log.d("CanvasPage", "Image saved to $savedImagePath")
 
 
