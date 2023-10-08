@@ -67,12 +67,10 @@ class UIAndNavigationTest {
 
     @Test
     fun testEntryPage() {
-        // wait for splash screen to finish, then check for the presence of the drawing list
-        Thread.sleep(2000)
-        composeTestRule.onNodeWithText("Drawing App").assertIsDisplayed()
-        composeTestRule.onNodeWithText("3 drawings").assertIsDisplayed()
-
         scope.launch {
+            delay(2000)
+            composeTestRule.onNodeWithText("Drawing App").assertIsDisplayed()
+            composeTestRule.onNodeWithText("3 drawings").assertIsDisplayed()
             // test EntryPage UI + navigation from EntryPage to CanvasPage
             composeTestRule.onNodeWithContentDescription("Add a new drawing").performClick()
             delay(100)
