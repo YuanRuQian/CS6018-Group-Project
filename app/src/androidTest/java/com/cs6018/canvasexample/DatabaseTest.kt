@@ -40,7 +40,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun testAddAndDeleteADrawing() {
+    fun testAddAndDeleteAndUpdateADrawing() {
         runBlocking {
             val lifecycleOwner = TestLifecycleOwner()
             val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
@@ -57,9 +57,14 @@ class DatabaseTest {
                                         Assert.assertEquals(1, value.size)
                                         Assert.assertEquals("TestImage", value[0].drawingTitle)
                                     }
-
                                     2 -> {
-                                        Log.d("DBTest", "2-delete test")
+                                        Log.d("DBTest", "2-update title")
+                                        Assert.assertEquals(1, value.size)
+                                        Assert.assertEquals("New Title", value[0].drawingTitle)
+                                    }
+
+                                    3 -> {
+                                        Log.d("DBTest", "3-delete test")
                                         Assert.assertEquals(0, value.size)
                                         allDrawing.removeObserver(this)
                                     }
@@ -69,46 +74,12 @@ class DatabaseTest {
 
                     dao.addDrawingInfo(info)
                     count += 1
+                    dao.updateDrawingInfoTitle("New Title", 0)
+                    count += 1
                     dao.deleteDrawingInfoWithId(0)
                     count += 1
                 }
             }
         }
     }
-
-    @Test
-    fun testUpdateDrawingInfoTitle() {
-        runBlocking {
-            val lifecycleOwner = TestLifecycleOwner()
-            val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
-            var count = 0
-            lifecycleOwner.run {
-                withContext(Dispatchers.Main) {
-                    val allDrawing = dao.allDrawingInfo().asLiveData()
-                    allDrawing
-                        .observe(lifecycleOwner, object : Observer<List<DrawingInfo>> {
-                            override fun onChanged(value: List<DrawingInfo>) {
-                                when (count) {
-                                    1 -> {
-                                        Assert.assertEquals(1, value.size)
-                                        Assert.assertEquals("TestImage", value[0].drawingTitle)
-                                    }
-
-                                    2 -> {
-                                        Assert.assertEquals(1, value.size)
-                                        Assert.assertEquals("New Title", value[0].drawingTitle)
-                                        allDrawing.removeObserver(this)
-                                    }
-                                }
-                            }
-                        })
-                    dao.addDrawingInfo(info)
-                    count += 1
-                    dao.updateDrawingInfoTitle("New Title", 0)
-                    count += 1
-                }
-            }
-        }
-    }
-
 }
