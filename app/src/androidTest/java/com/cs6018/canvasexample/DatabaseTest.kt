@@ -17,7 +17,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
-import java.util.Date
 
 @RunWith(AndroidJUnit4::class)
 class DatabaseTest {
@@ -43,7 +42,8 @@ class DatabaseTest {
     fun testAddAndDeleteAndUpdateADrawing() {
         runBlocking {
             val lifecycleOwner = TestLifecycleOwner()
-            val info = DrawingInfo(Date(), Date(), "TestImage", null, null)
+            val drawingInfoSize = 10
+            val drawingInfo = generateRandomTestDrawingInfoList(drawingInfoSize)
             var count = 0
             lifecycleOwner.run {
                 withContext(Dispatchers.Main) {
@@ -52,32 +52,55 @@ class DatabaseTest {
                         .observe(lifecycleOwner, object : Observer<List<DrawingInfo>> {
                             override fun onChanged(value: List<DrawingInfo>) {
                                 when (count) {
-                                    1 -> {
-                                        Log.d("DBTest", "1-add test")
-                                        Assert.assertEquals(1, value.size)
-                                        Assert.assertEquals("TestImage", value[0].drawingTitle)
-                                    }
-                                    2 -> {
-                                        Log.d("DBTest", "2-update title")
-                                        Assert.assertEquals(1, value.size)
-                                        Assert.assertEquals("New Title", value[0].drawingTitle)
+                                    drawingInfoSize -> {
+                                        Log.d("DBTest", "add test")
+                                        Assert.assertTrue(
+                                            drawingInfo.containsAll(value)
+                                        )
+                                        Assert.assertTrue(
+                                            isDrawingInfoListOrderedByLastModifiedDateByDesc(value)
+                                        )
                                     }
 
-                                    3 -> {
-                                        Log.d("DBTest", "3-delete test")
-                                        Assert.assertEquals(0, value.size)
+                                    drawingInfoSize * 2 -> {
+                                        Log.d("DBTest", "update title")
+                                        value.forEach {
+                                            Assert.assertEquals("New Title", it.drawingTitle)
+                                        }
+                                    }
+
+                                    drawingInfoSize * 3 -> {
+                                        Log.d("DBTest", "delete test")
+                                        Assert.assertEquals(
+                                            0,
+                                            value.size
+                                        )
                                         allDrawing.removeObserver(this)
+                                    }
+
+                                    else -> {
+                                        Assert.assertTrue(
+                                            isDrawingInfoListOrderedByLastModifiedDateByDesc(value)
+                                        )
                                     }
                                 }
                             }
                         })
 
-                    dao.addDrawingInfo(info)
-                    count += 1
-                    dao.updateDrawingInfoTitle("New Title", 0)
-                    count += 1
-                    dao.deleteDrawingInfoWithId(0)
-                    count += 1
+                    drawingInfo.forEach {
+                        dao.addDrawingInfo(it)
+                        count += 1
+                    }
+
+                    drawingInfo.forEach {
+                        dao.updateDrawingInfoTitle("New Title", it.id)
+                        count += 1
+                    }
+
+                    drawingInfo.forEach {
+                        dao.deleteDrawingInfoWithId(it.id)
+                        count += 1
+                    }
                 }
             }
         }

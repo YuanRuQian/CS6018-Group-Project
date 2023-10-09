@@ -76,3 +76,14 @@ fun generateRandomTestDrawingInfoList(n: Int): List<DrawingInfo> {
 
     return drawingInfoList
 }
+
+fun isDrawingInfoListOrderedByLastModifiedDateByDesc(drawingInfoList: List<DrawingInfo>): Boolean {
+    var lastModifiedDate = drawingInfoList[0].lastModifiedDate
+    for (i in 1 until drawingInfoList.size) {
+        if (drawingInfoList[i].lastModifiedDate.after(lastModifiedDate)) {
+            return false
+        }
+        lastModifiedDate = drawingInfoList[i].lastModifiedDate
+    }
+    return true
+}
