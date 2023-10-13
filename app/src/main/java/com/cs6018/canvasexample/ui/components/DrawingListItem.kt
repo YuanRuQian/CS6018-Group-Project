@@ -1,4 +1,4 @@
-package com.cs6018.canvasexample
+package com.cs6018.canvasexample.ui.components
 
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.cs6018.canvasexample.data.DrawingInfo
+import com.cs6018.canvasexample.utils.formatDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

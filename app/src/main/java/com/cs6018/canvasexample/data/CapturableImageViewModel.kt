@@ -1,4 +1,4 @@
-package com.cs6018.canvasexample
+package com.cs6018.canvasexample.data
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData

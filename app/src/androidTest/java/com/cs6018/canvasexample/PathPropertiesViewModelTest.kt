@@ -6,6 +6,9 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.cs6018.canvasexample.data.PathProperties
+import com.cs6018.canvasexample.data.PathPropertiesViewModel
+import com.cs6018.canvasexample.utils.MotionEvent
 
 import org.junit.Assert
 

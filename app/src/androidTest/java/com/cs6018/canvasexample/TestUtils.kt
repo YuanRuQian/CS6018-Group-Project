@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import com.cs6018.canvasexample.data.DrawingInfo
 import java.security.SecureRandom
 import java.util.Date
 import java.util.Random

@@ -1,4 +1,4 @@
-package com.cs6018.canvasexample
+package com.cs6018.canvasexample.ui.components
 
 import android.net.Uri
 import android.util.Log
@@ -30,6 +30,12 @@ import androidx.core.graphics.drawable.toBitmap
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.cs6018.canvasexample.data.CapturableImageViewModel
+import com.cs6018.canvasexample.data.DrawingInfoViewModel
+import com.cs6018.canvasexample.data.PathProperties
+import com.cs6018.canvasexample.data.PathPropertiesViewModel
+import com.cs6018.canvasexample.utils.MotionEvent
+import com.cs6018.canvasexample.utils.dragMotionEvent
 import dev.shreyaspatil.capturable.controller.CaptureController
 
 @Composable

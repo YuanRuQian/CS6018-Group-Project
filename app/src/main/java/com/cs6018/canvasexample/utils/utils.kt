@@ -1,4 +1,4 @@
-package com.cs6018.canvasexample
+package com.cs6018.canvasexample.utils
 
 import android.content.Context
 import android.graphics.Bitmap

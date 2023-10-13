@@ -8,6 +8,9 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.cs6018.canvasexample.data.DrawingInfo
+import com.cs6018.canvasexample.data.DrawingInfoDAO
+import com.cs6018.canvasexample.data.DrawingInfoDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext

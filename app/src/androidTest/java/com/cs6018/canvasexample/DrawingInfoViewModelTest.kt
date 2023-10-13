@@ -7,6 +7,12 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.cs6018.canvasexample.data.DrawingInfo
+import com.cs6018.canvasexample.data.DrawingInfoDAO
+import com.cs6018.canvasexample.data.DrawingInfoDatabase
+import com.cs6018.canvasexample.data.DrawingInfoViewModel
+import com.cs6018.canvasexample.utils.deleteImageFile
+import com.cs6018.canvasexample.utils.doesFileExist
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -16,7 +22,7 @@ import kotlinx.coroutines.withContext
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.cs6018.canvasexample.DrawingInfoRepository as Repository
+import com.cs6018.canvasexample.data.DrawingInfoRepository as Repository
 
 @RunWith(AndroidJUnit4::class)
 class DrawingInfoViewModelTest {
