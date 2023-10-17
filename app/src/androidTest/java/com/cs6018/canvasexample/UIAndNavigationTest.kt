@@ -14,6 +14,13 @@ import androidx.navigation.testing.TestNavHostController
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.cs6018.canvasexample.activity.Navigation
+import com.cs6018.canvasexample.data.CapturableImageViewModel
+import com.cs6018.canvasexample.data.DrawingInfoDAO
+import com.cs6018.canvasexample.data.DrawingInfoDatabase
+import com.cs6018.canvasexample.data.DrawingInfoRepository
+import com.cs6018.canvasexample.data.DrawingInfoViewModel
+import com.cs6018.canvasexample.data.PathPropertiesViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

@@ -1,9 +1,8 @@
-package com.cs6018.canvasexample
+package com.cs6018.canvasexample.ui.components
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.cs6018.canvasexample.data.DrawingInfo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

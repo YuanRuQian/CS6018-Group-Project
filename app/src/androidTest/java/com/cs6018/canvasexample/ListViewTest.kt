@@ -12,6 +12,8 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.cs6018.canvasexample.data.DrawingInfo
+import com.cs6018.canvasexample.ui.components.DrawingListScreen
 import com.cs6018.canvasexample.ui.theme.CanvasExampleTheme
 import org.junit.Before
 import org.junit.Rule

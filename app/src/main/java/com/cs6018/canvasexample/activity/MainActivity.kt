@@ -1,4 +1,4 @@
-package com.cs6018.canvasexample
+package com.cs6018.canvasexample.activity
 
 import android.os.Bundle
 import android.view.animation.OvershootInterpolator
@@ -36,7 +36,16 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cs6018.canvasexample.R
+import com.cs6018.canvasexample.data.CapturableImageViewModel
+import com.cs6018.canvasexample.data.DrawingInfoViewModel
+import com.cs6018.canvasexample.data.DrawingInfoViewModelFactory
+import com.cs6018.canvasexample.data.PathPropertiesViewModel
+import com.cs6018.canvasexample.ui.components.CanvasPage
+import com.cs6018.canvasexample.ui.components.DrawingListScreen
+import com.cs6018.canvasexample.ui.components.PenCustomizer
 import com.cs6018.canvasexample.ui.theme.CanvasExampleTheme
+import com.cs6018.canvasexample.utils.DrawingApplication
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

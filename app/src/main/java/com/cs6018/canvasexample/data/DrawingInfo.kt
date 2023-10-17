@@ -1,4 +1,4 @@
-package com.cs6018.canvasexample
+package com.cs6018.canvasexample.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

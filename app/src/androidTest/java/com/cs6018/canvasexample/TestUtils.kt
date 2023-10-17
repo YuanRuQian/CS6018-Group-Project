@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import com.cs6018.canvasexample.data.DrawingInfo
 import java.security.SecureRandom
 import java.util.Date
 import java.util.Random
@@ -75,4 +76,15 @@ fun generateRandomTestDrawingInfoList(n: Int): List<DrawingInfo> {
     }
 
     return drawingInfoList
+}
+
+fun isDrawingInfoListOrderedByLastModifiedDateByDesc(drawingInfoList: List<DrawingInfo>): Boolean {
+    var lastModifiedDate = drawingInfoList[0].lastModifiedDate
+    for (i in 1 until drawingInfoList.size) {
+        if (drawingInfoList[i].lastModifiedDate.after(lastModifiedDate)) {
+            return false
+        }
+        lastModifiedDate = drawingInfoList[i].lastModifiedDate
+    }
+    return true
 }

@@ -1,4 +1,4 @@
-package com.cs6018.canvasexample
+package com.cs6018.canvasexample.ui.components
 
 import android.content.Context
 import android.content.Intent
@@ -48,6 +48,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import com.cs6018.canvasexample.R
+import com.cs6018.canvasexample.data.CapturableImageViewModel
+import com.cs6018.canvasexample.data.DrawingInfoViewModel
+import com.cs6018.canvasexample.data.PathPropertiesViewModel
+import com.cs6018.canvasexample.utils.getCurrentDateTimeString
 import dev.shreyaspatil.capturable.controller.CaptureController
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.CoroutineScope

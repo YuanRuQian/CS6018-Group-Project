@@ -1,6 +1,8 @@
-package com.cs6018.canvasexample
+package com.cs6018.canvasexample.utils
 
 import android.app.Application
+import com.cs6018.canvasexample.data.DrawingInfoDatabase
+import com.cs6018.canvasexample.data.DrawingInfoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 

@@ -1,4 +1,4 @@
-package com.cs6018.canvasexample
+package com.cs6018.canvasexample.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.cs6018.canvasexample.data.PathProperties
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -1,4 +1,4 @@
-package com.cs6018.canvasexample
+package com.cs6018.canvasexample.data
 
 
 import android.content.Context
@@ -8,6 +8,10 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.cs6018.canvasexample.utils.bitmapToByteArray
+import com.cs6018.canvasexample.utils.deleteImageFile
+import com.cs6018.canvasexample.utils.overwriteCurrentImageFile
+import com.cs6018.canvasexample.utils.saveImage
 import java.util.Date
 
 
