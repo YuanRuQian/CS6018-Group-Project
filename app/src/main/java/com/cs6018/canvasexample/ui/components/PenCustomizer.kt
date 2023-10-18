@@ -181,7 +181,7 @@ fun PenCustomizer(
         }
 
 
-            Row(
+        Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
