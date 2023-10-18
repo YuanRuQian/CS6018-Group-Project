@@ -10,3 +10,9 @@
 - Jo Song
 - Lydia Yuan
 
+## Phase 2 Code Review Reports
+
+- Sonia Sun: [Code Review Report]()
+- Jo Song: [Code Review Report]()
+- Lydia Yuan: [Code Review Report](https://docs.google.com/document/d/1fUeUmIba0xmmRzI8FkZSU2MKtpPa9NG-4kUTBftLcW4/edit?usp=sharing)
+
