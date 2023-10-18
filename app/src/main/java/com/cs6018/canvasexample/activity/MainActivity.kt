@@ -1,6 +1,7 @@
 package com.cs6018.canvasexample.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.view.animation.OvershootInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -82,7 +83,8 @@ fun Navigation(
     pathPropertiesViewModel: PathPropertiesViewModel,
     drawingInfoViewModel: DrawingInfoViewModel,
     capturableImageViewModel: CapturableImageViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    isTest:Boolean = false
 ) {
 //    val navController = rememberNavController()
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
@@ -107,9 +109,9 @@ fun Navigation(
         // TODO: Pass in the whole viewModel is a bad practice, but if not passing in the whole viewModel, then we need to pass in a ton of variable and functions
 
         composable("splash") {
-            SplashScreen {
+            SplashScreen ({
                 navController.navigate("drawingList")
-            }
+            }, isTest)
         }
 
         composable("canvasPage") {
@@ -144,28 +146,38 @@ fun Navigation(
 
 @Composable
 fun SplashScreen(
-    onSplashScreenComplete: ()-> Unit){
+    onSplashScreenComplete: ()-> Unit,
+    isTest: Boolean = false) {
 
-    val scale = remember{
+    val scale = remember {
         Animatable(0f)
     }
 
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = true ){
-        scale.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(
-                durationMillis = 2000,
-                easing = {
-                    OvershootInterpolator(1.5f).getInterpolation(it)
-                }
+    LaunchedEffect(key1 = true) {
+        try {
+            scale.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = 2000,
+                    easing = {
+                        OvershootInterpolator(1.5f).getInterpolation(it)
+                    }
+                )
             )
-        )
-        delay(1500)
-
-        coroutineScope.launch {
-            onSplashScreenComplete()
+            delay(1500)
+        } catch (e: Exception) {
+            if(!isTest) {
+                // Log the error for debugging purposes
+                Log.e("SplashScreen", "Error: The SplashScreen image was not loaded correctly! ")
+            }
+        } finally {
+            if(!isTest) {
+                coroutineScope.launch {
+                    onSplashScreenComplete()
+                }
+            }
         }
     }
     Column(
@@ -175,7 +187,7 @@ fun SplashScreen(
     ) {
         Row(
             modifier = Modifier.size(150.dp)
-        ){
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.splash),
                 contentDescription = "Splash Icon",
