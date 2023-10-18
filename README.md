@@ -12,7 +12,7 @@
 
 ## Phase 2 Code Review Reports
 
-- Sonia Sun: [Code Review Report]()
+- Sonia Sun: [Code Review Report](https://docs.google.com/document/d/1uVCAY4ODb6tR8fNQdl9Jm8aaSMdw0Sa1V-Y5BzL5yp0/edit#heading=h.jv43cx3t9ago)
 - Jo Song: [Code Review Report]()
 - Lydia Yuan: [Code Review Report](https://docs.google.com/document/d/1fUeUmIba0xmmRzI8FkZSU2MKtpPa9NG-4kUTBftLcW4/edit?usp=sharing)
 
