@@ -4,7 +4,7 @@
 
 [Client Requirements: Drawing App](https://github.com/UtahMSD/CS6018_2023/blob/main/projectDescription.md)
 
-## Members
+## Team 10 Members
 
 - Sonia Sun
 - Jo Song
