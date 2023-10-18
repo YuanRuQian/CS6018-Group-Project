@@ -127,11 +127,8 @@ class PathPropertiesViewModel : ViewModel() {
 
     fun undoLastAction() {
         if (paths.isNotEmpty()) {
-            val lastItem = paths.last()
-            val lastPath = lastItem.first
-            val lastPathProperty = lastItem.second
-            paths.remove(lastItem)
-            pathsUndone.add(Pair(lastPath, lastPathProperty))
+            val lastItem = paths.removeAt(paths.size - 1)
+            pathsUndone.add(lastItem)
         }
     }
 }
