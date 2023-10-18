@@ -67,7 +67,8 @@ class UIAndNavigationTest {
                 pathPropertiesViewModel = PathPropertiesViewModel(),
                 drawingInfoViewModel = DrawingInfoViewModel(repository),
                 capturableImageViewModel = CapturableImageViewModel(),
-                navController = navController
+                navController = navController,
+                isTest = true
             )
         }
     }
@@ -75,6 +76,10 @@ class UIAndNavigationTest {
     @Test
     fun testEntryPage() {
         scope.launch {
+            // test SplashScreen display
+            composeTestRule.onNodeWithContentDescription("Splash Icon").assertIsDisplayed()
+            composeTestRule.onNodeWithText("Draw Better Than It").assertIsDisplayed()
+
             delay(2000)
             composeTestRule.onNodeWithText("Drawing App").assertIsDisplayed()
             composeTestRule.onNodeWithText("3 drawings").assertIsDisplayed()
