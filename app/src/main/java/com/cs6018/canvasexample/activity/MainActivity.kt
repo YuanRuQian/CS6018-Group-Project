@@ -1,5 +1,8 @@
 package com.cs6018.canvasexample.activity
 
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
 import android.view.animation.OvershootInterpolator
@@ -47,11 +50,16 @@ import com.cs6018.canvasexample.ui.components.DrawingListScreen
 import com.cs6018.canvasexample.ui.components.PenCustomizer
 import com.cs6018.canvasexample.ui.theme.CanvasExampleTheme
 import com.cs6018.canvasexample.utils.DrawingApplication
+import com.cs6018.canvasexample.utils.ShakeDetector
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), ShakeDetector.Listener {
+
+    private lateinit var sensorManager: SensorManager
+    private var accelerometerManager: Sensor? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -74,7 +82,21 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val shakeDetector = ShakeDetector(this)
+        // reference: https://github.com/square/seismic/issues/24#issuecomment-954231517
+        shakeDetector.start(sensorManager, SensorManager.SENSOR_DELAY_GAME)
     }
+
+    override fun hearLightShake() {
+        Log.d("HearShake", "hearLightShake: ")
+    }
+
+    override fun hearHardShake() {
+        Log.d("HearShake", "hearHardShake: ")
+    }
+
 }
 
 
@@ -84,7 +106,7 @@ fun Navigation(
     drawingInfoViewModel: DrawingInfoViewModel,
     capturableImageViewModel: CapturableImageViewModel,
     navController: NavHostController,
-    isTest:Boolean = false
+    isTest: Boolean = false
 ) {
 //    val navController = rememberNavController()
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
@@ -109,7 +131,7 @@ fun Navigation(
         // TODO: Pass in the whole viewModel is a bad practice, but if not passing in the whole viewModel, then we need to pass in a ton of variable and functions
 
         composable("splash") {
-            SplashScreen ({
+            SplashScreen({
                 navController.navigate("drawingList")
             }, isTest)
         }
@@ -146,8 +168,9 @@ fun Navigation(
 
 @Composable
 fun SplashScreen(
-    onSplashScreenComplete: ()-> Unit,
-    isTest: Boolean = false) {
+    onSplashScreenComplete: () -> Unit,
+    isTest: Boolean = false
+) {
 
     val scale = remember {
         Animatable(0f)
@@ -168,12 +191,12 @@ fun SplashScreen(
             )
             delay(1500)
         } catch (e: Exception) {
-            if(!isTest) {
+            if (!isTest) {
                 // Log the error for debugging purposes
                 Log.e("SplashScreen", "Error: The SplashScreen image was not loaded correctly! ")
             }
         } finally {
-            if(!isTest) {
+            if (!isTest) {
                 coroutineScope.launch {
                     onSplashScreenComplete()
                 }
