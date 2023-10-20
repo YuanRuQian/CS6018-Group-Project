@@ -1,8 +1,5 @@
 package com.cs6018.canvasexample.activity
 
-import android.content.Context
-import android.hardware.Sensor
-import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
 import android.view.animation.OvershootInterpolator
@@ -45,6 +42,7 @@ import com.cs6018.canvasexample.data.CapturableImageViewModel
 import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.DrawingInfoViewModelFactory
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
+import com.cs6018.canvasexample.data.ShakeDetectionViewModel
 import com.cs6018.canvasexample.ui.components.CanvasPage
 import com.cs6018.canvasexample.ui.components.DrawingListScreen
 import com.cs6018.canvasexample.ui.components.PenCustomizer
@@ -57,15 +55,15 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity(), ShakeDetector.Listener {
 
-    private lateinit var sensorManager: SensorManager
-    private var accelerometerManager: Sensor? = null
-
+    private lateinit var shakeDetectionViewModel: ShakeDetectionViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val capturableImageViewModel: CapturableImageViewModel by viewModels()
         val pathPropertiesViewModel: PathPropertiesViewModel by viewModels()
         val drawingInfoViewModel: DrawingInfoViewModel by viewModels { DrawingInfoViewModelFactory((application as DrawingApplication).drawingInfoRepository) }
+        shakeDetectionViewModel = viewModels<ShakeDetectionViewModel>().value
+        val shakeDetectorListener = this
 
         setContent {
             CanvasExampleTheme {
@@ -77,24 +75,21 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
                         pathPropertiesViewModel,
                         drawingInfoViewModel,
                         capturableImageViewModel,
-                        rememberNavController()
+                        rememberNavController(),
+                        shakeDetectionViewModel,
+                        shakeDetectorListener
                     )
                 }
             }
         }
-
-        val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        val shakeDetector = ShakeDetector(this)
-        // reference: https://github.com/square/seismic/issues/24#issuecomment-954231517
-        shakeDetector.start(sensorManager, SensorManager.SENSOR_DELAY_GAME)
     }
 
     override fun hearLightShake() {
-        Log.d("HearShake", "hearLightShake: ")
+        shakeDetectionViewModel.setAsLightShake()
     }
 
     override fun hearHardShake() {
-        Log.d("HearShake", "hearHardShake: ")
+        shakeDetectionViewModel.setAsHardShake()
     }
 
 }
@@ -106,9 +101,10 @@ fun Navigation(
     drawingInfoViewModel: DrawingInfoViewModel,
     capturableImageViewModel: CapturableImageViewModel,
     navController: NavHostController,
+    shakeDetectionViewModel: ShakeDetectionViewModel,
+    shakeDetectorListener: ShakeDetector.Listener,
     isTest: Boolean = false
 ) {
-//    val navController = rememberNavController()
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
     val currentPathProperty by pathPropertiesViewModel.currentPathProperty.collectAsState()
     val controller = rememberColorPickerController()
@@ -124,7 +120,6 @@ fun Navigation(
     }
 
     val drawingInfoDataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
-
 
     // Completed SplashScreen: change startDestination to splash screen
     NavHost(navController = navController, startDestination = "splash") {
@@ -142,7 +137,9 @@ fun Navigation(
                 drawingInfoViewModel,
                 capturableImageViewModel,
                 navigateToPenCustomizer,
-                navigateToPopBack
+                navigateToPopBack,
+                shakeDetectorListener,
+                shakeDetectionViewModel
             )
         }
         composable("penCustomizer") {

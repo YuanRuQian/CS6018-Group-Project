@@ -3,6 +3,7 @@ package com.cs6018.canvasexample.ui.components
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.hardware.SensorManager
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -30,6 +31,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,6 +54,8 @@ import com.cs6018.canvasexample.R
 import com.cs6018.canvasexample.data.CapturableImageViewModel
 import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
+import com.cs6018.canvasexample.data.ShakeDetectionViewModel
+import com.cs6018.canvasexample.utils.ShakeDetector
 import com.cs6018.canvasexample.utils.getCurrentDateTimeString
 import dev.shreyaspatil.capturable.controller.CaptureController
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
@@ -253,7 +257,9 @@ fun CanvasPage(
     drawingInfoViewModel: DrawingInfoViewModel,
     capturableImageViewModel: CapturableImageViewModel,
     navigateToPenCustomizer: () -> Unit,
-    navigateToPopBack: () -> Boolean
+    navigateToPopBack: () -> Boolean,
+    shakeDetectorListener: ShakeDetector.Listener,
+    shakeDetectionViewModel: ShakeDetectionViewModel
 ) {
     val scope = rememberCoroutineScope()
 
@@ -268,6 +274,20 @@ fun CanvasPage(
         mutableStateOf(
             activeDrawingInfo?.drawingTitle ?: "Untitled"
         )
+    }
+
+    val shakeDetector = ShakeDetector(shakeDetectorListener)
+    val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+    LaunchedEffect(key1 = true) {
+        // reference: https://github.com/square/seismic/issues/24#issuecomment-954231517
+        shakeDetector.start(sensorManager, SensorManager.SENSOR_DELAY_GAME)
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            shakeDetector.stop()
+        }
     }
 
     // Use LaunchedEffect to reset drawingTitle when activeDrawingInfo?.drawingTitle changes
@@ -290,6 +310,9 @@ fun CanvasPage(
             navigateToPopBack
         )
     }
+
+    UndoAlertDialog(pathPropertiesViewModel, shakeDetectionViewModel)
+    ClearAllAlertDialog(pathPropertiesViewModel, shakeDetectionViewModel)
 
     Scaffold(
         // Add a top title bar
