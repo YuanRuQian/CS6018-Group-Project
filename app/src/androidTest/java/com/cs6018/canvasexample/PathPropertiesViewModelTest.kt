@@ -23,7 +23,10 @@ class PathPropertiesViewModelTest {
         val vm = PathPropertiesViewModel()
         Assert.assertSame("#ffffff", vm.hexColorCode.value)
         // currentPathProperties is test in PathPropertiesTest
-        Assert.assertEquals(PathPropertiesViewModel.EraseDrawToggleButtonTextEnum.DRAW_MODE_TEXT, vm.eraseDrawToggleButtonText.value)
+        Assert.assertEquals(
+            PathPropertiesViewModel.EraseDrawToggleButtonTextEnum.DRAW_MODE_TEXT,
+            vm.eraseDrawToggleButtonText.value
+        )
         Assert.assertEquals(MotionEvent.Idle, vm.motionEvent.value);
         Assert.assertEquals(Offset.Unspecified, vm.currentPosition.value)
         Assert.assertEquals(Offset.Unspecified, vm.previousPosition.value)
@@ -87,5 +90,17 @@ class PathPropertiesViewModelTest {
         Assert.assertEquals(2, vm.paths.size)
         vm.undoLastAction()
         Assert.assertEquals(1, vm.paths.size)
+    }
+
+    @Test
+    fun testClearAllPaths() {
+        val vm = PathPropertiesViewModel()
+        val size = 10
+        for (i in 1..size) {
+            vm.paths.add(Pair(Path(), PathProperties()))
+        }
+        Assert.assertEquals(size, vm.paths.size)
+        vm.clearAllPaths()
+        Assert.assertEquals(0, vm.paths.size)
     }
 }

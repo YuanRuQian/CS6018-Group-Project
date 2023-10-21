@@ -86,16 +86,13 @@ fun ClearAllAlertDialog(
         { shakeDetectionViewModel.setAsNoShake() },
         {
             shakeDetectionViewModel.setAsNoShake()
-            // TODO: Implement the clear all method for path properties view model
-            pathPropertiesViewModel.undoLastAction()
+            pathPropertiesViewModel.clearAllPaths()
         },
         "Hard Shake to Clear All",
         "Are you sure you want to clear all current changes?",
-        // TODO: Change icon resource to a clear all icon
-        R.drawable.undo,
+        R.drawable.clear_all,
         shakeDetectionViewModel.isHardShake.value
     )
-
 }
 
 

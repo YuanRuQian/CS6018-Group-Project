@@ -276,7 +276,7 @@ class ShakeDetector(private val listener: Listener) :
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
     enum class SensitivityLevel(val value: Int) {
         LIGHT(11),
-        HARD(15)
+        HARD(13)
     }
 
 }

@@ -8,8 +8,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.lifecycle.ViewModel
-import com.cs6018.canvasexample.utils.MotionEvent
 import com.cs6018.canvasexample.R
+import com.cs6018.canvasexample.utils.MotionEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -129,6 +129,12 @@ class PathPropertiesViewModel : ViewModel() {
         if (paths.isNotEmpty()) {
             val lastItem = paths.removeAt(paths.size - 1)
             pathsUndone.add(lastItem)
+        }
+    }
+
+    fun clearAllPaths() {
+        while (paths.isNotEmpty()) {
+            undoLastAction()
         }
     }
 }

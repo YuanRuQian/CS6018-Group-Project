@@ -151,6 +151,15 @@ fun BottomAppBarContent(
                     }
                 )
 
+                // Clear All Button
+                BottomAppBarItem(
+                    iconResource = R.drawable.clear_all,
+                    buttonText = "Clear All",
+                    onClick = {
+                        pathPropertiesViewModel.clearAllPaths()
+                    }
+                )
+
                 BottomAppBarItem(
                     iconResource = R.drawable.share,
                     buttonText = "Share",
