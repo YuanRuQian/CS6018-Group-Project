@@ -21,6 +21,8 @@ import com.cs6018.canvasexample.data.DrawingInfoDatabase
 import com.cs6018.canvasexample.data.DrawingInfoRepository
 import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
+import com.cs6018.canvasexample.data.ShakeDetectionViewModel
+import com.cs6018.canvasexample.utils.ShakeDetector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -29,6 +31,15 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+
+class MockShakeListener : ShakeDetector.Listener {
+    override fun hearLightShake() {
+    }
+
+    override fun hearHardShake() {
+    }
+}
+
 
 
 @RunWith(AndroidJUnit4::class)
@@ -64,10 +75,13 @@ class UIAndNavigationTest {
             navController = TestNavHostController(LocalContext.current)
             navController.navigatorProvider.addNavigator(ComposeNavigator())
             Navigation(
-                pathPropertiesViewModel = PathPropertiesViewModel(),
-                drawingInfoViewModel = DrawingInfoViewModel(repository),
-                capturableImageViewModel = CapturableImageViewModel(),
-                navController = navController,
+                PathPropertiesViewModel(),
+                DrawingInfoViewModel(repository),
+                CapturableImageViewModel(),
+                navController,
+                ShakeDetectionViewModel(),
+                // pass a mock implementation of ShakeDetector.Listener to pass the test
+                MockShakeListener(),
                 isTest = true
             )
         }
@@ -91,12 +105,13 @@ class UIAndNavigationTest {
             // test CanvasPage UI
             val backBtn = composeTestRule.onNodeWithText("Back")
             backBtn.assertIsDisplayed()
-            composeTestRule.onNodeWithText("Done").assertIsDisplayed()
-            composeTestRule.onNodeWithText("Palette").assertIsDisplayed()
-            composeTestRule.onNodeWithText("Undo").assertIsDisplayed()
-            composeTestRule.onNodeWithText("Share").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("Done").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("Palette").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("Undo").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("Clear All").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("Share").assertIsDisplayed()
             composeTestRule.onNodeWithTag("Erase").performClick()
-            composeTestRule.onNodeWithText("Draw").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("Draw").assertIsDisplayed()
             // test update title
             composeTestRule.onNodeWithText("Untitled").performTextReplacement("New Title")
 

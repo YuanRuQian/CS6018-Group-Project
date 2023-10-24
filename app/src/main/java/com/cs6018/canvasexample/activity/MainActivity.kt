@@ -42,22 +42,28 @@ import com.cs6018.canvasexample.data.CapturableImageViewModel
 import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.DrawingInfoViewModelFactory
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
+import com.cs6018.canvasexample.data.ShakeDetectionViewModel
 import com.cs6018.canvasexample.ui.components.CanvasPage
 import com.cs6018.canvasexample.ui.components.DrawingListScreen
 import com.cs6018.canvasexample.ui.components.PenCustomizer
 import com.cs6018.canvasexample.ui.theme.CanvasExampleTheme
 import com.cs6018.canvasexample.utils.DrawingApplication
+import com.cs6018.canvasexample.utils.ShakeDetector
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), ShakeDetector.Listener {
+
+    private lateinit var shakeDetectionViewModel: ShakeDetectionViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val capturableImageViewModel: CapturableImageViewModel by viewModels()
         val pathPropertiesViewModel: PathPropertiesViewModel by viewModels()
         val drawingInfoViewModel: DrawingInfoViewModel by viewModels { DrawingInfoViewModelFactory((application as DrawingApplication).drawingInfoRepository) }
+        shakeDetectionViewModel = viewModels<ShakeDetectionViewModel>().value
+        val shakeDetectorListener = this
 
         setContent {
             CanvasExampleTheme {
@@ -69,12 +75,23 @@ class MainActivity : ComponentActivity() {
                         pathPropertiesViewModel,
                         drawingInfoViewModel,
                         capturableImageViewModel,
-                        rememberNavController()
+                        rememberNavController(),
+                        shakeDetectionViewModel,
+                        shakeDetectorListener
                     )
                 }
             }
         }
     }
+
+    override fun hearLightShake() {
+        shakeDetectionViewModel.setAsLightShake()
+    }
+
+    override fun hearHardShake() {
+        shakeDetectionViewModel.setAsHardShake()
+    }
+
 }
 
 
@@ -84,9 +101,10 @@ fun Navigation(
     drawingInfoViewModel: DrawingInfoViewModel,
     capturableImageViewModel: CapturableImageViewModel,
     navController: NavHostController,
-    isTest:Boolean = false
+    shakeDetectionViewModel: ShakeDetectionViewModel,
+    shakeDetectorListener: ShakeDetector.Listener,
+    isTest: Boolean = false
 ) {
-//    val navController = rememberNavController()
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
     val currentPathProperty by pathPropertiesViewModel.currentPathProperty.collectAsState()
     val controller = rememberColorPickerController()
@@ -103,13 +121,12 @@ fun Navigation(
 
     val drawingInfoDataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
 
-
     // Completed SplashScreen: change startDestination to splash screen
     NavHost(navController = navController, startDestination = "splash") {
         // TODO: Pass in the whole viewModel is a bad practice, but if not passing in the whole viewModel, then we need to pass in a ton of variable and functions
 
         composable("splash") {
-            SplashScreen ({
+            SplashScreen({
                 navController.navigate("drawingList")
             }, isTest)
         }
@@ -120,7 +137,9 @@ fun Navigation(
                 drawingInfoViewModel,
                 capturableImageViewModel,
                 navigateToPenCustomizer,
-                navigateToPopBack
+                navigateToPopBack,
+                shakeDetectorListener,
+                shakeDetectionViewModel
             )
         }
         composable("penCustomizer") {
@@ -146,8 +165,9 @@ fun Navigation(
 
 @Composable
 fun SplashScreen(
-    onSplashScreenComplete: ()-> Unit,
-    isTest: Boolean = false) {
+    onSplashScreenComplete: () -> Unit,
+    isTest: Boolean = false
+) {
 
     val scale = remember {
         Animatable(0f)
@@ -168,12 +188,12 @@ fun SplashScreen(
             )
             delay(1500)
         } catch (e: Exception) {
-            if(!isTest) {
+            if (!isTest) {
                 // Log the error for debugging purposes
                 Log.e("SplashScreen", "Error: The SplashScreen image was not loaded correctly! ")
             }
         } finally {
-            if(!isTest) {
+            if (!isTest) {
                 coroutineScope.launch {
                     onSplashScreenComplete()
                 }

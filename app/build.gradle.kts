@@ -10,7 +10,8 @@ android {
 
     defaultConfig {
         applicationId = "com.cs6018.canvasexample"
-        minSdk = 34
+        // change minSdk to 33 for real device testing purposes only
+        minSdk = 33
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
