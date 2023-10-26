@@ -40,6 +40,7 @@ import com.google.firebase.auth.FirebaseUser
 @Composable
 fun AuthenticationScreen(
     createUserWithEmailAndPassword: (String, String, (FirebaseUser?) -> Unit, () -> Unit) -> Unit,
+    signInWithEmailAndPassword: (String, String, (FirebaseUser?) -> Unit, () -> Unit) -> Unit,
     navigateToDrawingList: () -> Unit
 ) {
     var email by rememberSaveable { mutableStateOf("") }
@@ -117,7 +118,17 @@ fun AuthenticationScreen(
             // Sign In Button
             Button(
                 onClick = {
-                    // Handle sign-in logic
+                    signInWithEmailAndPassword(email, password, { user ->
+                        Toast.makeText(
+                            context,
+                            "Welcome Back, ${user?.email}",
+                            Toast.LENGTH_LONG
+                        )
+                            .show()
+                        navigateToDrawingList()
+                    }, {
+                        Toast.makeText(context, "Sign In failed", Toast.LENGTH_LONG).show()
+                    })
                 },
                 modifier = Modifier
                     .weight(1f)
@@ -134,6 +145,6 @@ fun AuthenticationScreen(
 @Composable
 fun AuthenticationScreenPreview() {
     MaterialTheme {
-        AuthenticationScreen({ _, _, _, _ -> }, {})
+        AuthenticationScreen({ _, _, _, _ -> }, { _, _, _, _ -> }, {})
     }
 }

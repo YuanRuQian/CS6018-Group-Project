@@ -84,6 +84,7 @@ class UIAndNavigationTest {
                 MockShakeListener(),
                 FirebaseAuth.getInstance(),
                 { _, _, _, _ -> },
+                { _, _, _, _ -> },
                 isTest = true
             )
         }
