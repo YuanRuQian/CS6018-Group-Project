@@ -3,6 +3,7 @@ package com.cs6018.canvasexample.activity
 import android.os.Bundle
 import android.util.Log
 import android.view.animation.OvershootInterpolator
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -43,6 +44,7 @@ import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.DrawingInfoViewModelFactory
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
 import com.cs6018.canvasexample.data.ShakeDetectionViewModel
+import com.cs6018.canvasexample.ui.components.AuthenticationScreen
 import com.cs6018.canvasexample.ui.components.CanvasPage
 import com.cs6018.canvasexample.ui.components.DrawingListScreen
 import com.cs6018.canvasexample.ui.components.PenCustomizer
@@ -50,14 +52,22 @@ import com.cs6018.canvasexample.ui.theme.CanvasExampleTheme
 import com.cs6018.canvasexample.utils.DrawingApplication
 import com.cs6018.canvasexample.utils.ShakeDetector
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity(), ShakeDetector.Listener {
 
+    private lateinit var auth: FirebaseAuth
+
     private lateinit var shakeDetectionViewModel: ShakeDetectionViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        auth = Firebase.auth
 
         val capturableImageViewModel: CapturableImageViewModel by viewModels()
         val pathPropertiesViewModel: PathPropertiesViewModel by viewModels()
@@ -77,11 +87,83 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
                         capturableImageViewModel,
                         rememberNavController(),
                         shakeDetectionViewModel,
-                        shakeDetectorListener
+                        shakeDetectorListener,
+                        auth,
+                        ::createAccount,
                     )
                 }
             }
         }
+    }
+
+    public override fun onStart() {
+        super.onStart()
+    }
+
+    private fun createAccount(email: String, password: String) {
+        // [START create_user_with_email]
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "createUserWithEmail:success")
+                    val user = auth.currentUser
+                    updateUI(user)
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
+                    Toast.makeText(
+                        baseContext,
+                        "Authentication failed.",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    updateUI(null)
+                }
+            }
+        // [END create_user_with_email]
+    }
+
+    private fun signIn(email: String, password: String) {
+        // [START sign_in_with_email]
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "signInWithEmail:success")
+                    val user = auth.currentUser
+                    updateUI(user)
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "signInWithEmail:failure", task.exception)
+                    Toast.makeText(
+                        baseContext,
+                        "Authentication failed.",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    updateUI(null)
+                }
+            }
+        // [END sign_in_with_email]
+    }
+
+    private fun sendEmailVerification() {
+        // [START send_email_verification]
+        val user = auth.currentUser!!
+        user.sendEmailVerification()
+            .addOnCompleteListener(this) { task ->
+                // Email Verification sent
+            }
+        // [END send_email_verification]
+    }
+
+    private fun updateUI(user: FirebaseUser?) {
+    }
+
+    private fun reload() {
+    }
+
+    companion object {
+        private const val TAG = "EmailPassword"
     }
 
     override fun hearLightShake() {
@@ -103,6 +185,11 @@ fun Navigation(
     navController: NavHostController,
     shakeDetectionViewModel: ShakeDetectionViewModel,
     shakeDetectorListener: ShakeDetector.Listener,
+    auth: FirebaseAuth,
+    createUserWithEmailAndPassword: (
+        email: String,
+        password: String
+    ) -> Unit,
     isTest: Boolean = false
 ) {
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
@@ -125,9 +212,22 @@ fun Navigation(
     NavHost(navController = navController, startDestination = "splash") {
         // TODO: Pass in the whole viewModel is a bad practice, but if not passing in the whole viewModel, then we need to pass in a ton of variable and functions
 
+        composable("authentication") {
+            AuthenticationScreen(
+                auth,
+                createUserWithEmailAndPassword,
+            )
+        }
+
         composable("splash") {
             SplashScreen({
-                navController.navigate("drawingList")
+                val currentUser = auth.currentUser
+                val isSignedIn = currentUser != null
+                if (isSignedIn) {
+                    navController.navigate("drawingList")
+                } else {
+                    navController.navigate("authentication")
+                }
             }, isTest)
         }
 
@@ -163,6 +263,7 @@ fun Navigation(
     }
 }
 
+// TODO: change related UI tests!!!
 @Composable
 fun SplashScreen(
     onSplashScreenComplete: () -> Unit,
