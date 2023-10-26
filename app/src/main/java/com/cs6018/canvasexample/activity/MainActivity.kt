@@ -52,21 +52,15 @@ import com.cs6018.canvasexample.utils.DrawingApplication
 import com.cs6018.canvasexample.utils.ShakeDetector
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity(), ShakeDetector.Listener {
-
-    private lateinit var auth: FirebaseAuth
-
     private lateinit var shakeDetectionViewModel: ShakeDetectionViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        auth = Firebase.auth
 
         val capturableImageViewModel: CapturableImageViewModel by viewModels()
         val pathPropertiesViewModel: PathPropertiesViewModel by viewModels()
@@ -87,7 +81,6 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
                         rememberNavController(),
                         shakeDetectionViewModel,
                         shakeDetectorListener,
-                        auth,
                         ::createUserWithEmailAndPassword,
                         ::signInWithEmailAndPassword
                     )
@@ -106,12 +99,12 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
         onSuccess: (FirebaseUser?) -> Unit,
         onFailure: () -> Unit
     ) {
-        auth.createUserWithEmailAndPassword(email, password)
+        Firebase.auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
-                    val user = auth.currentUser
+                    val user = Firebase.auth.currentUser
                     onSuccess(user)
                     Log.d(TAG, "user info: ${user?.email}")
                 } else {
@@ -127,12 +120,12 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
         email: String, password: String, onSuccess: (FirebaseUser?) -> Unit,
         onFailure: () -> Unit
     ) {
-        auth.signInWithEmailAndPassword(email, password)
+        Firebase.auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success")
-                    val user = auth.currentUser
+                    val user = Firebase.auth.currentUser
                     onSuccess(user)
                 } else {
                     // If sign in fails, display a message to the user.
@@ -144,7 +137,7 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
     }
 
     private fun sendEmailVerification() {
-        val user = auth.currentUser!!
+        val user = Firebase.auth.currentUser!!
         user.sendEmailVerification()
             .addOnCompleteListener(this) { task ->
                 // Email Verification sent
@@ -174,7 +167,6 @@ fun Navigation(
     navController: NavHostController,
     shakeDetectionViewModel: ShakeDetectionViewModel,
     shakeDetectorListener: ShakeDetector.Listener,
-    auth: FirebaseAuth,
     createUserWithEmailAndPassword: (
         email: String,
         password: String,
@@ -207,6 +199,10 @@ fun Navigation(
         navController.navigate("drawingList")
     }
 
+    val navigateToSplashScreen = {
+        navController.navigate("splash")
+    }
+
     val drawingInfoDataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
 
     // Completed SplashScreen: change startDestination to splash screen
@@ -223,7 +219,7 @@ fun Navigation(
 
         composable("splash") {
             SplashScreen({
-                val currentUser = auth.currentUser
+                val currentUser = Firebase.auth.currentUser
                 val isSignedIn = currentUser != null
                 if (isSignedIn) {
                     navController.navigate("drawingList")
@@ -259,7 +255,8 @@ fun Navigation(
                 drawingInfoViewModel::setActiveCapturedImage,
                 drawingInfoViewModel::setActiveDrawingInfoById,
                 drawingInfoDataList,
-                drawingInfoViewModel::deleteDrawingInfoWithId
+                drawingInfoViewModel::deleteDrawingInfoWithId,
+                navigateToSplashScreen
             )
         }
     }

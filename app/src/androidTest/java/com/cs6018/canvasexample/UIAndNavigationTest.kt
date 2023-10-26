@@ -23,7 +23,6 @@ import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
 import com.cs6018.canvasexample.data.ShakeDetectionViewModel
 import com.cs6018.canvasexample.utils.ShakeDetector
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -82,7 +81,6 @@ class UIAndNavigationTest {
                 ShakeDetectionViewModel(),
                 // pass a mock implementation of ShakeDetector.Listener to pass the test
                 MockShakeListener(),
-                FirebaseAuth.getInstance(),
                 { _, _, _, _ -> },
                 { _, _, _, _ -> },
                 isTest = true
