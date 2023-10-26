@@ -1,6 +1,7 @@
 package com.cs6018.canvasexample.ui.components
 
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -33,13 +35,18 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 @Composable
-fun AuthenticationScreen(auth: FirebaseAuth, createUserWithEmailAndPassword: (String, String) -> Unit) {
+fun AuthenticationScreen(
+    createUserWithEmailAndPassword: (String, String, (FirebaseUser?) -> Unit, () -> Unit) -> Unit,
+    navigateToDrawingList: () -> Unit
+) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordHidden by rememberSaveable { mutableStateOf(true) }
+
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -88,7 +95,17 @@ fun AuthenticationScreen(auth: FirebaseAuth, createUserWithEmailAndPassword: (St
             // Sign Up Button
             Button(
                 onClick = {
-                    // Handle sign-up logic
+                    createUserWithEmailAndPassword(email, password, { user ->
+                        Toast.makeText(
+                            context,
+                            "Welcome to Drawing App, ${user?.email}",
+                            Toast.LENGTH_LONG
+                        )
+                            .show()
+                        navigateToDrawingList()
+                    }, {
+                        Toast.makeText(context, "Sign up failed", Toast.LENGTH_LONG).show()
+                    })
                 },
                 modifier = Modifier
                     .weight(1f)
@@ -117,6 +134,6 @@ fun AuthenticationScreen(auth: FirebaseAuth, createUserWithEmailAndPassword: (St
 @Composable
 fun AuthenticationScreenPreview() {
     MaterialTheme {
-        AuthenticationScreen(FirebaseAuth.getInstance()) { _, _ -> }
+        AuthenticationScreen({ _, _, _, _ -> }, {})
     }
 }

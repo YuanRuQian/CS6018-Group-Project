@@ -89,7 +89,7 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
                         shakeDetectionViewModel,
                         shakeDetectorListener,
                         auth,
-                        ::createAccount,
+                        ::createUserWithEmailAndPassword,
                     )
                 }
             }
@@ -100,38 +100,36 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
         super.onStart()
     }
 
-    private fun createAccount(email: String, password: String) {
-        // [START create_user_with_email]
+    private fun createUserWithEmailAndPassword(
+        email: String,
+        password: String,
+        onSuccess: (FirebaseUser?) -> Unit,
+        onFailure: () -> Unit
+    ) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
                     val user = auth.currentUser
-                    updateUI(user)
+                    onSuccess(user)
+                    Log.d(TAG, "user info: ${user?.email}")
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
-                    Toast.makeText(
-                        baseContext,
-                        "Authentication failed.",
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                    updateUI(null)
+                    onFailure()
                 }
             }
-        // [END create_user_with_email]
     }
 
     private fun signIn(email: String, password: String) {
-        // [START sign_in_with_email]
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success")
                     val user = auth.currentUser
-                    updateUI(user)
+                    // TODO: on success, navigate to drawing list
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
@@ -140,30 +138,21 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
                         "Authentication failed.",
                         Toast.LENGTH_SHORT,
                     ).show()
-                    updateUI(null)
+                    // TODO: on failure, show error message
                 }
             }
-        // [END sign_in_with_email]
     }
 
     private fun sendEmailVerification() {
-        // [START send_email_verification]
         val user = auth.currentUser!!
         user.sendEmailVerification()
             .addOnCompleteListener(this) { task ->
                 // Email Verification sent
             }
-        // [END send_email_verification]
-    }
-
-    private fun updateUI(user: FirebaseUser?) {
-    }
-
-    private fun reload() {
     }
 
     companion object {
-        private const val TAG = "EmailPassword"
+        private const val TAG = "Authentication"
     }
 
     override fun hearLightShake() {
@@ -188,7 +177,9 @@ fun Navigation(
     auth: FirebaseAuth,
     createUserWithEmailAndPassword: (
         email: String,
-        password: String
+        password: String,
+        onSuccess: (FirebaseUser?) -> Unit,
+        onFailure: () -> Unit
     ) -> Unit,
     isTest: Boolean = false
 ) {
@@ -206,6 +197,10 @@ fun Navigation(
         navController.popBackStack()
     }
 
+    val navigateToDrawingList = {
+        navController.navigate("drawingList")
+    }
+
     val drawingInfoDataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
 
     // Completed SplashScreen: change startDestination to splash screen
@@ -214,8 +209,8 @@ fun Navigation(
 
         composable("authentication") {
             AuthenticationScreen(
-                auth,
                 createUserWithEmailAndPassword,
+                navigateToDrawingList
             )
         }
 
