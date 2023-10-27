@@ -126,7 +126,8 @@ class ListViewTest {
                     setActiveCapturedImageMock,
                     setActiveDrawingInfoByIdMock,
                     dataList,
-                    removeListItemMock
+                    removeListItemMock,
+                    {}
                 )
             }
         }

@@ -41,7 +41,6 @@ class MockShakeListener : ShakeDetector.Listener {
 }
 
 
-
 @RunWith(AndroidJUnit4::class)
 class UIAndNavigationTest {
 
@@ -82,6 +81,8 @@ class UIAndNavigationTest {
                 ShakeDetectionViewModel(),
                 // pass a mock implementation of ShakeDetector.Listener to pass the test
                 MockShakeListener(),
+                { _, _, _, _ -> },
+                { _, _, _, _ -> },
                 isTest = true
             )
         }

@@ -142,5 +142,3 @@ fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
     ) // Compress as PNG or JPEG based on your preference
     return outputStream.toByteArray()
 }
-
-

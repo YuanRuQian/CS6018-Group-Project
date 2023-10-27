@@ -43,6 +43,7 @@ import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.DrawingInfoViewModelFactory
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
 import com.cs6018.canvasexample.data.ShakeDetectionViewModel
+import com.cs6018.canvasexample.ui.components.AuthenticationScreen
 import com.cs6018.canvasexample.ui.components.CanvasPage
 import com.cs6018.canvasexample.ui.components.DrawingListScreen
 import com.cs6018.canvasexample.ui.components.PenCustomizer
@@ -50,11 +51,13 @@ import com.cs6018.canvasexample.ui.theme.CanvasExampleTheme
 import com.cs6018.canvasexample.utils.DrawingApplication
 import com.cs6018.canvasexample.utils.ShakeDetector
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity(), ShakeDetector.Listener {
-
     private lateinit var shakeDetectionViewModel: ShakeDetectionViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,11 +80,72 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
                         capturableImageViewModel,
                         rememberNavController(),
                         shakeDetectionViewModel,
-                        shakeDetectorListener
+                        shakeDetectorListener,
+                        ::createUserWithEmailAndPassword,
+                        ::signInWithEmailAndPassword
                     )
                 }
             }
         }
+    }
+
+    public override fun onStart() {
+        super.onStart()
+    }
+
+    private fun createUserWithEmailAndPassword(
+        email: String,
+        password: String,
+        onSuccess: (FirebaseUser?) -> Unit,
+        onFailure: () -> Unit
+    ) {
+        Firebase.auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "createUserWithEmail:success")
+                    val user = Firebase.auth.currentUser
+                    onSuccess(user)
+                    Log.d(TAG, "user info: ${user?.email}")
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
+                    // TODO: show error message instead of general failure
+                    onFailure()
+                }
+            }
+    }
+
+    private fun signInWithEmailAndPassword(
+        email: String, password: String, onSuccess: (FirebaseUser?) -> Unit,
+        onFailure: () -> Unit
+    ) {
+        Firebase.auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "signInWithEmail:success")
+                    val user = Firebase.auth.currentUser
+                    onSuccess(user)
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "signInWithEmail:failure", task.exception)
+                    // TODO: show error message instead of general failure
+                    onFailure()
+                }
+            }
+    }
+
+    private fun sendEmailVerification() {
+        val user = Firebase.auth.currentUser!!
+        user.sendEmailVerification()
+            .addOnCompleteListener(this) { task ->
+                // Email Verification sent
+            }
+    }
+
+    companion object {
+        private const val TAG = "Authentication"
     }
 
     override fun hearLightShake() {
@@ -103,6 +167,18 @@ fun Navigation(
     navController: NavHostController,
     shakeDetectionViewModel: ShakeDetectionViewModel,
     shakeDetectorListener: ShakeDetector.Listener,
+    createUserWithEmailAndPassword: (
+        email: String,
+        password: String,
+        onSuccess: (FirebaseUser?) -> Unit,
+        onFailure: () -> Unit
+    ) -> Unit,
+    signInWithEmailAndPassword: (
+        email: String,
+        password: String,
+        onSuccess: (FirebaseUser?) -> Unit,
+        onFailure: () -> Unit
+    ) -> Unit,
     isTest: Boolean = false
 ) {
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
@@ -119,15 +195,37 @@ fun Navigation(
         navController.popBackStack()
     }
 
+    val navigateToDrawingList = {
+        navController.navigate("drawingList")
+    }
+
+    val navigateToSplashScreen = {
+        navController.navigate("splash")
+    }
+
     val drawingInfoDataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
 
     // Completed SplashScreen: change startDestination to splash screen
     NavHost(navController = navController, startDestination = "splash") {
         // TODO: Pass in the whole viewModel is a bad practice, but if not passing in the whole viewModel, then we need to pass in a ton of variable and functions
 
+        composable("authentication") {
+            AuthenticationScreen(
+                createUserWithEmailAndPassword,
+                signInWithEmailAndPassword,
+                navigateToDrawingList
+            )
+        }
+
         composable("splash") {
             SplashScreen({
-                navController.navigate("drawingList")
+                val currentUser = Firebase.auth.currentUser
+                val isSignedIn = currentUser != null
+                if (isSignedIn) {
+                    navController.navigate("drawingList")
+                } else {
+                    navController.navigate("authentication")
+                }
             }, isTest)
         }
 
@@ -157,12 +255,14 @@ fun Navigation(
                 drawingInfoViewModel::setActiveCapturedImage,
                 drawingInfoViewModel::setActiveDrawingInfoById,
                 drawingInfoDataList,
-                drawingInfoViewModel::deleteDrawingInfoWithId
+                drawingInfoViewModel::deleteDrawingInfoWithId,
+                navigateToSplashScreen
             )
         }
     }
 }
 
+// TODO: change related UI tests!!!
 @Composable
 fun SplashScreen(
     onSplashScreenComplete: () -> Unit,
