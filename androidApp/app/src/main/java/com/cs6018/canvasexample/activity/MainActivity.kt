@@ -43,7 +43,10 @@ import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.DrawingInfoViewModelFactory
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
 import com.cs6018.canvasexample.data.ShakeDetectionViewModel
+import com.cs6018.canvasexample.network.ApiRepository
 import com.cs6018.canvasexample.network.ApiService
+import com.cs6018.canvasexample.network.ApiViewModel
+import com.cs6018.canvasexample.network.ApiViewModelFactory
 import com.cs6018.canvasexample.ui.components.AuthenticationScreen
 import com.cs6018.canvasexample.ui.components.CanvasPage
 import com.cs6018.canvasexample.ui.components.DrawingListScreen
@@ -63,6 +66,7 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val apiViewModel: ApiViewModel by viewModels { ApiViewModelFactory((application as DrawingApplication).apiRepository) }
         val capturableImageViewModel: CapturableImageViewModel by viewModels()
         val pathPropertiesViewModel: PathPropertiesViewModel by viewModels()
         val drawingInfoViewModel: DrawingInfoViewModel by viewModels { DrawingInfoViewModelFactory((application as DrawingApplication).drawingInfoRepository) }
@@ -76,6 +80,7 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Navigation(
+                        apiViewModel,
                         pathPropertiesViewModel,
                         drawingInfoViewModel,
                         capturableImageViewModel,
@@ -154,6 +159,7 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
 
 @Composable
 fun Navigation(
+    apiViewModel: ApiViewModel,
     pathPropertiesViewModel: PathPropertiesViewModel,
     drawingInfoViewModel: DrawingInfoViewModel,
     capturableImageViewModel: CapturableImageViewModel,
@@ -197,6 +203,7 @@ fun Navigation(
     }
 
     val drawingInfoDataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
+    val apiDrawingInfoDataList by apiViewModel.drawings.collectAsState()
 
     // Completed SplashScreen: change startDestination to splash screen
     NavHost(navController = navController, startDestination = "splash") {
@@ -247,7 +254,7 @@ fun Navigation(
                 navigateToCanvasPage,
                 drawingInfoViewModel::setActiveCapturedImage,
                 drawingInfoViewModel::setActiveDrawingInfoById,
-                drawingInfoDataList,
+                apiDrawingInfoDataList,
                 drawingInfoViewModel::deleteDrawingInfoWithId,
                 navigateToSplashScreen
             )

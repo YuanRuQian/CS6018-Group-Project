@@ -3,13 +3,12 @@ package com.cs6018.canvasexample.data
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.cs6018.canvasexample.data.DrawingInfo
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 @Dao
 interface DrawingInfoDAO {
-
-
     @Insert
     suspend fun addDrawingInfo(data: DrawingInfo)
 

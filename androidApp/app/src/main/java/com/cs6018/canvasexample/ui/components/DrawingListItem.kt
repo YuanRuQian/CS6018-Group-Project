@@ -19,20 +19,25 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.cs6018.canvasexample.R
 import com.cs6018.canvasexample.data.DrawingInfo
+import com.cs6018.canvasexample.network.DrawingResponse
 import com.cs6018.canvasexample.utils.formatDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Date
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DrawingCard(drawingInfo: DrawingInfo, onClick: () -> Unit) {
+fun DrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
     ElevatedCard(
         modifier = Modifier
             .padding(16.dp, 8.dp)
@@ -55,25 +60,31 @@ fun DrawingCard(drawingInfo: DrawingInfo, onClick: () -> Unit) {
                     .padding(end = 16.dp)
             ) {
                 Text(
-                    text = drawingInfo.drawingTitle,
+                    text = drawingInfo.title,
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = formatDate(drawingInfo.lastModifiedDate),
+                    text = formatDate(Date(drawingInfo.lastModifiedDate)),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            if (drawingInfo.thumbnail != null) {
-                val thumbnail = BitmapFactory
-                    .decodeByteArray(drawingInfo.thumbnail, 0, drawingInfo.thumbnail!!.size)
-                Image(
-                    bitmap = thumbnail.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(100.dp)
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.splash),
+                contentDescription = "Splash Icon",
+                modifier = Modifier.size(100.dp)
+            )
+            // TODO: add back thumbnail
+//            if (drawingInfo.thumbnail != null) {
+//                val thumbnail = BitmapFactory
+//                    .decodeByteArray(drawingInfo.thumbnail, 0, drawingInfo.thumbnail!!.size)
+//                Image(
+//                    bitmap = thumbnail.asImageBitmap(),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .size(100.dp)
+//                )
+//            }
         }
     }
 }
@@ -82,7 +93,7 @@ fun DrawingCard(drawingInfo: DrawingInfo, onClick: () -> Unit) {
 @Composable
 fun DrawingListItem(
     scope: CoroutineScope,
-    drawingInfo: DrawingInfo,
+    drawingInfo: DrawingResponse,
     setActiveDrawingInfoById: suspend (Int?) -> Unit,
     onRemove: suspend (DrawingInfo, Context) -> Unit,
     navigateToCanvasPage: () -> Unit
@@ -125,7 +136,8 @@ fun DrawingListItem(
     LaunchedEffect(show) {
         if (!show) {
             delay(500)
-            onRemove(currentItem, context)
+            // TODO: add remove drawing back
+            // onRemove(currentItem, context)
             Toast.makeText(context, "Drawing removed", Toast.LENGTH_SHORT).show()
         }
     }

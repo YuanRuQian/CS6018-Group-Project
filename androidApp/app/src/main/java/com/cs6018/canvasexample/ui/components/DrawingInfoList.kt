@@ -42,7 +42,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cs6018.canvasexample.data.DrawingInfo
 import com.cs6018.canvasexample.network.ApiService
+import com.cs6018.canvasexample.network.ApiViewModel
 import com.cs6018.canvasexample.network.DrawingPost
+import com.cs6018.canvasexample.network.DrawingResponse
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.delay
@@ -51,7 +53,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun DrawingList(
     navigateToCanvasPage: () -> Unit,
-    dataList: List<DrawingInfo>?,
+    dataList: List<DrawingResponse>?,
     state: LazyListState,
     setActiveDrawingInfoById: suspend (Int?) -> Unit,
     removeListItem: suspend (DrawingInfo, Context) -> Unit
@@ -92,7 +94,7 @@ fun DrawingListScreen(
     navigateToCanvasPage: () -> Unit,
     setActiveCapturedImage: (Bitmap?) -> Unit,
     setActiveDrawingInfoById: suspend (Int?) -> Unit,
-    dataList: List<DrawingInfo>?,
+    dataList: List<DrawingResponse>?,
     removeListItem: suspend (DrawingInfo, Context) -> Unit,
     navigateToSplashScreen: () -> Unit
 ) {

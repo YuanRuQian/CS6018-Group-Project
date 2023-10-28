@@ -56,6 +56,11 @@ class ApiService {
     }
 
     @Throws(Exception::class)
+    suspend fun getCurrentUserDrawingHistory(userId: String): List<DrawingResponse> {
+        return httpClient.get("$URL_BASE/drawings/$userId").body()
+    }
+
+    @Throws(Exception::class)
     suspend fun postNewDrawing(drawing: DrawingPost) {
         Log.d("ApiService", "postNewDrawing: $drawing")
         return httpClient.post("$URL_BASE/drawings/create") {

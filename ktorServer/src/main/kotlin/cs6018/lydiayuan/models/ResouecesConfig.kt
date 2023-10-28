@@ -63,6 +63,17 @@ fun Application.configureResources() {
             call.respond(drawings)
         }
 
+        // get feed by user id, aka every other drawing from other users
+        get<Drawings.UserId.Feed> {
+            val userId = it.parent.userId
+            val drawings = newSuspendedTransaction(Dispatchers.IO) {
+                Drawing.select { Drawing.creatorId neq userId }.map { resultRow ->
+                    mapRowToDrawingObject(resultRow)
+                }
+            }
+            call.respond(drawings)
+        }
+
         // post a new drawing
         post<Drawings.Create> {
             val drawingData = call.receive<DrawingData>()
@@ -92,7 +103,10 @@ data class DrawingData(val creatorId: String, val title: String, val imagePath: 
 @Resource("/drawings")
 class Drawings {
     @Resource("{userId}")
-    class UserId(val parent: Drawings = Drawings(), val userId: String)
+    class UserId(val parent: Drawings = Drawings(), val userId: String) {
+        @Resource("feed")
+        class Feed(val parent: UserId = UserId(parent = Drawings(), userId = ""))
+    }
 
     @Resource("create")
     class Create(val parent: Drawings = Drawings())
