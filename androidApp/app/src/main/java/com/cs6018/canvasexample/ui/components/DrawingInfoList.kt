@@ -3,6 +3,7 @@ package com.cs6018.canvasexample.ui.components
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +41,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cs6018.canvasexample.data.DrawingInfo
+import com.cs6018.canvasexample.network.ApiService
+import com.cs6018.canvasexample.network.DrawingPost
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.delay
@@ -92,7 +96,6 @@ fun DrawingListScreen(
     removeListItem: suspend (DrawingInfo, Context) -> Unit,
     navigateToSplashScreen: () -> Unit
 ) {
-
     val state = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 

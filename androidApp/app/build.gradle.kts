@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
+    // https://stackoverflow.com/a/72451819/10340117
+    id("kotlinx-serialization")
 }
 
 android {
@@ -53,6 +55,11 @@ android {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-client-cio:2.3.5")
+    implementation("io.ktor:ktor-client-resources:2.3.5")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.5")
+    implementation("io.ktor:ktor-client-android:2.3.5")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation(platform("com.google.firebase:firebase-bom:32.4.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")

@@ -43,6 +43,7 @@ import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.DrawingInfoViewModelFactory
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
 import com.cs6018.canvasexample.data.ShakeDetectionViewModel
+import com.cs6018.canvasexample.network.ApiService
 import com.cs6018.canvasexample.ui.components.AuthenticationScreen
 import com.cs6018.canvasexample.ui.components.CanvasPage
 import com.cs6018.canvasexample.ui.components.DrawingListScreen
@@ -133,14 +134,6 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
                     // TODO: show error message instead of general failure
                     onFailure()
                 }
-            }
-    }
-
-    private fun sendEmailVerification() {
-        val user = Firebase.auth.currentUser!!
-        user.sendEmailVerification()
-            .addOnCompleteListener(this) { task ->
-                // Email Verification sent
             }
     }
 
