@@ -1,0 +1,17 @@
+### GET all posts
+GET http://127.0.0.1:8080/drawings
+Accept: application/json
+
+### GET post by user ID
+GET http://127.0.0.1:8080/drawings/user123
+Accept: application/json
+
+### POST create a new drawing
+POST http://127.0.0.1:8080/drawings/create
+Content-Type: application/json
+
+{
+  "creatorId": "user123",
+  "title": "My Drawing 4",
+  "imagePath": "/path/to/image4.png"
+}

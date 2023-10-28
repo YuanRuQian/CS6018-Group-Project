@@ -30,18 +30,19 @@ Setting up Firebase configuration in your project is an essential step to enable
    - Scroll down to the "Your apps" section and select the platform (e.g., Android, iOS) for which you want to configure Firebase.
    - Follow the on-screen instructions to download the `google-services.json` configuration file specific to your platform. This file contains essential settings and keys for your project.
 
-3. **Put the file in the `app` directory of the project:**
-   - In your project's file structure, place the downloaded `google-services.json` file in the `app` directory. This is typically where your Android app's configuration files reside.
+3. **Put the file in the `androidApp/app` directory of the project:**
+   - In your project's file structure, place the downloaded `google-services.json` file in the `androidApp/app` directory. This is typically where your Android app's configuration files reside.
    - Your project structure should look like this:
 
-   ```
-   ├── app
-   │   ├── build
-   │   ├── build.gradle.kts
-   │   ├── google-services.json
-   │   ├── proguard-rules.pro
-   │   └── src
-   ```
+```
+└── androidApp
+    ├── app
+    │   ├── build
+    │   ├── build.gradle.kts
+    │   ├── google-services.json
+    │   ├── proguard-rules.pro
+    │   └── src
+```
 
 4. **You are all set!**
    - With the `google-services.json` file in place, your project is now configured to use Firebase services. You can start integrating Firebase features into your app.
