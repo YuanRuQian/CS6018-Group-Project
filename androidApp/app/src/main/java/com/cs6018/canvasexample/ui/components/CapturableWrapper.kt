@@ -9,13 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
 import com.cs6018.canvasexample.data.CapturableImageViewModel
-import com.cs6018.canvasexample.data.DrawingInfoViewModel
+import com.cs6018.canvasexample.network.ApiViewModel
 import dev.shreyaspatil.capturable.Capturable
 import dev.shreyaspatil.capturable.controller.CaptureController
 
 @Composable
 fun CapturableWrapper(
-    drawingInfoViewModel: DrawingInfoViewModel,
+    apiViewModel: ApiViewModel,
     capturableImageViewModel: CapturableImageViewModel,
     content: @Composable () -> Unit,
     captureController: CaptureController
@@ -32,7 +32,7 @@ fun CapturableWrapper(
                 Log.d("CanvasPage", "Bitmap is captured successfully.")
                 val dataAsBitmap = bitmap.asAndroidBitmap()
                 try {
-                    drawingInfoViewModel.setActiveCapturedImage(dataAsBitmap)
+                    apiViewModel.setActiveCapturedImage(dataAsBitmap)
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.d("CanvasPage", "Error occurred while saving bitmap.")

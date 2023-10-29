@@ -1,7 +1,6 @@
 package com.cs6018.canvasexample.ui.components
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,11 +18,9 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -38,19 +35,21 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cs6018.canvasexample.data.DrawingInfo
+import com.cs6018.canvasexample.network.DrawingResponse
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+// TODO: swipe down to refresh
+
 @Composable
 fun DrawingList(
     navigateToCanvasPage: () -> Unit,
-    dataList: List<DrawingInfo>?,
+    dataList: List<DrawingResponse>?,
     state: LazyListState,
-    setActiveDrawingInfoById: suspend (Int?) -> Unit,
-    removeListItem: suspend (DrawingInfo, Context) -> Unit
+    setActiveDrawingInfoById: (Int) -> Unit,
+    removeListItem: (Int) -> Unit
 ) {
 
     if (dataList == null) {
@@ -87,17 +86,14 @@ fun DrawingList(
 fun DrawingListScreen(
     navigateToCanvasPage: () -> Unit,
     setActiveCapturedImage: (Bitmap?) -> Unit,
-    setActiveDrawingInfoById: suspend (Int?) -> Unit,
-    dataList: List<DrawingInfo>?,
-    removeListItem: suspend (DrawingInfo, Context) -> Unit,
+    setActiveDrawingInfoById: (Int?) -> Unit,
+    dataList: List<DrawingResponse>?,
+    removeListItem: (Int) -> Unit,
     navigateToSplashScreen: () -> Unit
 ) {
-
     val state = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    // Calculate the number of drawings
-    val numberOfDrawings = dataList?.size ?: 0
 
     // Scroll to top when the screen is first displayed or when returning from another screen
     DisposableEffect(Unit) {
@@ -109,10 +105,7 @@ fun DrawingListScreen(
         onDispose { }
     }
 
-    ExtendedFloatingActionButton(onClick = { /* do something */ }) {
-        Text(text = "Extended FAB")
-    }
-
+    // TODO: if there is no drawing, show a message to the user the list is empty
     Scaffold(
         topBar = {
             TopAppBar(
@@ -121,7 +114,7 @@ fun DrawingListScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Drawing App",
+                            text = "My Drawings",
                             textAlign = TextAlign.Center
                         )
                     }
@@ -142,13 +135,6 @@ fun DrawingListScreen(
         bottomBar = {
             BottomAppBar(
                 content = {
-                    Spacer(modifier = Modifier.weight(1f))
-                    Text(
-                        text = "$numberOfDrawings drawings",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
                     Spacer(modifier = Modifier.weight(1f))
                     FloatingActionButton(
                         modifier = Modifier.padding(end = 16.dp),
@@ -198,7 +184,7 @@ fun DrawingListScreenPreview() {
         {},
         {},
         listOf(),
-        { _, _ -> },
+        { _ -> },
         {}
     )
 }

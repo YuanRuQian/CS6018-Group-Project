@@ -37,8 +37,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,11 +52,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import com.cs6018.canvasexample.R
 import com.cs6018.canvasexample.data.CapturableImageViewModel
-import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
 import com.cs6018.canvasexample.data.ShakeDetectionViewModel
+import com.cs6018.canvasexample.network.ApiViewModel
 import com.cs6018.canvasexample.utils.ShakeDetector
 import com.cs6018.canvasexample.utils.getCurrentDateTimeString
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dev.shreyaspatil.capturable.controller.CaptureController
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.CoroutineScope
@@ -93,7 +95,7 @@ fun BottomAppBarItem(
 
 @Composable
 fun BottomAppBarContent(
-    drawingInfoViewModel: DrawingInfoViewModel,
+    apiViewModel: ApiViewModel,
     pathPropertiesViewModel: PathPropertiesViewModel,
     scope: CoroutineScope,
     captureController: CaptureController,
@@ -168,7 +170,7 @@ fun BottomAppBarContent(
                             scope,
                             context,
                             captureController,
-                            drawingInfoViewModel,
+                            apiViewModel,
                             capturableImageViewModel
                         )
                     }
@@ -182,7 +184,7 @@ fun onShareClick(
     scope: CoroutineScope,
     context: Context,
     captureController: CaptureController,
-    drawingInfoViewModel: DrawingInfoViewModel,
+    apiViewModel: ApiViewModel,
     capturableImageViewModel: CapturableImageViewModel
 ) {
     scope.launch {
@@ -197,14 +199,14 @@ fun onShareClick(
 
         capturableImageViewModel.setNewSignalChannel()
 
-        val bitmap = drawingInfoViewModel.getActiveCapturedImage().value
+        val bitmap = apiViewModel.getActiveCapturedImage().value
 
         if (bitmap == null) {
             Log.e("CanvasPage", "Error occurred while sharing image: bitmap is null")
         } else {
             // Get the active drawing info's title
             val activeDrawingInfoDrawingTitle =
-                drawingInfoViewModel.activeDrawingInfo.value?.drawingTitle
+                apiViewModel.activeDrawingInfo.value?.title
 
             // Convert the bitmap to a temporary file and get its URI
             val uri = saveBitmapAsTemporaryImage(context, bitmap)
@@ -244,18 +246,20 @@ private fun saveBitmapAsTemporaryImage(context: Context, bitmap: Bitmap): Uri {
     return FileProvider.getUriForFile(context, context.packageName + ".provider", imageFile)
 }
 
-
 fun customBackNavigation(
+    currentUserId: String,
     scope: CoroutineScope,
-    drawingInfoViewModel: DrawingInfoViewModel,
+    apiViewModel: ApiViewModel,
     pathPropertiesViewModel: PathPropertiesViewModel,
     navigateToPopBack: () -> Boolean
 ) {
+    Log.d("CanvasPage", "customBackNavigation | currentUserId: $currentUserId")
     navigateToPopBack()
     pathPropertiesViewModel.reset()
     scope.launch {
-        drawingInfoViewModel.setActiveDrawingInfoById(null)
-        drawingInfoViewModel.setActiveCapturedImage(null)
+        apiViewModel.setActiveDrawingInfoById(null)
+        apiViewModel.setActiveCapturedImage(null)
+        apiViewModel.getCurrentUserDrawingHistory(currentUserId)
     }
 }
 
@@ -263,7 +267,7 @@ fun customBackNavigation(
 @Composable
 fun CanvasPage(
     pathPropertiesViewModel: PathPropertiesViewModel,
-    drawingInfoViewModel: DrawingInfoViewModel,
+    apiViewModel: ApiViewModel,
     capturableImageViewModel: CapturableImageViewModel,
     navigateToPenCustomizer: () -> Unit,
     navigateToPopBack: () -> Boolean,
@@ -276,21 +280,25 @@ fun CanvasPage(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val activeDrawingInfo by drawingInfoViewModel.activeDrawingInfo.observeAsState()
-
-
-    var drawingTitle by rememberSaveable {
-        mutableStateOf(
-            activeDrawingInfo?.drawingTitle ?: "Untitled"
-        )
-    }
-
     val shakeDetector = ShakeDetector(shakeDetectorListener)
     val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+    var drawingTitle by remember {
+        mutableStateOf(
+            apiViewModel.activeDrawingTitle.value ?: "Untitled"
+        )
+    }
 
     LaunchedEffect(key1 = true) {
         // reference: https://github.com/square/seismic/issues/24#issuecomment-954231517
         shakeDetector.start(sensorManager, SensorManager.SENSOR_DELAY_GAME)
+    }
+
+    // Use LaunchedEffect to reset drawingTitle when activeDrawingInfo?.drawingTitle changes
+    LaunchedEffect(apiViewModel.activeDrawingTitle.value) {
+        val newDrawingTitle = apiViewModel.activeDrawingTitle.value ?: "Untitled"
+        drawingTitle = newDrawingTitle
+        Log.d("CanvasPage", "LaunchedEffect | update drawing title: $newDrawingTitle")
     }
 
     DisposableEffect(Unit) {
@@ -299,22 +307,11 @@ fun CanvasPage(
         }
     }
 
-    // Use LaunchedEffect to reset drawingTitle when activeDrawingInfo?.drawingTitle changes
-    LaunchedEffect(activeDrawingInfo?.drawingTitle) {
-        val newDrawingTitle = activeDrawingInfo?.drawingTitle ?: "Untitled"
-        drawingTitle = newDrawingTitle
-        Log.d("CanvasPage", "LaunchedEffect | update drawing title: $newDrawingTitle")
-    }
-
-    Log.d(
-        "CanvasPage",
-        "activeDrawingInfo | id: ${activeDrawingInfo?.id}, title: ${activeDrawingInfo?.drawingTitle}, drawingTitle $drawingTitle"
-    )
-
     BackHandler {
         customBackNavigation(
+            Firebase.auth.currentUser?.uid ?: "",
             scope,
-            drawingInfoViewModel,
+            apiViewModel,
             pathPropertiesViewModel,
             navigateToPopBack
         )
@@ -333,7 +330,7 @@ fun CanvasPage(
                         value = drawingTitle,
                         onValueChange = {
                             drawingTitle = it
-                            Log.d("CanvasPage", "Title: onValueChange | $it")
+                            apiViewModel.setActiveDrawingInfoTitle(it)
                         },
                         singleLine = true,
                         colors = TextFieldDefaults.colors(
@@ -350,9 +347,14 @@ fun CanvasPage(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
+                            Log.d(
+                                "CanvasPage",
+                                "Back button clicked, current user id: ${Firebase.auth.currentUser?.uid}"
+                            )
                             customBackNavigation(
+                                Firebase.auth.currentUser?.uid ?: "",
                                 scope,
-                                drawingInfoViewModel,
+                                apiViewModel,
                                 pathPropertiesViewModel,
                                 navigateToPopBack
                             )
@@ -367,19 +369,17 @@ fun CanvasPage(
                     }
                 },
 
-
                 actions = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
                             saveCurrentDrawing(
-                                drawingInfoViewModel,
                                 coroutineScope,
                                 context,
                                 captureController,
                                 pathPropertiesViewModel,
                                 capturableImageViewModel,
-                                drawingTitle,
+                                apiViewModel,
                                 navigateToPopBack
                             )
                         }
@@ -404,7 +404,7 @@ fun CanvasPage(
         },
         bottomBar = {
             BottomAppBarContent(
-                drawingInfoViewModel,
+                apiViewModel,
                 pathPropertiesViewModel,
                 scope,
                 captureController,
@@ -417,7 +417,7 @@ fun CanvasPage(
                 pathPropertiesViewModel,
                 it,
                 captureController,
-                drawingInfoViewModel,
+                apiViewModel,
                 capturableImageViewModel
             )
         }
@@ -425,33 +425,30 @@ fun CanvasPage(
 }
 
 fun saveCurrentDrawing(
-    drawingInfoViewModel: DrawingInfoViewModel,
     coroutineScope: CoroutineScope,
     context: Context,
     captureController: CaptureController,
     pathPropertiesViewModel: PathPropertiesViewModel,
     captureableImageViewModel: CapturableImageViewModel,
-    drawingTitle: String,
+    apiViewModel: ApiViewModel,
     navigateToPopBack: () -> Boolean
 ) {
     coroutineScope.launch {
         captureController.capture()
     }
-    Log.d("CanvasPage", "SaveCurrentDrawing: $drawingTitle")
-
     coroutineScope.launch {
         Log.d("CanvasPage", "saveCurrentDrawing | Waiting for signal")
         captureableImageViewModel.signalChannel.value?.receive()
         captureableImageViewModel.setNewSignalChannel()
 
         val savedImagePath =
-            drawingInfoViewModel.addDrawingInfoWithRecentCapturedImage(context, drawingTitle)
+            apiViewModel.addDrawingInfoWithRecentCapturedImage(context)
         Log.d("CanvasPage", "Image saved to $savedImagePath")
 
-
-        drawingInfoViewModel.setActiveDrawingInfoById(null)
-        drawingInfoViewModel.setActiveCapturedImage(null)
+        apiViewModel.setActiveDrawingInfoById(null)
+        apiViewModel.setActiveCapturedImage(null)
         pathPropertiesViewModel.reset()
+        apiViewModel.getCurrentUserDrawingHistory(Firebase.auth.currentUser?.uid ?: "")
         navigateToPopBack()
     }
 }
