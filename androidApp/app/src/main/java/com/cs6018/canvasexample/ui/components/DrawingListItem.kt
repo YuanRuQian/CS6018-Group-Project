@@ -1,7 +1,5 @@
 package com.cs6018.canvasexample.ui.components
 
-import android.content.Context
-import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -19,14 +17,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.cs6018.canvasexample.R
-import com.cs6018.canvasexample.data.DrawingInfo
 import com.cs6018.canvasexample.network.DrawingResponse
 import com.cs6018.canvasexample.utils.formatDate
 import kotlinx.coroutines.CoroutineScope
@@ -94,8 +89,8 @@ fun DrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
 fun DrawingListItem(
     scope: CoroutineScope,
     drawingInfo: DrawingResponse,
-    setActiveDrawingInfoById: suspend (Int?) -> Unit,
-    onRemove: suspend (DrawingInfo, Context) -> Unit,
+    setActiveDrawingInfoById: (Int) -> Unit,
+    onRemove: (Int) -> Unit,
     navigateToCanvasPage: () -> Unit
 ) {
     val context = LocalContext.current
@@ -122,10 +117,8 @@ fun DrawingListItem(
                 DrawingCard(
                     drawingInfo = currentItem,
                     onClick = {
-                        scope.launch {
-                            Log.d("DrawingList", "Clicked on drawing ${drawingInfo.id}")
-                            setActiveDrawingInfoById(currentItem.id)
-                        }
+                        Log.d("DrawingList", "Clicked on drawing ${drawingInfo.id}")
+                        setActiveDrawingInfoById(currentItem.id)
                         navigateToCanvasPage()
                     }
                 )
@@ -136,8 +129,7 @@ fun DrawingListItem(
     LaunchedEffect(show) {
         if (!show) {
             delay(500)
-            // TODO: add remove drawing back
-            // onRemove(currentItem, context)
+            onRemove(currentItem.id)
             Toast.makeText(context, "Drawing removed", Toast.LENGTH_SHORT).show()
         }
     }

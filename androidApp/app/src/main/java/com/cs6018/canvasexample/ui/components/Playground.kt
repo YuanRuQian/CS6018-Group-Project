@@ -31,9 +31,9 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.cs6018.canvasexample.data.CapturableImageViewModel
-import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.PathProperties
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
+import com.cs6018.canvasexample.network.ApiViewModel
 import com.cs6018.canvasexample.utils.MotionEvent
 import com.cs6018.canvasexample.utils.dragMotionEvent
 import dev.shreyaspatil.capturable.controller.CaptureController
@@ -43,7 +43,7 @@ fun Playground(
     viewModel: PathPropertiesViewModel,
     paddingValues: PaddingValues,
     captureController: CaptureController,
-    drawingInfoViewModel: DrawingInfoViewModel,
+    apiViewModel: ApiViewModel,
     capturableImageViewModel: CapturableImageViewModel
 ) {
     val paths = viewModel.paths
@@ -60,7 +60,7 @@ fun Playground(
 
     val currentPathProperty = viewModel.currentPathProperty
 
-    val activeDrawingInfo by drawingInfoViewModel.activeDrawingInfo.observeAsState()
+    val activeDrawingInfo by apiViewModel.activeDrawingInfo.observeAsState()
 
     Log.d("CanvasPage", "active image path: ${activeDrawingInfo?.imagePath}")
 
@@ -150,8 +150,9 @@ fun Playground(
 
 
         CapturableWrapper(
-            capturableImageViewModel = capturableImageViewModel,
-            content = {
+            apiViewModel,
+            capturableImageViewModel,
+            {
                 Canvas(modifier = drawModifier) {
                     Log.d("CanvasPage", "canvas width: ${size.width}, height: ${size.height}")
                     when (motionEvent.value) {
@@ -263,8 +264,7 @@ fun Playground(
                     }
                 }
             },
-            captureController = captureController,
-            drawingInfoViewModel = drawingInfoViewModel
+            captureController
         )
     }
 }

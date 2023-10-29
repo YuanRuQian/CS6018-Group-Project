@@ -22,7 +22,7 @@ import kotlinx.serialization.json.Json
 data class DrawingResponse(
     val id: Int,
     val creatorId: String,
-    val title: String,
+    var title: String,
     val lastModifiedDate: Long,
     val createdDate: Long,
     val imagePath: String,
@@ -80,14 +80,14 @@ class ApiService {
     }
 
     @Throws(Exception::class)
-    suspend fun getDrawingById(drawingId: Int) : DrawingResponse {
+    suspend fun getDrawingById(drawingId: Int) : List<DrawingResponse> {
         Log.d("ApiService", "getDrawingById: $drawingId")
         return httpClient.get("$URL_BASE/drawings/drawing/$drawingId").body()
     }
 
     @Throws(Exception::class)
-    suspend fun updateDrawingById(drawingId: Int, drawing: DrawingPost) : DrawingResponse {
-        Log.d("ApiService", "getDrawingById: $drawingId")
+    suspend fun updateDrawingById(drawingId: Int, drawing: DrawingPost) {
+        Log.d("ApiService", "updateDrawingById: $drawingId, $drawing")
         return httpClient.put("$URL_BASE/drawings/drawing/$drawingId") {
             contentType(ContentType.Application.Json)
             setBody(drawing)
@@ -95,8 +95,8 @@ class ApiService {
     }
 
     @Throws(Exception::class)
-    suspend fun deleteDrawingById(drawingId: Int) : DrawingResponse {
-        Log.d("ApiService", "getDrawingById: $drawingId")
+    suspend fun deleteDrawingById(drawingId: Int) {
+        Log.d("ApiService", "deleteDrawingById: $drawingId")
         return httpClient.delete("$URL_BASE/drawings/drawing/$drawingId").body()
     }
 }

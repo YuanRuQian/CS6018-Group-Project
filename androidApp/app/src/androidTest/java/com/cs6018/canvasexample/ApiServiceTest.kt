@@ -35,7 +35,7 @@ class ApiServiceTest {
 
             apiService.postNewDrawing(dataToPost)
 
-            val drawings = apiService.getAllDrawings()
+            var drawings = apiService.getAllDrawings()
             assert(drawings.size == 1)
 
             var drawing = drawings[0]
@@ -46,7 +46,9 @@ class ApiServiceTest {
             val changedDate = DrawingPost("testCreatorId", "test title updated", "test image path updated")
             apiService.updateDrawingById(drawing.id, changedDate)
 
-            drawing = apiService.getDrawingById(drawing.id)
+            drawings = apiService.getDrawingById(drawing.id)
+            assert(drawings.size == 1)
+            drawing = drawings[0]
             assert(drawing.creatorId == "testCreatorId")
             assert(drawing.title == "test title updated")
             assert(drawing.imagePath == "test image path updated")
