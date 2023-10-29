@@ -6,8 +6,10 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.resources.Resources
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -52,12 +54,20 @@ class ApiService {
 
     @Throws(Exception::class)
     suspend fun getAllDrawings(): List<DrawingResponse> {
+        Log.d("ApiService", "getAllDrawings: ")
         return httpClient.get("$URL_BASE/drawings").body()
     }
 
     @Throws(Exception::class)
     suspend fun getCurrentUserDrawingHistory(userId: String): List<DrawingResponse> {
-        return httpClient.get("$URL_BASE/drawings/$userId").body()
+        Log.d("ApiService", "getCurrentUserDrawingHistory: $userId")
+        return httpClient.get("$URL_BASE/drawings/user/$userId/history").body()
+    }
+
+    @Throws(Exception::class)
+    suspend fun getCurrentUserFeed(userId: String): List<DrawingResponse> {
+        Log.d("ApiService", "getCurrentUserFeed: $userId")
+        return httpClient.get("$URL_BASE/drawings/user/$userId/feed").body()
     }
 
     @Throws(Exception::class)
@@ -67,5 +77,26 @@ class ApiService {
             contentType(ContentType.Application.Json)
             setBody(drawing)
         }.body()
+    }
+
+    @Throws(Exception::class)
+    suspend fun getDrawingById(drawingId: Int) : DrawingResponse {
+        Log.d("ApiService", "getDrawingById: $drawingId")
+        return httpClient.get("$URL_BASE/drawings/drawing/$drawingId").body()
+    }
+
+    @Throws(Exception::class)
+    suspend fun updateDrawingById(drawingId: Int, drawing: DrawingPost) : DrawingResponse {
+        Log.d("ApiService", "getDrawingById: $drawingId")
+        return httpClient.put("$URL_BASE/drawings/drawing/$drawingId") {
+            contentType(ContentType.Application.Json)
+            setBody(drawing)
+        }.body()
+    }
+
+    @Throws(Exception::class)
+    suspend fun deleteDrawingById(drawingId: Int) : DrawingResponse {
+        Log.d("ApiService", "getDrawingById: $drawingId")
+        return httpClient.delete("$URL_BASE/drawings/drawing/$drawingId").body()
     }
 }
