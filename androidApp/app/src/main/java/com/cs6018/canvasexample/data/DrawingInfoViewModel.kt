@@ -62,6 +62,7 @@ class DrawingInfoViewModel(private val repository: DrawingInfoRepository) : View
             }
 
             val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, 256, 256)
+
             addDrawingInfo(drawingTitle, imagePath, bitmapToByteArray(thumbnail))
             return imagePath
         } else {

@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cs6018.canvasexample.network.ApiViewModel
 import com.google.firebase.auth.FirebaseUser
 
 // TODO: bonus task -> sign in with Google
@@ -42,7 +43,8 @@ import com.google.firebase.auth.FirebaseUser
 fun AuthenticationScreen(
     createUserWithEmailAndPassword: (String, String, (FirebaseUser?) -> Unit, () -> Unit) -> Unit,
     signInWithEmailAndPassword: (String, String, (FirebaseUser?) -> Unit, () -> Unit) -> Unit,
-    navigateToDrawingList: () -> Unit
+    navigateToDrawingList: () -> Unit,
+    preloadCurrentUserDrawingHistory: (String) -> Unit,
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -126,6 +128,7 @@ fun AuthenticationScreen(
                             Toast.LENGTH_LONG
                         )
                             .show()
+                        preloadCurrentUserDrawingHistory(user?.uid ?: "")
                         navigateToDrawingList()
                     }, {
                         Toast.makeText(context, "Sign In failed", Toast.LENGTH_LONG).show()
@@ -146,6 +149,6 @@ fun AuthenticationScreen(
 @Composable
 fun AuthenticationScreenPreview() {
     MaterialTheme {
-        AuthenticationScreen({ _, _, _, _ -> }, { _, _, _, _ -> }, {})
+        AuthenticationScreen({ _, _, _, _ -> }, { _, _, _, _ -> }, {}, {})
     }
 }

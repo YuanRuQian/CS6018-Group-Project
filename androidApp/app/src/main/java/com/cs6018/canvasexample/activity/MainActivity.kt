@@ -43,8 +43,6 @@ import com.cs6018.canvasexample.data.DrawingInfoViewModel
 import com.cs6018.canvasexample.data.DrawingInfoViewModelFactory
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
 import com.cs6018.canvasexample.data.ShakeDetectionViewModel
-import com.cs6018.canvasexample.network.ApiRepository
-import com.cs6018.canvasexample.network.ApiService
 import com.cs6018.canvasexample.network.ApiViewModel
 import com.cs6018.canvasexample.network.ApiViewModelFactory
 import com.cs6018.canvasexample.ui.components.AuthenticationScreen
@@ -203,7 +201,7 @@ fun Navigation(
     }
 
     val drawingInfoDataList by drawingInfoViewModel.allDrawingInfo.observeAsState()
-    val apiDrawingInfoDataList by apiViewModel.drawings.collectAsState()
+    val apiDrawingInfoDataList by apiViewModel.currentUserDrawingHistory.collectAsState()
 
     // Completed SplashScreen: change startDestination to splash screen
     NavHost(navController = navController, startDestination = "splash") {
@@ -213,7 +211,8 @@ fun Navigation(
             AuthenticationScreen(
                 createUserWithEmailAndPassword,
                 signInWithEmailAndPassword,
-                navigateToDrawingList
+                navigateToDrawingList,
+                apiViewModel::getCurrentUserDrawingHistory
             )
         }
 
@@ -222,6 +221,8 @@ fun Navigation(
                 val currentUser = Firebase.auth.currentUser
                 val isSignedIn = currentUser != null
                 if (isSignedIn) {
+                    // pre-fetch the drawing history of the current user
+                    apiViewModel.getCurrentUserDrawingHistory(Firebase.auth.currentUser?.uid ?: "")
                     navController.navigate("drawingList")
                 } else {
                     navController.navigate("authentication")

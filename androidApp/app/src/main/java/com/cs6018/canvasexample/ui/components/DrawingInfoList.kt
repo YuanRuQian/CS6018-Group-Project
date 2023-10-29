@@ -3,7 +3,6 @@ package com.cs6018.canvasexample.ui.components
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -114,10 +113,7 @@ fun DrawingListScreen(
         onDispose { }
     }
 
-    ExtendedFloatingActionButton(onClick = { /* do something */ }) {
-        Text(text = "Extended FAB")
-    }
-
+    // TODO: if there is no drawing, show a message to the user the list is empty
     Scaffold(
         topBar = {
             TopAppBar(
@@ -126,7 +122,7 @@ fun DrawingListScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Drawing App",
+                            text = "My Drawings",
                             textAlign = TextAlign.Center
                         )
                     }
