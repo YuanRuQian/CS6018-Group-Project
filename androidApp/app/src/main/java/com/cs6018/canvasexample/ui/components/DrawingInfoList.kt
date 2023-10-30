@@ -42,9 +42,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ExploreFeedList(dataList: List<DrawingResponse>?) {
+    Log.d("ExploreFeedList", "dataList: $dataList")
     if (dataList == null) {
         return
     }
+
+    Log.d("ExploreFeedList", "dataList length: ${dataList.size}")
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 128.dp)
@@ -107,6 +110,7 @@ fun DrawingListScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var currentActiveIndex by remember { mutableIntStateOf(0) }
+    Log.d("DrawingListScreen", "currentActiveIndex: $currentActiveIndex")
     val updateCurrentActiveIndex = { index: Int ->
         Log.d("DrawingListScreen", "updateCurrentActiveIndex: $index")
         currentActiveIndex = index
@@ -180,6 +184,7 @@ fun DrawingListScreen(
                 }
 
                 1 -> {
+                    Log.d("ExploreFeedList", "currentUserExploreFeed: $currentUserExploreFeed")
                     ExploreFeedList(currentUserExploreFeed)
                 }
             }

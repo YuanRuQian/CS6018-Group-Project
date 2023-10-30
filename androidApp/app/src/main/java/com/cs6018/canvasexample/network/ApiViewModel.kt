@@ -2,11 +2,11 @@ package com.cs6018.canvasexample.network
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.media.ThumbnailUtils
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.cs6018.canvasexample.utils.bitmapToBase64String
 import com.cs6018.canvasexample.utils.overwriteCurrentImageFile
 import com.cs6018.canvasexample.utils.saveImage
 import com.google.firebase.auth.ktx.auth
@@ -40,12 +40,12 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
         Log.d("ApiViewModel", "Bitmap is set as activeCapturedImage.")
     }
 
-    private suspend fun updateDrawingTitleById() {
-        repository.updateDrawingTitleById(activeDrawingTitle.value ?: "Untitled")
+    private suspend fun updateDrawingTitleById(thumbnail: String) {
+        repository.updateDrawingTitleById(activeDrawingTitle.value ?: "Untitled", thumbnail)
     }
 
-    private suspend fun postNewDrawing(creatorId: String, imagePath: String) {
-        repository.postNewDrawing(creatorId, imagePath)
+    private suspend fun postNewDrawing(creatorId: String, imagePath: String, thumbnail: String) {
+        repository.postNewDrawing(creatorId, imagePath, thumbnail)
     }
 
     suspend fun addDrawingInfoWithRecentCapturedImage(context: Context): String? {
@@ -62,27 +62,26 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
                 return null
             }
 
-            val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, 256, 256)
+            val thumbnail = bitmapToBase64String(
+                bitmap
+            )
 
-            // TODO: add new thumbnail here
             postNewDrawing(
                 Firebase.auth.currentUser?.uid ?: "",
-                imagePath
+                imagePath,
+                thumbnail
             )
             return imagePath
         } else {
-            // TODO: update the current drawing's title
             val imagePath =
                 overwriteCurrentImageFile(bitmap, context, activeDrawingInfo.value?.imagePath ?: "")
             if (imagePath == null) {
                 Log.d("ApiViewModel", "Image path is null.")
                 return null
             }
-            updateDrawingTitleById()
 
-            val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, 256, 256)
-            // TODO: update the active drawing's thumbnail here
-            // updateThumbnailForActiveDrawingInfo(bitmapToByteArray(thumbnail))
+            val thumbnail = bitmapToBase64String(bitmap)
+            updateDrawingTitleById(thumbnail)
             return imagePath
         }
     }
@@ -92,7 +91,7 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
         repository.getCurrentUserDrawingHistory(userId)
     }
 
-    fun getCurrentUserExploreFeed(userId: String) {
+    suspend fun getCurrentUserExploreFeed(userId: String) {
         repository.getCurrentUserExploreFeed(userId)
     }
 

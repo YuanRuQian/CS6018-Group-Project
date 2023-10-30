@@ -12,7 +12,7 @@ data class DrawingObject(
     val lastModifiedDate: Long,
     val createdDate: Long,
     val imagePath: String,
-    // val thumbnail: Blob
+    val thumbnail: String
 )
 
 object Drawing : IntIdTable() {
@@ -21,5 +21,5 @@ object Drawing : IntIdTable() {
     val lastModifiedDate = long("lastModifiedDate")
     val createdDate = long("createdDate")
     val imagePath = varchar("imagePath", 255)
-    // val thumbnail = blob("thumbnail")
+    val thumbnail = text("thumbnail")
 }

@@ -26,6 +26,7 @@ data class DrawingResponse(
     val lastModifiedDate: Long,
     val createdDate: Long,
     val imagePath: String,
+    val thumbnail: String
 )
 
 
@@ -33,7 +34,8 @@ data class DrawingResponse(
 data class DrawingPost(
     val creatorId: String,
     val title: String,
-    val imagePath: String
+    val imagePath: String,
+    val thumbnail: String
 )
 
 class ApiService {

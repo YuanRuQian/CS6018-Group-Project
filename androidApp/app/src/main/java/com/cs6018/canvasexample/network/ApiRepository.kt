@@ -16,23 +16,24 @@ class ApiRepository(private val scope: CoroutineScope, private val apiService: A
 
     var activeDrawingTitle: MutableLiveData<String?> = MutableLiveData("Untitled")
 
-    suspend fun updateDrawingTitleById(title: String) {
+    suspend fun updateDrawingTitleById(title: String, thumbnail: String) {
         val drawingId = activeDrawingInfo.value?.id ?: 0
         apiService.updateDrawingById(
             drawingId,
             DrawingPost(
                 activeDrawingInfo.value?.creatorId ?: "",
                 title,
-                activeDrawingInfo.value?.imagePath ?: ""
+                activeDrawingInfo.value?.imagePath ?: "",
+                thumbnail
             )
         )
         Log.d("ApiRepository", "updateDrawingTitleById: $title")
     }
 
-    suspend fun postNewDrawing(creatorId: String, imagePath: String) {
+    suspend fun postNewDrawing(creatorId: String, imagePath: String, thumbnail: String) {
         apiService.postNewDrawing(
             DrawingPost(
-                creatorId, activeDrawingTitle.value ?: "Untitled", imagePath
+                creatorId, activeDrawingTitle.value ?: "Untitled", imagePath, thumbnail
             )
         )
         Log.d("ApiRepository", "postNewDrawing: ${activeDrawingTitle.value ?: "Untitled"}")
@@ -46,12 +47,10 @@ class ApiRepository(private val scope: CoroutineScope, private val apiService: A
         }
     }
 
-    fun getCurrentUserExploreFeed(userId: String) {
-        scope.launch {
-            val drawings = apiService.getCurrentUserFeed(userId)
-            Log.d("ApiRepository", "getCurrentUserExploreFeed: $drawings")
-            currentUserExploreFeed.postValue(drawings)
-        }
+    suspend fun getCurrentUserExploreFeed(userId: String) {
+        val drawings = apiService.getCurrentUserFeed(userId)
+        Log.d("ApiRepository", "getCurrentUserExploreFeed: $drawings")
+        currentUserExploreFeed.postValue(drawings)
     }
 
     fun setActiveDrawingInfoTitle(title: String) {

@@ -19,14 +19,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.cs6018.canvasexample.R
 import com.cs6018.canvasexample.network.DrawingResponse
+import com.cs6018.canvasexample.utils.base64StringToBitmap
 import com.cs6018.canvasexample.utils.formatDate
 import kotlinx.coroutines.delay
 import java.util.Date
@@ -40,10 +40,11 @@ fun ExploreFeedDrawingCard(drawingInfo: DrawingResponse) {
         model = url,
         contentScale = ContentScale.Crop,
         contentDescription = null,
-        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
     )
 }
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,21 +82,11 @@ fun HistoryDrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
                 )
             }
             Image(
-                painter = painterResource(id = R.drawable.splash),
-                contentDescription = "Splash Icon",
-                modifier = Modifier.size(100.dp)
+                bitmap = base64StringToBitmap(drawingInfo.thumbnail).asImageBitmap(),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(100.dp)
             )
-            // TODO: add back thumbnail
-//            if (drawingInfo.thumbnail != null) {
-//                val thumbnail = BitmapFactory
-//                    .decodeByteArray(drawingInfo.thumbnail, 0, drawingInfo.thumbnail!!.size)
-//                Image(
-//                    bitmap = thumbnail.asImageBitmap(),
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .size(100.dp)
-//                )
-//            }
         }
     }
 }
