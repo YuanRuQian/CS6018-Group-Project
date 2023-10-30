@@ -2,10 +2,13 @@ package com.cs6018.canvasexample.utils
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.core.net.toUri
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -141,4 +144,18 @@ fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
         outputStream
     ) // Compress as PNG or JPEG based on your preference
     return outputStream.toByteArray()
+}
+
+fun bitmapToBase64String(bitmap: Bitmap): String {
+    val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, 150, 150)
+    val byteArray = bitmapToByteArray(thumbnail)
+    val sizeInKB = byteArray.size / 1024.0
+    Log.d("bitmapToBase64String", "Thumbnail size: $sizeInKB KB")
+    return android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT)
+}
+
+fun base64StringToBitmap(base64String: String): Bitmap {
+    val byteArray = android.util.Base64.decode(base64String, android.util.Base64.DEFAULT)
+    return BitmapFactory
+        .decodeByteArray(byteArray, 0, byteArray.size)
 }

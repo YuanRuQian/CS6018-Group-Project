@@ -32,12 +32,17 @@ fun DrawingListPageTabRow(
 
     val tabInfo = listOf(
         TabInfo("History", Icons.Filled.History) {
-            apiViewModel.getCurrentUserDrawingHistory(Firebase.auth.currentUser?.uid ?: "")
+            scope.launch {
+                delay(500)
+                apiViewModel.getCurrentUserDrawingHistory(Firebase.auth.currentUser?.uid ?: "")
+            }
         },
         TabInfo("Explore", Icons.Filled.Explore) {
-            apiViewModel.getCurrentUserExploreFeed(Firebase.auth.currentUser?.uid ?: "")
+            scope.launch {
+                delay(500)
+                apiViewModel.getCurrentUserExploreFeed(Firebase.auth.currentUser?.uid ?: "")
+            }
         },
-        // TODO: add create page
         TabInfo("Create", Icons.Filled.Add) {
             navigateToCanvasPage()
         },

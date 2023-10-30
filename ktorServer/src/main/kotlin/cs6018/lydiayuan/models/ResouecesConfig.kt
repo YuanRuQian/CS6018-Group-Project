@@ -13,14 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import java.sql.Blob
-import javax.sql.rowset.serial.SerialBlob
-
-fun exposedBlobToBlob(exposedBlob: ExposedBlob): Blob {
-    return SerialBlob(exposedBlob.bytes)
-}
 
 fun mapRowToDrawingObject(row: ResultRow): DrawingObject {
     return DrawingObject(
@@ -30,7 +23,7 @@ fun mapRowToDrawingObject(row: ResultRow): DrawingObject {
         lastModifiedDate = row[Drawing.lastModifiedDate],
         createdDate = row[Drawing.createdDate],
         imagePath = row[Drawing.imagePath],
-        // thumbnail = exposedBlobToBlob(row[Drawing.thumbnail])
+        thumbnail = row[Drawing.thumbnail],
     )
 }
 
@@ -85,7 +78,7 @@ fun Application.configureResources() {
                     it[lastModifiedDate] = System.currentTimeMillis()
                     it[createdDate] = System.currentTimeMillis()
                     it[imagePath] = drawingData.imagePath
-                    // it[thumbnail] = ExposedBlob(thumbnailData)
+                    it[thumbnail] = drawingData.thumbnail
                 }
             }
 
@@ -114,7 +107,7 @@ fun Application.configureResources() {
                 Drawing.update({ Drawing.id eq drawingId }) { updateStatement ->
                     updateStatement[title] = drawingData.title
                     updateStatement[lastModifiedDate] = System.currentTimeMillis()
-                    // it[thumbnail] = ExposedBlob(thumbnailData)
+                    updateStatement[thumbnail] = drawingData.thumbnail
                 }
             }
             call.respond(HttpStatusCode.OK, "Drawing $drawingId updated")
@@ -133,7 +126,7 @@ fun Application.configureResources() {
 
 // TODO: make thumbnail a Blob work
 @Serializable
-data class DrawingData(val creatorId: String, val title: String, val imagePath: String)
+data class DrawingData(val creatorId: String, val title: String, val imagePath: String, val thumbnail: String)
 
 @Resource("/drawings")
 class Drawings {

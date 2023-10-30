@@ -31,7 +31,8 @@ class ApiServiceTest {
     @Test
     fun testGetAllDrawings() {
         scope.launch {
-            val dataToPost = DrawingPost("testCreatorId", "test title", "test image path")
+            val dataToPost =
+                DrawingPost("testCreatorId", "test title", "test image path", "test thumbnail")
 
             apiService.postNewDrawing(dataToPost)
 
@@ -43,7 +44,12 @@ class ApiServiceTest {
             assert(drawing.title == "test title")
             assert(drawing.imagePath == "test image path")
 
-            val changedDate = DrawingPost("testCreatorId", "test title updated", "test image path updated")
+            val changedDate = DrawingPost(
+                "testCreatorId",
+                "test title updated",
+                "test image path updated",
+                "test thumbnail updated"
+            )
             apiService.updateDrawingById(drawing.id, changedDate)
 
             drawings = apiService.getDrawingById(drawing.id)

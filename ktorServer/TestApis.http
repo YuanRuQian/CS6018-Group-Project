@@ -7,7 +7,7 @@ GET http://127.0.0.1:8080/drawings/user/tq9NwzxdyjfkMOOP8tEsLkoQLdC3/history
 Accept: application/json
 
 ### GET feed by user ID
-GET http://127.0.0.1:8080/drawings/user/jn1vVoFvM0dUbcpMR29BtpoJ0yN2/feed
+GET http://127.0.0.1:8080/drawings/user/tq9NwzxdyjfkMOOP8tEsLkoQLdC3/feed
 Accept: application/json
 
 ### POST create a new drawing
@@ -17,7 +17,8 @@ Content-Type: application/json
 {
   "creatorId": "tq9NwzxdyjfkMOOP8tEsLkoQLdC3",
   "title": "My Drawing 4",
-  "imagePath": "file:///storage/emulated/0/Android/data/com.cs6018.canvasexample/files/Pictures/2023-10-27_001326.jpg"
+  "imagePath": "file:///storage/emulated/0/Android/data/com.cs6018.canvasexample/files/Pictures/2023-10-27_001326.jpg",
+  "thumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhUTExMWFhUXGBgYGBgYGBgYGBgYGBgYGBgYGBgYHSggGBolHRgXITEhJSkrLi4uGB8zODMsNygtLis"
 }
 
 ### GET drawing by ID
@@ -31,7 +32,8 @@ Content-Type: application/json
 {
   "creatorId": "tq9NwzxdyjfkMOOP8tEsLkoQLdC3",
   "title": "My Drawing 4 updated",
-  "imagePath": "file:///storage/emulated/0/Android/data/com.cs6018.canvasexample/files/Pictures/2023-10-27_001326.jpg"
+  "imagePath": "file:///storage/emulated/0/Android/data/com.cs6018.canvasexample/files/Pictures/2023-10-27_001326.jpg",
+  "thumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhUTExMWFhUXGBgYGBgYGBgYGBgYGBgYGBgYGBgYHSggGBolHRgXITEhJSkrLi4uGB8zODMsNygtLis"
 }
 
 ### DELETE drawing by ID
