@@ -8,8 +8,9 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.core.net.toUri
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -158,4 +159,27 @@ fun base64StringToBitmap(base64String: String): Bitmap {
     val byteArray = android.util.Base64.decode(base64String, android.util.Base64.DEFAULT)
     return BitmapFactory
         .decodeByteArray(byteArray, 0, byteArray.size)
+}
+
+data class GoogleApiClientConfig(
+    val web: WebClient
+)
+
+data class WebClient(
+    val client_id: String,
+    val project_id: String,
+    val auth_uri: String,
+    val token_uri: String,
+    val auth_provider_x509_cert_url: String,
+    val client_secret: String,
+    val redirect_uris: List<String>,
+    val javascript_origins: List<String>
+)
+
+fun parseClientID(context: Context): String {
+    val jsonString = context.assets.open("client_secret/client_secret.json").bufferedReader().use { it.readText() }
+    val gson = Gson()
+    val clientConfigToken = object : TypeToken<GoogleApiClientConfig>() {}.type
+    val clientConfig: GoogleApiClientConfig = gson.fromJson(jsonString, clientConfigToken)
+    return clientConfig.web.client_id
 }

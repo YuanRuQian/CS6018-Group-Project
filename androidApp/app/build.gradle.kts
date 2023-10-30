@@ -55,6 +55,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.code.gson:gson:2.9.0")
     implementation("io.ktor:ktor-client-cio:2.3.5")
     implementation("io.ktor:ktor-client-resources:2.3.5")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
@@ -63,6 +64,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation(platform("com.google.firebase:firebase-bom:32.4.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.2")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")

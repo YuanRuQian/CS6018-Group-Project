@@ -46,3 +46,10 @@ Setting up Firebase configuration in your project is an essential step to enable
 
 4. **You are all set!**
    - With the `google-services.json` file in place, your project is now configured to use Firebase services. You can start integrating Firebase features into your app.
+
+## How to Set Up Client Secrets
+
+- Navigate to the GCP Credentials (https://console.cloud.google.com/apis/credentials?project=view-capstone-project-918de).
+- Download the client secrets file.
+- Rename the file to `client_secrets.json`.
+- Place the file in the `androidApp/app/src/main/assets/client_secret` directory of the project.

@@ -1,6 +1,8 @@
 package com.cs6018.canvasexample.ui.components
 
 
+import android.provider.Settings.Global.getString
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,7 +37,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cs6018.canvasexample.R
 import com.cs6018.canvasexample.network.ApiViewModel
+import com.cs6018.canvasexample.utils.parseClientID
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.firebase.auth.FirebaseUser
 
 // TODO: bonus task -> sign in with Google
@@ -51,6 +56,21 @@ fun AuthenticationScreen(
     var passwordHidden by rememberSaveable { mutableStateOf(true) }
 
     val context = LocalContext.current
+
+    val clientID = parseClientID(context)
+    Log.d("AuthenticationScreen", "Client ID: $clientID")
+
+    val googleSignInRequest = BeginSignInRequest.builder()
+        .setGoogleIdTokenRequestOptions(
+            BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                .setSupported(true)
+                // Your server's client ID, not your Android client ID.
+                .setServerClientId(clientID)
+                // Only show accounts previously used to sign in.
+                .setFilterByAuthorizedAccounts(true)
+                .build()
+        )
+        .build()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -139,6 +159,18 @@ fun AuthenticationScreen(
                     .padding(16.dp)
             ) {
                 Text("Sign In")
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(
+                onClick = { /*TODO*/ }, modifier = Modifier
+                    .weight(1f)
+                    .padding(16.dp)
+            ) {
+                Text(text = "Sign in with Google")
             }
         }
 
