@@ -54,6 +54,7 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -68,6 +69,8 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
 
         shakeDetectionViewModel = viewModels<ShakeDetectionViewModel>().value
         val shakeDetectorListener = this
+
+        Firebase.firestore
 
         setContent {
             CanvasExampleTheme {
@@ -217,7 +220,7 @@ fun Navigation(
                 val currentUser = Firebase.auth.currentUser
                 val isSignedIn = currentUser != null
                 if (isSignedIn) {
-                    apiViewModel.getCurrentUserDrawingHistory(Firebase.auth.currentUser?.uid ?: "")
+                    apiViewModel.getCurrentUserDrawingHistory()
                     navController.navigate("drawingList")
                 } else {
                     navController.navigate("authentication")
@@ -252,7 +255,7 @@ fun Navigation(
                 apiViewModel::setActiveDrawingInfoById,
                 currentUserDrawingHistory,
                 currentUserExploreFeed,
-                apiViewModel::deleteDrawingById,
+                apiViewModel::deleteDrawing,
                 navigateToSplashScreen
             )
         }

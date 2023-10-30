@@ -3,54 +3,46 @@ package com.cs6018.canvasexample.network
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
-class ApiRepository(private val scope: CoroutineScope, private val apiService: ApiService) {
+class ApiRepository(private val scope: CoroutineScope) {
 
-    val currentUserExploreFeed: MutableLiveData<List<DrawingResponse>> = MutableLiveData(listOf())
+    val currentUserExploreFeed: MutableLiveData<List<UserDrawing>> = MutableLiveData(listOf())
 
-    var currentUserDrawingHistory: MutableLiveData<List<DrawingResponse>> =
+    var currentUserDrawingHistory: MutableLiveData<List<UserDrawing>> =
         MutableLiveData(listOf())
 
-    var activeDrawingInfo: MutableLiveData<DrawingResponse?> = MutableLiveData(null)
+    var activeDrawingInfo: MutableLiveData<UserDrawing?> = MutableLiveData(null)
 
     var activeDrawingTitle: MutableLiveData<String?> = MutableLiveData("Untitled")
 
-    suspend fun updateDrawingTitleById(title: String, thumbnail: String) {
-        val drawingId = activeDrawingInfo.value?.id ?: 0
-        apiService.updateDrawingById(
-            drawingId,
-            DrawingPost(
-                activeDrawingInfo.value?.creatorId ?: "",
-                title,
-                activeDrawingInfo.value?.imagePath ?: "",
-                thumbnail
-            )
-        )
+    fun updateDrawingTitleById(title: String, thumbnail: String) {
+        val drawingId = activeDrawingInfo.value?.id ?: ""
+        val imagePath = activeDrawingInfo.value?.imagePath ?: ""
+        updateDrawingInfo(drawingId, title, imagePath, thumbnail)
         Log.d("ApiRepository", "updateDrawingTitleById: $title")
     }
 
-    suspend fun postNewDrawing(creatorId: String, imagePath: String, thumbnail: String) {
-        apiService.postNewDrawing(
-            DrawingPost(
-                creatorId, activeDrawingTitle.value ?: "Untitled", imagePath, thumbnail
-            )
-        )
+    fun postNewDrawing(imagePath: String, thumbnail: String) {
+        addNewDrawing(
+            activeDrawingTitle.value ?: "Untitled",
+            imagePath,
+            thumbnail
+        ) { getCurrentUserDrawingHistory() }
         Log.d("ApiRepository", "postNewDrawing: ${activeDrawingTitle.value ?: "Untitled"}")
     }
 
-    fun getCurrentUserDrawingHistory(userId: String) {
-        scope.launch {
-            val drawings = apiService.getCurrentUserDrawingHistory(userId)
-            Log.d("ApiRepository", "getCurrentUserDrawingHistory: $drawings")
+    fun getCurrentUserDrawingHistory() {
+        val onSuccess = { drawings: List<UserDrawing> ->
             currentUserDrawingHistory.postValue(drawings)
         }
+        getCurrentUserDrawings(onSuccess)
     }
 
-    suspend fun getCurrentUserExploreFeed(userId: String) {
-        val drawings = apiService.getCurrentUserFeed(userId)
-        Log.d("ApiRepository", "getCurrentUserExploreFeed: $drawings")
-        currentUserExploreFeed.postValue(drawings)
+    fun getCurrentUserExploreFeed() {
+        val onSuccess = { drawings: List<UserDrawing> ->
+            currentUserExploreFeed.postValue(drawings)
+        }
+        getPublicFeed(onSuccess)
     }
 
     fun setActiveDrawingInfoTitle(title: String) {
@@ -58,25 +50,29 @@ class ApiRepository(private val scope: CoroutineScope, private val apiService: A
         Log.d("ApiRepository", "setActiveDrawingInfoTitle: $title")
     }
 
-    fun setActiveDrawingInfoById(id: Int) {
-        scope.launch {
-            val drawings = apiService.getDrawingById(id)
-            if (drawings.isEmpty()) {
-                Log.d("ApiRepository", "setActiveDrawingInfoById: drawings is empty")
-                activeDrawingInfo.postValue(null)
-                setActiveDrawingInfoTitle("Untitled")
-            } else {
-                Log.d("ApiRepository", "setActiveDrawingInfoById: ${drawings[0]}")
-                activeDrawingInfo.postValue(drawings[0])
-                setActiveDrawingInfoTitle(drawings[0].title)
-            }
+    fun setActiveDrawingInfoById(id: String?) {
+        if (id == null) {
+            activeDrawingInfo.postValue(null)
+            setActiveDrawingInfoTitle("Untitled")
+            return
         }
+        val onSuccess = { drawing: UserDrawing ->
+            activeDrawingInfo.postValue(drawing)
+            setActiveDrawingInfoTitle(drawing.title)
+        }
+
+        val onError = {
+            activeDrawingInfo.postValue(null)
+            setActiveDrawingInfoTitle("Untitled")
+        }
+        getDrawingByDrawingId(id, onSuccess, onError)
     }
 
-    fun deleteDrawingById(id: Int) {
-        scope.launch {
-            apiService.deleteDrawingById(id)
-            Log.d("ApiRepository", "deleteDrawingById: $id")
+    fun deleteDrawing(drawingId: String) {
+        // after deleting, update the current user's drawing history
+        val onSuccess = {
+            getCurrentUserDrawingHistory()
         }
+        deleteDrawingByDrawingId(drawingId, onSuccess)
     }
 }

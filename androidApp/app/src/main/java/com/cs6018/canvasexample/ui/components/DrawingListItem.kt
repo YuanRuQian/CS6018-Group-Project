@@ -25,14 +25,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.cs6018.canvasexample.network.DrawingResponse
+import com.cs6018.canvasexample.network.UserDrawing
 import com.cs6018.canvasexample.utils.base64StringToBitmap
 import com.cs6018.canvasexample.utils.formatDate
 import kotlinx.coroutines.delay
-import java.util.Date
 
 @Composable
-fun ExploreFeedDrawingCard(drawingInfo: DrawingResponse) {
+fun ExploreFeedDrawingCard(drawingInfo: UserDrawing) {
     val url = Uri.parse(drawingInfo.imagePath)
     Log.d("ExploreFeedDrawingCard", "url: $url")
 
@@ -49,7 +48,7 @@ fun ExploreFeedDrawingCard(drawingInfo: DrawingResponse) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryDrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
+fun HistoryDrawingCard(drawingInfo: UserDrawing, onClick: () -> Unit) {
     ElevatedCard(
         modifier = Modifier
             .padding(16.dp, 8.dp)
@@ -77,7 +76,7 @@ fun HistoryDrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = formatDate(Date(drawingInfo.lastModifiedDate)),
+                    text = formatDate(drawingInfo.lastModifiedDate),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -94,9 +93,9 @@ fun HistoryDrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryDrawingListItem(
-    drawingInfo: DrawingResponse,
-    setActiveDrawingInfoById: (Int) -> Unit,
-    onRemove: (Int) -> Unit,
+    drawingInfo: UserDrawing,
+    setActiveDrawingInfoById: (String) -> Unit,
+    onRemove: (String) -> Unit,
     navigateToCanvasPage: () -> Unit
 ) {
     val context = LocalContext.current

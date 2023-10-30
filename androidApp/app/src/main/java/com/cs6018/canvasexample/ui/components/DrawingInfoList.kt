@@ -34,14 +34,14 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cs6018.canvasexample.network.ApiViewModel
-import com.cs6018.canvasexample.network.DrawingResponse
+import com.cs6018.canvasexample.network.UserDrawing
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // TODO: swipe down to refresh
 
 @Composable
-fun ExploreFeedList(dataList: List<DrawingResponse>?) {
+fun ExploreFeedList(dataList: List<UserDrawing>?) {
     Log.d("ExploreFeedList", "dataList: $dataList")
     if (dataList == null) {
         return
@@ -63,11 +63,13 @@ fun ExploreFeedList(dataList: List<DrawingResponse>?) {
 @Composable
 fun HistoryDrawingList(
     navigateToCanvasPage: () -> Unit,
-    dataList: List<DrawingResponse>?,
+    dataList: List<UserDrawing>?,
     state: LazyListState,
-    setActiveDrawingInfoById: (Int) -> Unit,
-    removeListItem: (Int) -> Unit
+    setActiveDrawingInfoById: (String) -> Unit,
+    removeListItem: (String) -> Unit
 ) {
+
+    Log.d("HistoryDrawingList", "dataList: $dataList")
 
     if (dataList == null) {
         return
@@ -100,19 +102,18 @@ fun HistoryDrawingList(
 fun DrawingListScreen(
     apiViewModel: ApiViewModel,
     navigateToCanvasPage: () -> Unit,
-    setActiveDrawingInfoById: (Int?) -> Unit,
-    currentUserDrawingHistory: List<DrawingResponse>?,
-    currentUserExploreFeed: List<DrawingResponse>?,
-    removeListItem: (Int) -> Unit,
+    setActiveDrawingInfoById: (String?) -> Unit,
+    currentUserDrawingHistory: List<UserDrawing>?,
+    currentUserExploreFeed: List<UserDrawing>?,
+    removeListItem: (String) -> Unit,
     navigateToSplashScreen: () -> Unit
 ) {
     val state = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
     var currentActiveIndex by remember { mutableIntStateOf(0) }
-    Log.d("DrawingListScreen", "currentActiveIndex: $currentActiveIndex")
+
     val updateCurrentActiveIndex = { index: Int ->
-        Log.d("DrawingListScreen", "updateCurrentActiveIndex: $index")
         currentActiveIndex = index
     }
 

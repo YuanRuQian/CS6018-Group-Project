@@ -9,18 +9,15 @@ import androidx.lifecycle.ViewModel
 import com.cs6018.canvasexample.utils.bitmapToBase64String
 import com.cs6018.canvasexample.utils.overwriteCurrentImageFile
 import com.cs6018.canvasexample.utils.saveImage
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
-
-    val currentUserDrawingHistory: LiveData<List<DrawingResponse>> =
+    val currentUserDrawingHistory: LiveData<List<UserDrawing>> =
         repository.currentUserDrawingHistory
 
-    val currentUserExploreFeed: LiveData<List<DrawingResponse>> =
+    val currentUserExploreFeed: LiveData<List<UserDrawing>> =
         repository.currentUserExploreFeed
 
-    var activeDrawingInfo: LiveData<DrawingResponse?> = repository.activeDrawingInfo
+    var activeDrawingInfo: LiveData<UserDrawing?> = repository.activeDrawingInfo
 
     var activeDrawingTitle: LiveData<String?> = repository.activeDrawingTitle
 
@@ -40,15 +37,15 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
         Log.d("ApiViewModel", "Bitmap is set as activeCapturedImage.")
     }
 
-    private suspend fun updateDrawingTitleById(thumbnail: String) {
+    private fun updateDrawingTitleById(thumbnail: String) {
         repository.updateDrawingTitleById(activeDrawingTitle.value ?: "Untitled", thumbnail)
     }
 
-    private suspend fun postNewDrawing(creatorId: String, imagePath: String, thumbnail: String) {
-        repository.postNewDrawing(creatorId, imagePath, thumbnail)
+    private fun postNewDrawing(imagePath: String, thumbnail: String) {
+        repository.postNewDrawing(imagePath, thumbnail)
     }
 
-    suspend fun addDrawingInfoWithRecentCapturedImage(context: Context): String? {
+    fun addDrawingInfoWithRecentCapturedImage(context: Context): String? {
         val bitmap = activeCapturedImage.value
         if (bitmap == null) {
             Log.d("ApiViewModel", "Bitmap is null.")
@@ -67,10 +64,10 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
             )
 
             postNewDrawing(
-                Firebase.auth.currentUser?.uid ?: "",
                 imagePath,
                 thumbnail
             )
+
             return imagePath
         } else {
             val imagePath =
@@ -86,20 +83,19 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
         }
     }
 
-
-    fun getCurrentUserDrawingHistory(userId: String) {
-        repository.getCurrentUserDrawingHistory(userId)
+    fun getCurrentUserDrawingHistory() {
+        repository.getCurrentUserDrawingHistory()
     }
 
-    suspend fun getCurrentUserExploreFeed(userId: String) {
-        repository.getCurrentUserExploreFeed(userId)
+    fun getCurrentUserExploreFeed() {
+        repository.getCurrentUserExploreFeed()
     }
 
-    fun setActiveDrawingInfoById(id: Int?) {
-        repository.setActiveDrawingInfoById(id ?: 0)
+    fun setActiveDrawingInfoById(drawingId: String?) {
+        repository.setActiveDrawingInfoById(drawingId)
     }
 
-    fun deleteDrawingById(id: Int) {
-        repository.deleteDrawingById(id)
+    fun deleteDrawing(drawingId: String) {
+        repository.deleteDrawing(drawingId)
     }
 }

@@ -34,13 +34,13 @@ fun DrawingListPageTabRow(
         TabInfo("History", Icons.Filled.History) {
             scope.launch {
                 delay(500)
-                apiViewModel.getCurrentUserDrawingHistory(Firebase.auth.currentUser?.uid ?: "")
+                apiViewModel.getCurrentUserDrawingHistory()
             }
         },
         TabInfo("Explore", Icons.Filled.Explore) {
             scope.launch {
                 delay(500)
-                apiViewModel.getCurrentUserExploreFeed(Firebase.auth.currentUser?.uid ?: "")
+                apiViewModel.getCurrentUserExploreFeed()
             }
         },
         TabInfo("Create", Icons.Filled.Add) {

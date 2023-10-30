@@ -35,7 +35,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cs6018.canvasexample.network.ApiViewModel
+import com.cs6018.canvasexample.network.addNewUser
 import com.google.firebase.auth.FirebaseUser
 
 // TODO: bonus task -> sign in with Google
@@ -44,7 +44,7 @@ fun AuthenticationScreen(
     createUserWithEmailAndPassword: (String, String, (FirebaseUser?) -> Unit, () -> Unit) -> Unit,
     signInWithEmailAndPassword: (String, String, (FirebaseUser?) -> Unit, () -> Unit) -> Unit,
     navigateToDrawingList: () -> Unit,
-    preloadCurrentUserDrawingHistory: (String) -> Unit,
+    preloadCurrentUserDrawingHistory: () -> Unit,
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -100,13 +100,18 @@ fun AuthenticationScreen(
             Button(
                 onClick = {
                     createUserWithEmailAndPassword(email, password, { user ->
-                        Toast.makeText(
-                            context,
-                            "Welcome to Drawing App, ${user?.email}",
-                            Toast.LENGTH_LONG
-                        )
-                            .show()
-                        navigateToDrawingList()
+                        if (user != null) {
+                            addNewUser(user)
+                            Toast.makeText(
+                                context,
+                                "Welcome to Drawing App, ${user.email}",
+                                Toast.LENGTH_LONG
+                            )
+                                .show()
+                            navigateToDrawingList()
+                        } else {
+                            Toast.makeText(context, "Sign up failed", Toast.LENGTH_LONG).show()
+                        }
                     }, {
                         Toast.makeText(context, "Sign up failed", Toast.LENGTH_LONG).show()
                     })
@@ -128,7 +133,7 @@ fun AuthenticationScreen(
                             Toast.LENGTH_LONG
                         )
                             .show()
-                        preloadCurrentUserDrawingHistory(user?.uid ?: "")
+                        preloadCurrentUserDrawingHistory()
                         navigateToDrawingList()
                     }, {
                         Toast.makeText(context, "Sign In failed", Toast.LENGTH_LONG).show()

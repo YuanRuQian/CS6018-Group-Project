@@ -8,8 +8,10 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.core.net.toUri
+import com.cs6018.canvasexample.network.UserDrawing
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -158,4 +160,12 @@ fun base64StringToBitmap(base64String: String): Bitmap {
     val byteArray = android.util.Base64.decode(base64String, android.util.Base64.DEFAULT)
     return BitmapFactory
         .decodeByteArray(byteArray, 0, byteArray.size)
+}
+
+fun getCurrentUserId(): String {
+    return Firebase.auth.currentUser?.uid ?: ""
+}
+
+fun sortDrawingsByLastModifiedDate(drawings: List<UserDrawing>): List<UserDrawing> {
+    return drawings.sortedByDescending { it.lastModifiedDate }
 }
