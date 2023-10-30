@@ -247,8 +247,8 @@ fun Navigation(
         }
         composable("drawingList") {
             DrawingListScreen(
+                navigateToDrawingList,
                 navigateToCanvasPage,
-                apiViewModel::setActiveCapturedImage,
                 apiViewModel::setActiveDrawingInfoById,
                 currentUserDrawingHistory,
                 apiViewModel::deleteDrawingById,

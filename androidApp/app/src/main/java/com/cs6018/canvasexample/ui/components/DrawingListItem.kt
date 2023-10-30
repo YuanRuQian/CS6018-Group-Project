@@ -24,9 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.cs6018.canvasexample.R
 import com.cs6018.canvasexample.network.DrawingResponse
 import com.cs6018.canvasexample.utils.formatDate
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.Date
 
 
@@ -87,7 +85,6 @@ fun DrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawingListItem(
-    scope: CoroutineScope,
     drawingInfo: DrawingResponse,
     setActiveDrawingInfoById: (Int) -> Unit,
     onRemove: (Int) -> Unit,
@@ -102,7 +99,7 @@ fun DrawingListItem(
                 show = false
                 true
             } else false
-        }, positionalThreshold = { 150.dp.toPx() }
+        }, positionalThreshold = { 150f }
     )
     AnimatedVisibility(
         show, exit = fadeOut(spring())
