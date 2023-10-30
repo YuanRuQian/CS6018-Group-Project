@@ -14,26 +14,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
+import com.cs6018.canvasexample.network.ApiViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun DrawingListPageTabRow(
+    apiViewModel: ApiViewModel,
     currentActiveTabIndex: Int,
     updateCurrentActiveTabIndex: (Int) -> Unit,
     navigateToCanvasPage: () -> Unit,
-    navigateToDrawingList: () -> Unit,
-    navigateToSplashScreen: () -> Unit) {
+    navigateToSplashScreen: () -> Unit
+) {
     val scope = rememberCoroutineScope()
 
     val tabInfo = listOf(
         TabInfo("History", Icons.Filled.History) {
-            navigateToDrawingList()
+            apiViewModel.getCurrentUserDrawingHistory(Firebase.auth.currentUser?.uid ?: "")
         },
-        TabInfo("Explore", Icons.Filled.Explore),
+        TabInfo("Explore", Icons.Filled.Explore) {
+            apiViewModel.getCurrentUserExploreFeed(Firebase.auth.currentUser?.uid ?: "")
+        },
         // TODO: add create page
         TabInfo("Create", Icons.Filled.Add) {
             navigateToCanvasPage()

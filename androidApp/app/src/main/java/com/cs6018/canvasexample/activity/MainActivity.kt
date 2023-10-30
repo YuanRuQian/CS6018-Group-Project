@@ -197,6 +197,7 @@ fun Navigation(
     }
 
     val currentUserDrawingHistory by apiViewModel.currentUserDrawingHistory.observeAsState()
+    val currentUserExploreFeed by apiViewModel.currentUserExploreFeed.observeAsState()
 
     // Completed SplashScreen: change startDestination to splash screen
     NavHost(navController = navController, startDestination = "splash") {
@@ -216,7 +217,6 @@ fun Navigation(
                 val currentUser = Firebase.auth.currentUser
                 val isSignedIn = currentUser != null
                 if (isSignedIn) {
-                    // pre-fetch the drawing history of the current user
                     apiViewModel.getCurrentUserDrawingHistory(Firebase.auth.currentUser?.uid ?: "")
                     navController.navigate("drawingList")
                 } else {
@@ -247,10 +247,11 @@ fun Navigation(
         }
         composable("drawingList") {
             DrawingListScreen(
-                navigateToDrawingList,
+                apiViewModel,
                 navigateToCanvasPage,
                 apiViewModel::setActiveDrawingInfoById,
                 currentUserDrawingHistory,
+                currentUserExploreFeed,
                 apiViewModel::deleteDrawingById,
                 navigateToSplashScreen
             )

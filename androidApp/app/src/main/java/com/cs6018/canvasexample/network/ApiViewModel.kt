@@ -17,6 +17,9 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
     val currentUserDrawingHistory: LiveData<List<DrawingResponse>> =
         repository.currentUserDrawingHistory
 
+    val currentUserExploreFeed: LiveData<List<DrawingResponse>> =
+        repository.currentUserExploreFeed
+
     var activeDrawingInfo: LiveData<DrawingResponse?> = repository.activeDrawingInfo
 
     var activeDrawingTitle: LiveData<String?> = repository.activeDrawingTitle
@@ -87,6 +90,10 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
 
     fun getCurrentUserDrawingHistory(userId: String) {
         repository.getCurrentUserDrawingHistory(userId)
+    }
+
+    fun getCurrentUserExploreFeed(userId: String) {
+        repository.getCurrentUserExploreFeed(userId)
     }
 
     fun setActiveDrawingInfoById(id: Int?) {

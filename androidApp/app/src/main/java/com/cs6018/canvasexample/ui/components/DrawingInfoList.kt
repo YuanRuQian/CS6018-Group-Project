@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.BottomAppBar
@@ -29,8 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cs6018.canvasexample.network.ApiViewModel
 import com.cs6018.canvasexample.network.DrawingResponse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,7 +41,24 @@ import kotlinx.coroutines.launch
 // TODO: swipe down to refresh
 
 @Composable
-fun DrawingList(
+fun ExploreFeedList(dataList: List<DrawingResponse>?) {
+    if (dataList == null) {
+        return
+    }
+
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 128.dp)
+    ) {
+        items(dataList, key = {
+            it.id
+        }) { drawingInfo ->
+            ExploreFeedDrawingCard(drawingInfo)
+        }
+    }
+}
+
+@Composable
+fun HistoryDrawingList(
     navigateToCanvasPage: () -> Unit,
     dataList: List<DrawingResponse>?,
     state: LazyListState,
@@ -60,7 +80,7 @@ fun DrawingList(
         items(dataList, key = {
             it.id
         }) { drawingInfo ->
-            DrawingListItem(
+            HistoryDrawingListItem(
                 drawingInfo,
                 setActiveDrawingInfoById,
                 removeListItem,
@@ -75,10 +95,11 @@ fun DrawingList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawingListScreen(
-    navigateToDrawingList: () -> Unit,
+    apiViewModel: ApiViewModel,
     navigateToCanvasPage: () -> Unit,
     setActiveDrawingInfoById: (Int?) -> Unit,
-    dataList: List<DrawingResponse>?,
+    currentUserDrawingHistory: List<DrawingResponse>?,
+    currentUserExploreFeed: List<DrawingResponse>?,
     removeListItem: (Int) -> Unit,
     navigateToSplashScreen: () -> Unit
 ) {
@@ -129,10 +150,10 @@ fun DrawingListScreen(
             BottomAppBar(
                 content = {
                     DrawingListPageTabRow(
+                        apiViewModel,
                         currentActiveIndex,
                         updateCurrentActiveIndex,
                         navigateToCanvasPage,
-                        navigateToDrawingList,
                         navigateToSplashScreen
                     )
                 },
@@ -149,9 +170,9 @@ fun DrawingListScreen(
         ) {
             when (currentActiveIndex) {
                 0 -> {
-                    DrawingList(
+                    HistoryDrawingList(
                         navigateToCanvasPage,
-                        dataList,
+                        currentUserDrawingHistory,
                         state,
                         setActiveDrawingInfoById,
                         removeListItem
@@ -159,21 +180,9 @@ fun DrawingListScreen(
                 }
 
                 1 -> {
+                    ExploreFeedList(currentUserExploreFeed)
                 }
             }
         }
     }
-}
-
-
-@Preview
-@Composable
-fun DrawingListScreenPreview() {
-    DrawingListScreen(
-        {},
-        {},
-        {},
-        listOf(),
-        { _ -> }
-    ) {}
 }

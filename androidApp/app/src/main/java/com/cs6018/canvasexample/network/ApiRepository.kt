@@ -7,6 +7,8 @@ import kotlinx.coroutines.launch
 
 class ApiRepository(private val scope: CoroutineScope, private val apiService: ApiService) {
 
+    val currentUserExploreFeed: MutableLiveData<List<DrawingResponse>> = MutableLiveData(listOf())
+
     var currentUserDrawingHistory: MutableLiveData<List<DrawingResponse>> =
         MutableLiveData(listOf())
 
@@ -41,6 +43,14 @@ class ApiRepository(private val scope: CoroutineScope, private val apiService: A
             val drawings = apiService.getCurrentUserDrawingHistory(userId)
             Log.d("ApiRepository", "getCurrentUserDrawingHistory: $drawings")
             currentUserDrawingHistory.postValue(drawings)
+        }
+    }
+
+    fun getCurrentUserExploreFeed(userId: String) {
+        scope.launch {
+            val drawings = apiService.getCurrentUserFeed(userId)
+            Log.d("ApiRepository", "getCurrentUserExploreFeed: $drawings")
+            currentUserExploreFeed.postValue(drawings)
         }
     }
 
