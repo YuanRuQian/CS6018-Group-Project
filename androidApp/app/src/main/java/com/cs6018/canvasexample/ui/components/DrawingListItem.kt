@@ -1,5 +1,6 @@
 package com.cs6018.canvasexample.ui.components
 
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -13,26 +14,41 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.cs6018.canvasexample.R
 import com.cs6018.canvasexample.network.DrawingResponse
 import com.cs6018.canvasexample.utils.formatDate
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.Date
+
+@Composable
+fun ExploreFeedDrawingCard(drawingInfo: DrawingResponse) {
+    val url = Uri.parse(drawingInfo.imagePath)
+    Log.d("ExploreFeedDrawingCard", "url: $url")
+
+    AsyncImage(
+        model = url,
+        contentScale = ContentScale.Crop,
+        contentDescription = null,
+        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+    )
+}
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
+fun HistoryDrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
     ElevatedCard(
         modifier = Modifier
             .padding(16.dp, 8.dp)
@@ -86,8 +102,7 @@ fun DrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DrawingListItem(
-    scope: CoroutineScope,
+fun HistoryDrawingListItem(
     drawingInfo: DrawingResponse,
     setActiveDrawingInfoById: (Int) -> Unit,
     onRemove: (Int) -> Unit,
@@ -102,7 +117,7 @@ fun DrawingListItem(
                 show = false
                 true
             } else false
-        }, positionalThreshold = { 150.dp.toPx() }
+        }, positionalThreshold = { 150f }
     )
     AnimatedVisibility(
         show, exit = fadeOut(spring())
@@ -114,7 +129,7 @@ fun DrawingListItem(
                 DismissBackground(dismissState)
             },
             dismissContent = {
-                DrawingCard(
+                HistoryDrawingCard(
                     drawingInfo = currentItem,
                     onClick = {
                         Log.d("DrawingList", "Clicked on drawing ${drawingInfo.id}")
