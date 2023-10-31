@@ -444,10 +444,7 @@ fun saveCurrentDrawing(
             apiViewModel.addDrawingInfoWithRecentCapturedImage(context)
         Log.d("CanvasPage", "Image saved to $savedImagePath")
 
-
         pathPropertiesViewModel.reset()
-        // TODO: test remove this line
-        // apiViewModel.getCurrentUserDrawingHistory()
         navigateToPopBack()
     }
 }

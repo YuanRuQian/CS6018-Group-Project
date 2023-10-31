@@ -333,3 +333,12 @@ fun overwriteImageToCloudStorage(
         onSuccess(bitmap)
     }
 }
+
+fun loadImageFromCloudStorage(imagePath: String, onSuccess: (ByteArray) -> Unit, onError: (Exception) -> Unit) {
+    val storageRef = Firebase.storage.reference
+    storageRef.child(imagePath).getBytes(Long.MAX_VALUE).addOnSuccessListener {
+        onSuccess(it)
+    }.addOnFailureListener {
+        onError(it)
+    }
+}

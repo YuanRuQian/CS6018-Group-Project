@@ -31,6 +31,7 @@ import com.cs6018.canvasexample.data.CapturableImageViewModel
 import com.cs6018.canvasexample.data.PathProperties
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
 import com.cs6018.canvasexample.network.ApiViewModel
+import com.cs6018.canvasexample.network.loadImageFromCloudStorage
 import com.cs6018.canvasexample.utils.MotionEvent
 import com.cs6018.canvasexample.utils.convertByteArrayToImageBitmap
 import com.cs6018.canvasexample.utils.dragMotionEvent
@@ -78,6 +79,21 @@ fun Playground(
             }.addOnFailureListener {
                 Log.d("CanvasPage", "image bitmap is not set")
             }
+
+            val onSuccess: (ByteArray) -> Unit = { byteArray: ByteArray ->
+                baseImageBitmap = convertByteArrayToImageBitmap(byteArray)
+                Log.d("CanvasPage", "Image bitmap has been set.")
+            }
+
+            val onError: (Exception) -> Unit = { exception: Exception ->
+                Log.d("CanvasPage", "Failed to set image bitmap. Encountered exception: $exception")
+            }
+
+            loadImageFromCloudStorage(
+                imagePath,
+                onSuccess,
+                onError
+            )
         }
     }
 

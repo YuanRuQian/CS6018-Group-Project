@@ -1,6 +1,6 @@
 package com.cs6018.canvasexample.ui.components
 
-import android.net.Uri
+import android.graphics.Bitmap
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,22 +25,33 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.cs6018.canvasexample.network.UserDrawing
+import com.cs6018.canvasexample.network.loadImageFromCloudStorage
 import com.cs6018.canvasexample.utils.base64StringToBitmap
+import com.cs6018.canvasexample.utils.convertByteArrayToBitmap
 import com.cs6018.canvasexample.utils.formatDate
 import kotlinx.coroutines.delay
 
 @Composable
 fun ExploreFeedDrawingCard(drawingInfo: UserDrawing) {
-    val url = Uri.parse(drawingInfo.imagePath)
-    Log.d("ExploreFeedDrawingCard", "url: $url")
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    LaunchedEffect(key1 = drawingInfo.imagePath) {
+        val onSuccess: (ByteArray) -> Unit = { byteArray: ByteArray ->
+            bitmap = convertByteArrayToBitmap(byteArray)
+            Log.d("ExploreFeedDrawingCard", "bitmap: $bitmap")
+        }
+
+        val onError: (Exception) -> Unit = { exception: Exception ->
+            Log.d("ExploreFeedDrawingCard", "Error: $exception")
+        }
+
+        loadImageFromCloudStorage(drawingInfo.imagePath, onSuccess, onError)
+    }
 
     AsyncImage(
-        model = url,
-        contentScale = ContentScale.Crop,
-        contentDescription = null,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
+        model = bitmap,
+        contentScale = ContentScale.Fit,
+        contentDescription = null
     )
 }
 

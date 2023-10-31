@@ -61,3 +61,7 @@ fun convertByteArrayToImageBitmap(byteArray: ByteArray): ImageBitmap {
     val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     return bitmap.asImageBitmap()
 }
+
+fun convertByteArrayToBitmap(byteArray: ByteArray): Bitmap {
+    return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+}
