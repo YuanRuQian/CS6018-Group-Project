@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.ThumbnailUtils
 import android.util.Log
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import com.cs6018.canvasexample.network.UserDrawing
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -53,4 +55,9 @@ fun getCurrentUserId(): String {
 
 fun sortDrawingsByLastModifiedDate(drawings: List<UserDrawing>): List<UserDrawing> {
     return drawings.sortedByDescending { it.lastModifiedDate }
+}
+
+fun convertByteArrayToImageBitmap(byteArray: ByteArray): ImageBitmap {
+    val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+    return bitmap.asImageBitmap()
 }

@@ -1,6 +1,5 @@
 package com.cs6018.canvasexample.ui.components
 
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -10,8 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
@@ -20,22 +23,19 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.positionChange
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
 import com.cs6018.canvasexample.data.CapturableImageViewModel
 import com.cs6018.canvasexample.data.PathProperties
 import com.cs6018.canvasexample.data.PathPropertiesViewModel
 import com.cs6018.canvasexample.network.ApiViewModel
 import com.cs6018.canvasexample.utils.MotionEvent
+import com.cs6018.canvasexample.utils.convertByteArrayToImageBitmap
 import com.cs6018.canvasexample.utils.dragMotionEvent
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import dev.shreyaspatil.capturable.controller.CaptureController
 
 @Composable
@@ -64,34 +64,21 @@ fun Playground(
 
     Log.d("CanvasPage", "active image path: ${activeDrawingInfo?.imagePath}")
 
-    var backgroundImageUri: Uri? = null
-
-    try {
-        backgroundImageUri = Uri.parse(activeDrawingInfo?.imagePath)
-    } catch (e: Exception) {
-        Log.d("CanvasPage", "Uri.parse failed $e")
+    var baseImageBitmap by remember {
+        mutableStateOf<ImageBitmap?>(null)
     }
 
-    Log.d("CanvasPage", "backgroundImageUri: $backgroundImageUri")
-
-    val basePainter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(backgroundImageUri)
-            .size(coil.size.Size.ORIGINAL)
-            .allowHardware(false)
-            .build()
-    )
-
-    val baseImageLoadedState = basePainter.state
-
-    var baseImageBitmap: ImageBitmap? = null
-
-    if (
-        baseImageLoadedState is AsyncImagePainter.State.Success
-    ) {
-        baseImageBitmap =
-            baseImageLoadedState.result.drawable.toBitmap()
-                .asImageBitmap()
+    LaunchedEffect(key1 = activeDrawingInfo?.imagePath) {
+        val imagePath = activeDrawingInfo?.imagePath
+        if (imagePath != null) {
+            val storageRef = Firebase.storage.reference
+            storageRef.child(imagePath).getBytes(Long.MAX_VALUE).addOnSuccessListener {
+                baseImageBitmap = convertByteArrayToImageBitmap(it)
+                Log.d("CanvasPage", "image bitmap is set")
+            }.addOnFailureListener {
+                Log.d("CanvasPage", "image bitmap is not set")
+            }
+        }
     }
 
     Column(
@@ -104,10 +91,9 @@ fun Playground(
             .drawBehind {
                 if (baseImageBitmap != null) {
                     drawImage(
-                        image = baseImageBitmap,
+                        image = baseImageBitmap!!,
                         topLeft = Offset.Zero,
                     )
-                    Log.d("CanvasPage", "draw behind $backgroundImageUri")
                 } else {
                     drawRect(
                         color = Color.White,
