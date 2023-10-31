@@ -3,12 +3,11 @@ package com.cs6018.canvasexample.network
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.cs6018.canvasexample.utils.bitmapToBase64String
-import com.cs6018.canvasexample.utils.overwriteCurrentImageFile
-import com.cs6018.canvasexample.utils.saveImage
 
 class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
     val currentUserDrawingHistory: LiveData<List<UserDrawing>> =
@@ -37,49 +36,61 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
         Log.d("ApiViewModel", "Bitmap is set as activeCapturedImage.")
     }
 
-    private fun updateDrawingTitleById(thumbnail: String) {
-        repository.updateDrawingByDrawingId(activeDrawingTitle.value ?: "Untitled", thumbnail)
+    private fun updateDrawingByDrawingId(title: String, thumbnail: String) {
+        repository.updateDrawingByDrawingId(title, thumbnail)
     }
 
-    private fun postNewDrawing(imagePath: String, thumbnail: String) {
-        repository.postNewDrawing(imagePath, thumbnail)
+    private fun postNewDrawing(title: String, imagePath: String, thumbnail: String) {
+        repository.postNewDrawing(title, imagePath, thumbnail)
     }
 
-    fun addDrawingInfoWithRecentCapturedImage(context: Context): String? {
+    fun addDrawingInfoWithRecentCapturedImage(context: Context) {
         val bitmap = activeCapturedImage.value
         if (bitmap == null) {
             Log.d("ApiViewModel", "Bitmap is null.")
-            return null
+            return
         }
 
         if (activeDrawingInfo.value == null) {
-            val imagePath = saveImage(bitmap, context)
-            if (imagePath == null) {
-                Log.d("ApiViewModel", "Image path is null.")
-                return null
+
+            val onSuccess = { imagePath: String, bm: Bitmap ->
+                Toast.makeText(context, "Drawing was saved successfully", Toast.LENGTH_LONG).show()
+                val thumbnail = bitmapToBase64String(bm)
+                val title = activeDrawingTitle.value ?: "Untitled"
+                postNewDrawing(title, imagePath, thumbnail)
+                setActiveDrawingInfoById(null)
+                setActiveCapturedImage(null)
             }
 
-            val thumbnail = bitmapToBase64String(
-                bitmap
-            )
+            val onError = {
+                Toast.makeText(context, "Error occurred while saving drawing", Toast.LENGTH_LONG)
+                    .show()
+                setActiveDrawingInfoById(null)
+                setActiveCapturedImage(null)
+            }
 
-            postNewDrawing(
-                imagePath,
-                thumbnail
-            )
-
-            return imagePath
+            uploadImageToCloudStorage(bitmap, onSuccess, onError)
         } else {
-            val imagePath =
-                overwriteCurrentImageFile(bitmap, context, activeDrawingInfo.value?.imagePath ?: "")
-            if (imagePath == null) {
-                Log.d("ApiViewModel", "Image path is null.")
-                return null
+
+            val onSuccess = { bm: Bitmap ->
+                Toast.makeText(context, "Drawing was saved successfully", Toast.LENGTH_LONG).show()
+                val thumbnail = bitmapToBase64String(bm)
+                val title = activeDrawingTitle.value ?: "Untitled"
+                updateDrawingByDrawingId(title, thumbnail)
+                setActiveDrawingInfoById(null)
+                setActiveCapturedImage(null)
             }
 
-            val thumbnail = bitmapToBase64String(bitmap)
-            updateDrawingTitleById(thumbnail)
-            return imagePath
+            val onError = {
+                Toast.makeText(context, "Error occurred while saving drawing", Toast.LENGTH_LONG)
+                    .show()
+                setActiveDrawingInfoById(null)
+                setActiveCapturedImage(null)
+            }
+
+            val previousImagePath = activeDrawingInfo.value?.imagePath ?: ""
+
+            overwriteImageToCloudStorage(bitmap, previousImagePath, onSuccess, onError)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.cs6018.canvasexample.network
 
+import android.graphics.Bitmap
 import android.util.Log
 import com.cs6018.canvasexample.utils.getCurrentUserId
 import com.cs6018.canvasexample.utils.sortDrawingsByLastModifiedDate
@@ -10,6 +11,8 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import java.io.ByteArrayOutputStream
 import java.util.Date
 
 data class UserDrawing(
@@ -72,7 +75,10 @@ fun addNewDrawing(
     db.collection("feeds")
         .add(drawingObject)
         .addOnSuccessListener { documentReference ->
-            Log.d("addNewDrawing", "DocumentSnapshot added with ID: ${documentReference.id} in public feeds collection")
+            Log.d(
+                "addNewDrawing",
+                "DocumentSnapshot added with ID: ${documentReference.id} in public feeds collection"
+            )
 
 
             // add the new drawing's id to the user's drawing collection
@@ -83,7 +89,10 @@ fun addNewDrawing(
                 .set(drawingObject)
                 .addOnSuccessListener {
                     onSuccess()
-                    Log.d("addNewDrawing", "New drawing added with ID: ${documentReference.id} in user drawings collection")
+                    Log.d(
+                        "addNewDrawing",
+                        "New drawing added with ID: ${documentReference.id} in user drawings collection"
+                    )
                 }
                 .addOnFailureListener { e ->
                     Log.w("addNewDrawing", "Error adding document in user drawings collection", e)
@@ -118,18 +127,28 @@ fun updateDrawingInfo(
     userDrawingRef
         .update(updates)
         .addOnSuccessListener {
-            Log.d("updateDrawingInfo", "Drawing updated with ID: $drawingId in user drawings collection")
+            Log.d(
+                "updateDrawingInfo",
+                "Drawing updated with ID: $drawingId in user drawings collection"
+            )
 
             // update the drawing in the public feeds collection
             val feedRef = db.collection("feeds").document(drawingId)
             feedRef
                 .update(updates)
                 .addOnSuccessListener {
-                    Log.d("updateDrawingInfo", "Drawing updated with ID: $drawingId in public feeds collection")
+                    Log.d(
+                        "updateDrawingInfo",
+                        "Drawing updated with ID: $drawingId in public feeds collection"
+                    )
                     onSuccess()
                 }
                 .addOnFailureListener { e ->
-                    Log.w("updateDrawingInfo", "Error updating document in public feeds collection", e)
+                    Log.w(
+                        "updateDrawingInfo",
+                        "Error updating document in public feeds collection",
+                        e
+                    )
                 }
         }
         .addOnFailureListener { e ->
@@ -210,29 +229,107 @@ fun deleteDrawingByDrawingId(drawingId: String, onSuccess: () -> Unit) {
     val db = FirebaseFirestore.getInstance()
     val userId = getCurrentUserId()
 
-    // delete the drawing in the user's drawing collection
-    db.collection("drawings")
-        .document(userId)
-        .collection("userDrawings")
-        .document(drawingId)
-        .delete()
-        .addOnSuccessListener {
-            Log.d("deleteDrawingById", "Drawing deleted with ID: $drawingId in user drawings collection")
-            // delete the drawing in the public feeds collection
-            db.collection("feeds")
-                .document(drawingId)
-                .delete()
-                .addOnSuccessListener {
-                    onSuccess()
-                    Log.d("deleteDrawingById", "Drawing deleted with ID: $drawingId in public feeds collection")
-                }
-                .addOnFailureListener { e ->
-                    Log.w("deleteDrawingById", "Error deleting document", e)
-                }
-        }
-        .addOnFailureListener { e ->
-            Log.w("deleteDrawingById", "Error deleting document", e)
-        }
+    getDrawingByDrawingId(drawingId, onSuccess = {
+        val imagePathInCloudStorage = it.imagePath
+        val imagePathInCloudStorageRef =
+            Firebase.storage.reference.child(imagePathInCloudStorage)
+        // delete the drawing in the user's drawing collection
+        db.collection("drawings")
+            .document(userId)
+            .collection("userDrawings")
+            .document(drawingId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d(
+                    "deleteDrawingById",
+                    "Drawing deleted with ID: $drawingId in user drawings collection"
+                )
+                // delete the drawing in the public feeds collection
+                db.collection("feeds")
+                    .document(drawingId)
+                    .delete()
+                    .addOnSuccessListener {
+                        onSuccess()
+                        Log.d(
+                            "deleteDrawingById",
+                            "Drawing deleted with ID: $drawingId in public feeds collection"
+                        )
+                        // TODO: delete the drawing referenced image in the cloud storage by imagePathInCloudStorage
+                        imagePathInCloudStorageRef.delete()
+                            .addOnSuccessListener {
+                                Log.d(
+                                    "deleteDrawingById",
+                                    "Drawing image deleted with ID: $drawingId in cloud storage"
+                                )
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w(
+                                    "deleteDrawingById",
+                                    "Error deleting drawing image with ID: $drawingId in cloud storage",
+                                    e
+                                )
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("deleteDrawingById", "Error deleting document", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.w("deleteDrawingById", "Error deleting document", e)
+            }
+    }, onError = {
+        Log.d("deleteDrawingByDrawingId", "Failed to get drawing by id $drawingId")
+    })
+}
 
+fun uploadImageToCloudStorage(
+    bitmap: Bitmap,
+    onSuccess: (String, Bitmap) -> Unit,
+    onError: () -> Unit
+) {
+    val storage = Firebase.storage
+    val storageRef = storage.reference
 
+    val imagePath = "images/${getCurrentUserId()}/${System.currentTimeMillis()}.jpg"
+    val imageRef = storageRef.child(imagePath)
+
+    val byteArrayOutputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+    val data = byteArrayOutputStream.toByteArray()
+
+    val uploadTask = imageRef.putBytes(data)
+    uploadTask.addOnFailureListener {
+        // Handle unsuccessful uploads
+        Log.d("uploadImageToCloudStorage", "Failed to upload image")
+        onError()
+    }.addOnSuccessListener { taskSnapshot ->
+        Log.d("uploadImageToCloudStorage", "Successfully uploaded image")
+        onSuccess(taskSnapshot.metadata?.path ?: "", bitmap)
+    }
+}
+
+fun overwriteImageToCloudStorage(
+    bitmap: Bitmap,
+    imagePath: String,
+    onSuccess: (Bitmap) -> Unit,
+    onError: () -> Unit
+) {
+    val storage = Firebase.storage
+    val storageRef = storage.reference
+
+    val imageRef = storageRef.child(imagePath)
+
+    val byteArrayOutputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+    val data = byteArrayOutputStream.toByteArray()
+
+    val uploadTask = imageRef.putBytes(data)
+    uploadTask.addOnFailureListener {
+        // Handle unsuccessful uploads
+        Log.d("overwriteImageToCloudStorage", "Failed to upload image")
+        onError()
+    }.addOnSuccessListener {
+        Log.d("overwriteImageToCloudStorage", "Successfully uploaded image")
+        onSuccess(bitmap)
+    }
 }

@@ -2,9 +2,8 @@ package com.cs6018.canvasexample.network
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.CoroutineScope
 
-class ApiRepository(private val scope: CoroutineScope) {
+class ApiRepository {
 
     val currentUserExploreFeed: MutableLiveData<List<UserDrawing>> = MutableLiveData(listOf())
 
@@ -24,9 +23,9 @@ class ApiRepository(private val scope: CoroutineScope) {
         Log.d("ApiRepository", "updateDrawingTitleById: $title")
     }
 
-    fun postNewDrawing(imagePath: String, thumbnail: String) {
+    fun postNewDrawing(title: String, imagePath: String, thumbnail: String) {
         addNewDrawing(
-            activeDrawingTitle.value ?: "Untitled",
+            title,
             imagePath,
             thumbnail
         ) { getCurrentUserDrawingHistory() }

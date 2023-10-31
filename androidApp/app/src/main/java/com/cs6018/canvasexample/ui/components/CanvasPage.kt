@@ -444,8 +444,7 @@ fun saveCurrentDrawing(
             apiViewModel.addDrawingInfoWithRecentCapturedImage(context)
         Log.d("CanvasPage", "Image saved to $savedImagePath")
 
-        apiViewModel.setActiveDrawingInfoById(null)
-        apiViewModel.setActiveCapturedImage(null)
+
         pathPropertiesViewModel.reset()
         // TODO: test remove this line
         // apiViewModel.getCurrentUserDrawingHistory()
