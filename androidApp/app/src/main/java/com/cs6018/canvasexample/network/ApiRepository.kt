@@ -15,10 +15,12 @@ class ApiRepository(private val scope: CoroutineScope) {
 
     var activeDrawingTitle: MutableLiveData<String?> = MutableLiveData("Untitled")
 
-    fun updateDrawingTitleById(title: String, thumbnail: String) {
+    fun updateDrawingByDrawingId(title: String, thumbnail: String) {
         val drawingId = activeDrawingInfo.value?.id ?: ""
         val imagePath = activeDrawingInfo.value?.imagePath ?: ""
-        updateDrawingInfo(drawingId, title, imagePath, thumbnail)
+        updateDrawingInfo(drawingId, title, imagePath, thumbnail) {
+            getCurrentUserDrawingHistory()
+        }
         Log.d("ApiRepository", "updateDrawingTitleById: $title")
     }
 

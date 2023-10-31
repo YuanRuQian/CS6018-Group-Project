@@ -72,7 +72,8 @@ fun addNewDrawing(
     db.collection("feeds")
         .add(drawingObject)
         .addOnSuccessListener { documentReference ->
-            Log.d("addNewDrawing", "DocumentSnapshot added with ID: ${documentReference.id}")
+            Log.d("addNewDrawing", "DocumentSnapshot added with ID: ${documentReference.id} in public feeds collection")
+
 
             // add the new drawing's id to the user's drawing collection
             db.collection("drawings")
@@ -82,14 +83,14 @@ fun addNewDrawing(
                 .set(drawingObject)
                 .addOnSuccessListener {
                     onSuccess()
-                    Log.d("addNewDrawing", "New drawing added with ID: ${documentReference.id}")
+                    Log.d("addNewDrawing", "New drawing added with ID: ${documentReference.id} in user drawings collection")
                 }
                 .addOnFailureListener { e ->
-                    Log.w("addNewDrawing", "Error adding document", e)
+                    Log.w("addNewDrawing", "Error adding document in user drawings collection", e)
                 }
         }
         .addOnFailureListener { e ->
-            Log.w("addNewDrawing", "Error adding document", e)
+            Log.w("addNewDrawing", "Error adding document in public feeds collection", e)
         }
 }
 
@@ -98,7 +99,8 @@ fun updateDrawingInfo(
     drawingId: String,
     title: String,
     imagePath: String,
-    thumbnail: String
+    thumbnail: String,
+    onSuccess: () -> Unit
 ) {
     val creatorId = getCurrentUserId()
     val db = Firebase.firestore
@@ -116,22 +118,25 @@ fun updateDrawingInfo(
     userDrawingRef
         .update(updates)
         .addOnSuccessListener {
-            Log.d("updateDrawingInfo", "Drawing updated with ID: $drawingId")
+            Log.d("updateDrawingInfo", "Drawing updated with ID: $drawingId in user drawings collection")
+
+            // update the drawing in the public feeds collection
+            val feedRef = db.collection("feeds").document(drawingId)
+            feedRef
+                .update(updates)
+                .addOnSuccessListener {
+                    Log.d("updateDrawingInfo", "Drawing updated with ID: $drawingId in public feeds collection")
+                    onSuccess()
+                }
+                .addOnFailureListener { e ->
+                    Log.w("updateDrawingInfo", "Error updating document in public feeds collection", e)
+                }
         }
         .addOnFailureListener { e ->
-            Log.w("updateDrawingInfo", "Error updating document", e)
+            Log.w("updateDrawingInfo", "Error updating document in user drawings collection", e)
         }
 
-    // update the drawing in the public feeds collection
-    val feedRef = db.collection("feeds").document(drawingId)
-    feedRef
-        .update(updates)
-        .addOnSuccessListener {
-            Log.d("updateDrawingInfo", "Drawing updated with ID: $drawingId")
-        }
-        .addOnFailureListener { e ->
-            Log.w("updateDrawingInfo", "Error updating document", e)
-        }
+
 }
 
 fun getCurrentUserDrawings(onSuccess: (List<UserDrawing>) -> Unit) {
@@ -143,13 +148,13 @@ fun getCurrentUserDrawings(onSuccess: (List<UserDrawing>) -> Unit) {
         .collection("userDrawings")
         .get()
         .addOnSuccessListener { result ->
+            Log.d("getCurrentUserDrawings", "Current user's drawings: ${result.size()}")
+
             val list = mutableListOf<UserDrawing>()
             for (document in result) {
-                Log.d("getCurrentUserDrawings", "${document.id} => ${document.data}")
                 list.add(
                     resultToUserDrawing(document)
                 )
-                Log.d("getCurrentUserDrawings", "${document.id} => ${document.data}")
             }
 
             onSuccess(sortDrawingsByLastModifiedDate(list))
@@ -164,12 +169,13 @@ fun getPublicFeed(onSuccess: (List<UserDrawing>) -> Unit) {
     db.collection("feeds")
         .get()
         .addOnSuccessListener { result ->
+            Log.d("getPublicFeed", "Public feed: ${result.size()}")
+
             val list = mutableListOf<UserDrawing>()
             for (document in result) {
                 list.add(
                     resultToUserDrawing(document)
                 )
-                Log.d("getPublicFeed", "${document.id} => ${document.data}")
             }
 
             onSuccess(sortDrawingsByLastModifiedDate(list))
@@ -185,17 +191,17 @@ fun getDrawingByDrawingId(
     onError: () -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
-    var drawing: UserDrawing? = null
+    var drawing: UserDrawing?
     db.collection("feeds")
         .document(drawingId)
         .get()
         .addOnSuccessListener { result ->
-            drawing = resultToUserDrawing(result)
             Log.d("getDrawingByDrawingId", "${result.id} => ${result.data}")
+            drawing = resultToUserDrawing(result)
             onSuccess(drawing!!)
         }
         .addOnFailureListener { exception ->
-            Log.w("getDrawingByDrawingId", "Error getting documents.", exception)
+            Log.w("getDrawingByDrawingId", "Error getting document by id $drawingId", exception)
             onError()
         }
 }
@@ -211,18 +217,18 @@ fun deleteDrawingByDrawingId(drawingId: String, onSuccess: () -> Unit) {
         .document(drawingId)
         .delete()
         .addOnSuccessListener {
+            Log.d("deleteDrawingById", "Drawing deleted with ID: $drawingId in user drawings collection")
             // delete the drawing in the public feeds collection
             db.collection("feeds")
                 .document(drawingId)
                 .delete()
                 .addOnSuccessListener {
                     onSuccess()
-                    Log.d("deleteDrawingById", "Drawing deleted with ID: $drawingId")
+                    Log.d("deleteDrawingById", "Drawing deleted with ID: $drawingId in public feeds collection")
                 }
                 .addOnFailureListener { e ->
                     Log.w("deleteDrawingById", "Error deleting document", e)
                 }
-            Log.d("deleteDrawingById", "Drawing deleted with ID: $drawingId")
         }
         .addOnFailureListener { e ->
             Log.w("deleteDrawingById", "Error deleting document", e)

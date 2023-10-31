@@ -38,7 +38,7 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
     }
 
     private fun updateDrawingTitleById(thumbnail: String) {
-        repository.updateDrawingTitleById(activeDrawingTitle.value ?: "Untitled", thumbnail)
+        repository.updateDrawingByDrawingId(activeDrawingTitle.value ?: "Untitled", thumbnail)
     }
 
     private fun postNewDrawing(imagePath: String, thumbnail: String) {
