@@ -37,23 +37,6 @@ fun resultToUserDrawing(result: DocumentSnapshot): UserDrawing {
     )
 }
 
-
-fun addNewUser(user: FirebaseUser) {
-    val db = Firebase.firestore
-    val userObject = hashMapOf(
-        "email" to user.email,
-    )
-    // Add a new document with a generated ID
-    db.collection("users").document(user.uid)
-        .set(userObject)
-        .addOnSuccessListener {
-            Log.d("addNewUser", "New user added with ID: ${user.uid}")
-        }
-        .addOnFailureListener { e ->
-            Log.w("addNewUser", "Error adding document", e)
-        }
-}
-
 fun addNewDrawing(
     title: String,
     imagePath: String,
@@ -254,7 +237,6 @@ fun deleteDrawingByDrawingId(drawingId: String, onSuccess: () -> Unit) {
                             "deleteDrawingById",
                             "Drawing deleted with ID: $drawingId in public feeds collection"
                         )
-                        // TODO: delete the drawing referenced image in the cloud storage by imagePathInCloudStorage
                         imagePathInCloudStorageRef.delete()
                             .addOnSuccessListener {
                                 Log.d(

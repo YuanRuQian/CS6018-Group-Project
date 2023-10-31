@@ -35,7 +35,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cs6018.canvasexample.network.addNewUser
 import com.google.firebase.auth.FirebaseUser
 
 // TODO: bonus task -> sign in with Google
@@ -101,7 +100,6 @@ fun AuthenticationScreen(
                 onClick = {
                     createUserWithEmailAndPassword(email, password, { user ->
                         if (user != null) {
-                            addNewUser(user)
                             Toast.makeText(
                                 context,
                                 "Welcome to Drawing App, ${user.email}",
