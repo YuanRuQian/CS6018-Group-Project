@@ -93,7 +93,7 @@ fun AuthenticationScreen(
                 preCheckEmailError()
             },
             label = { Text("Email") },
-            leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email") },
+            leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email", tint = if (isEmailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground) },
             placeholder = { Text("example@gmail.com") },
             isError = isEmailError,
             supportingText = {
@@ -122,7 +122,7 @@ fun AuthenticationScreen(
                 preCheckPasswordError()
             },
             label = { Text("Password") },
-            leadingIcon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Password") },
+            leadingIcon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Password", tint = if (isPasswordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground) },
             placeholder = { Text("********") },
             visualTransformation =
             if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
@@ -132,7 +132,11 @@ fun AuthenticationScreen(
                     val visibilityIcon =
                         if (passwordHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                     val description = if (passwordHidden) "Show password" else "Hide password"
-                    Icon(imageVector = visibilityIcon, contentDescription = description)
+                    Icon(
+                        imageVector = visibilityIcon,
+                        contentDescription = description,
+                        tint = if (isPasswordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground
+                    )
                 }
             },
             isError = isPasswordError,
