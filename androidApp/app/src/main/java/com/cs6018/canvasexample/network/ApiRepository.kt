@@ -1,16 +1,18 @@
 package com.cs6018.canvasexample.network
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 
 class ApiRepository {
-
     val currentUserExploreFeed: MutableLiveData<List<UserDrawing>> = MutableLiveData(listOf())
 
     var currentUserDrawingHistory: MutableLiveData<List<UserDrawing>> =
         MutableLiveData(listOf())
 
     var activeDrawingInfo: MutableLiveData<UserDrawing?> = MutableLiveData(null)
+
+    var activeDrawingBackgroundImageReference: MutableLiveData<String?> = MutableLiveData(null)
 
     var activeDrawingTitle: MutableLiveData<String?> = MutableLiveData("Untitled")
 
@@ -46,10 +48,15 @@ class ApiRepository {
         getPublicFeed(onSuccess)
     }
 
+    fun setActiveDrawingBackgroundImageReference(imageReference: String?) {
+        activeDrawingBackgroundImageReference.postValue(imageReference)
+    }
+
     fun setActiveDrawingInfoTitle(title: String) {
         activeDrawingTitle.postValue(title)
         Log.d("ApiRepository", "setActiveDrawingInfoTitle: $title")
     }
+
 
     fun setActiveDrawingInfoById(id: String?) {
         if (id == null) {
@@ -59,6 +66,7 @@ class ApiRepository {
         }
         val onSuccess = { drawing: UserDrawing ->
             activeDrawingInfo.postValue(drawing)
+            setActiveDrawingBackgroundImageReference(drawing.imagePath)
             setActiveDrawingInfoTitle(drawing.title)
         }
 

@@ -61,16 +61,16 @@ fun Playground(
 
     val currentPathProperty = viewModel.currentPathProperty
 
-    val activeDrawingInfo by apiViewModel.activeDrawingInfo.observeAsState()
+    val activeDrawingBackgroundImageReference by apiViewModel.activeDrawingBackgroundImageReference.observeAsState()
 
-    Log.d("CanvasPage", "active image path: ${activeDrawingInfo?.imagePath}")
+    Log.d("CanvasPage", "active drawing background image reference: $activeDrawingBackgroundImageReference")
 
     var baseImageBitmap by remember {
         mutableStateOf<ImageBitmap?>(null)
     }
 
-    LaunchedEffect(key1 = activeDrawingInfo?.imagePath) {
-        val imagePath = activeDrawingInfo?.imagePath
+    LaunchedEffect(key1 = activeDrawingBackgroundImageReference) {
+        val imagePath = activeDrawingBackgroundImageReference
         if (imagePath != null) {
             val storageRef = Firebase.storage.reference
             storageRef.child(imagePath).getBytes(Long.MAX_VALUE).addOnSuccessListener {

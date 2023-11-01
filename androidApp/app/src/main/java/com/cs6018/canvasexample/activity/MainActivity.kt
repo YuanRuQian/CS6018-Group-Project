@@ -256,7 +256,8 @@ fun Navigation(
                 currentUserDrawingHistory,
                 currentUserExploreFeed,
                 apiViewModel::deleteDrawing,
-                navigateToSplashScreen
+                navigateToSplashScreen,
+                apiViewModel::setActiveDrawingBackgroundImageReference
             )
         }
     }

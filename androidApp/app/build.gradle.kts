@@ -63,7 +63,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
-    implementation(platform("com.google.firebase:firebase-bom:32.4.0"))
+    implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.2")
     implementation("androidx.core:core-ktx:1.12.0")

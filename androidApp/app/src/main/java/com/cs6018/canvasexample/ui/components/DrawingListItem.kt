@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,7 +33,7 @@ import com.cs6018.canvasexample.utils.formatDate
 import kotlinx.coroutines.delay
 
 @Composable
-fun ExploreFeedDrawingCard(drawingInfo: UserDrawing) {
+fun ExploreFeedDrawingCard(drawingInfo: UserDrawing, onClick: () -> Unit) {
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(key1 = drawingInfo.imagePath) {
@@ -51,7 +52,9 @@ fun ExploreFeedDrawingCard(drawingInfo: UserDrawing) {
     AsyncImage(
         model = bitmap,
         contentScale = ContentScale.Fit,
-        contentDescription = null
+        contentDescription = null,
+        modifier = Modifier
+            .clickable { onClick() }
     )
 }
 

@@ -35,13 +35,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cs6018.canvasexample.network.ApiViewModel
 import com.cs6018.canvasexample.network.UserDrawing
+import com.cs6018.canvasexample.utils.getCurrentUserId
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // TODO: swipe down to refresh
 
 @Composable
-fun ExploreFeedList(dataList: List<UserDrawing>?) {
+fun ExploreFeedList(
+    dataList: List<UserDrawing>?,
+    navigateToCanvasPage: () -> Unit,
+    setActiveDrawingBackgroundImageReference: (String?) -> Unit,
+    setActiveDrawingInfoById: (String) -> Unit
+) {
     Log.d("ExploreFeedList", "dataList: $dataList")
     if (dataList == null) {
         return
@@ -55,7 +61,16 @@ fun ExploreFeedList(dataList: List<UserDrawing>?) {
         items(dataList, key = {
             it.id
         }) { drawingInfo ->
-            ExploreFeedDrawingCard(drawingInfo)
+
+            val onClick = {
+                Log.d("ExploreFeedList", "onClick: $drawingInfo")
+                if (drawingInfo.creatorId == getCurrentUserId()) {
+                    setActiveDrawingInfoById(drawingInfo.id)
+                }
+                setActiveDrawingBackgroundImageReference(drawingInfo.imagePath)
+                navigateToCanvasPage()
+            }
+            ExploreFeedDrawingCard(drawingInfo, onClick)
         }
     }
 }
@@ -106,7 +121,8 @@ fun DrawingListScreen(
     currentUserDrawingHistory: List<UserDrawing>?,
     currentUserExploreFeed: List<UserDrawing>?,
     removeListItem: (String) -> Unit,
-    navigateToSplashScreen: () -> Unit
+    navigateToSplashScreen: () -> Unit,
+    setActiveDrawingBackgroundImageReference: (String?) -> Unit
 ) {
     val state = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -186,7 +202,12 @@ fun DrawingListScreen(
 
                 1 -> {
                     Log.d("ExploreFeedList", "currentUserExploreFeed: $currentUserExploreFeed")
-                    ExploreFeedList(currentUserExploreFeed)
+                    ExploreFeedList(
+                        currentUserExploreFeed,
+                        navigateToCanvasPage,
+                        setActiveDrawingBackgroundImageReference,
+                        setActiveDrawingInfoById
+                    )
                 }
             }
         }
