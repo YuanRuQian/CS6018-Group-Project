@@ -45,8 +45,8 @@ import com.google.firebase.auth.FirebaseUser
 // TODO: bonus task -> sign in with Google
 @Composable
 fun AuthenticationScreen(
-    createUserWithEmailAndPassword: (String, String, (FirebaseUser?) -> Unit, () -> Unit) -> Unit,
-    signInWithEmailAndPassword: (String, String, (FirebaseUser?) -> Unit, () -> Unit) -> Unit,
+    createUserWithEmailAndPassword: (String, String, (FirebaseUser?) -> Unit, (String) -> Unit) -> Unit,
+    signInWithEmailAndPassword: (String, String, (FirebaseUser?) -> Unit, (String) -> Unit) -> Unit,
     navigateToDrawingList: () -> Unit,
     preloadCurrentUserDrawingHistory: (String) -> Unit,
 ) {
@@ -169,7 +169,7 @@ fun AuthenticationScreen(
                                 .show()
                             navigateToDrawingList()
                         }, {
-                            Toast.makeText(context, "Sign up failed", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
                         })
                     }
                 },
@@ -195,7 +195,7 @@ fun AuthenticationScreen(
                             preloadCurrentUserDrawingHistory(user?.uid ?: "")
                             navigateToDrawingList()
                         }, {
-                            Toast.makeText(context, "Log In failed", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
                         })
                     }
                 },

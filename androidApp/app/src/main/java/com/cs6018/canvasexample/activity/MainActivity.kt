@@ -57,6 +57,7 @@ import com.google.firebase.auth.auth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
 class MainActivity : ComponentActivity(), ShakeDetector.Listener {
     private lateinit var shakeDetectionViewModel: ShakeDetectionViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,7 +99,7 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
         email: String,
         password: String,
         onSuccess: (FirebaseUser?) -> Unit,
-        onFailure: () -> Unit
+        onFailure: (String) -> Unit
     ) {
         Firebase.auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
@@ -109,17 +110,19 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
                     onSuccess(user)
                     Log.d(TAG, "user info: ${user?.email}")
                 } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
-                    // TODO: show error message instead of general failure
-                    onFailure()
+                    try {
+                        throw task.exception!!
+                    } catch (e: Exception) {
+                        Log.e(TAG, "sign up failure: ${e.message}")
+                        onFailure(e.message ?: "Sign up failed")
+                    }
                 }
             }
     }
 
     private fun signInWithEmailAndPassword(
         email: String, password: String, onSuccess: (FirebaseUser?) -> Unit,
-        onFailure: () -> Unit
+        onFailure: (String) -> Unit
     ) {
         Firebase.auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
@@ -129,10 +132,12 @@ class MainActivity : ComponentActivity(), ShakeDetector.Listener {
                     val user = Firebase.auth.currentUser
                     onSuccess(user)
                 } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInWithEmail:failure", task.exception)
-                    // TODO: show error message instead of general failure
-                    onFailure()
+                    try {
+                        throw task.exception!!
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Log in failure: ${e.message}")
+                        onFailure(e.message ?: "Log in failed")
+                    }
                 }
             }
     }
@@ -164,13 +169,13 @@ fun Navigation(
         email: String,
         password: String,
         onSuccess: (FirebaseUser?) -> Unit,
-        onFailure: () -> Unit
+        onFailure: (String) -> Unit
     ) -> Unit,
     signInWithEmailAndPassword: (
         email: String,
         password: String,
         onSuccess: (FirebaseUser?) -> Unit,
-        onFailure: () -> Unit
+        onFailure: (String) -> Unit
     ) -> Unit,
     isTest: Boolean = false
 ) {
@@ -259,7 +264,6 @@ fun Navigation(
     }
 }
 
-// TODO: change related UI tests!!!
 @Composable
 fun SplashScreen(
     onSplashScreenComplete: () -> Unit,
