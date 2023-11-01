@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -84,11 +83,14 @@ fun AuthenticationScreen(
         )
 
         OutlinedTextField(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 56.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 56.dp),
             value = email,
             singleLine = true,
             onValueChange = {
                 email = it
+                preCheckEmailError()
             },
             label = { Text("Email") },
             leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email") },
@@ -106,15 +108,19 @@ fun AuthenticationScreen(
                 if (isEmailError)
                     Icon(Icons.Filled.Error, "error", tint = MaterialTheme.colorScheme.error)
             },
-            keyboardActions = KeyboardActions { preCheckEmailError() },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         )
 
         OutlinedTextField(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 56.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 56.dp),
             value = password,
             singleLine = true,
-            onValueChange = { password = it },
+            onValueChange = {
+                password = it
+                preCheckPasswordError()
+            },
             label = { Text("Password") },
             leadingIcon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Password") },
             placeholder = { Text("********") },
@@ -138,11 +144,12 @@ fun AuthenticationScreen(
                     )
                 }
             },
-            keyboardActions = KeyboardActions { preCheckPasswordError() },
         )
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Sign Up Button
