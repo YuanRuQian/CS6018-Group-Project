@@ -5,8 +5,6 @@ import android.graphics.BitmapFactory
 import android.media.ThumbnailUtils
 import android.util.Log
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import com.cs6018.canvasexample.network.UserDrawing
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -64,4 +62,25 @@ fun convertByteArrayToBitmap(byteArray: ByteArray): Bitmap {
 
 fun scaleBitmapToCertainSize(bitmap: Bitmap, size: Size): Bitmap {
     return Bitmap.createScaledBitmap(bitmap, size.width.toInt(), size.height.toInt(), false)
+}
+
+
+fun isValidEmail(email: String): Boolean {
+    val emailRegex = "^[A-Za-z](.*)(@)(.+)([.])(.+)$"
+    return email.matches(emailRegex.toRegex())
+}
+
+/*
+Password must contain:
+At least one uppercase letter ((?=.*[A-Z])).
+At least one lowercase letter ((?=.*[a-z])).
+At least one digit ((?=.*\\d)).
+At least one special character from the set of characters @#$%^&+= ((?=.*[@#$%^&+=])).
+Minimum password length of 8 characters (.{8,}).
+No whitespace characters allowed ((?!.*\\s)).
+*/
+
+fun isValidPassword(password: String): Boolean {
+    val passwordPattern = Regex("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=])(?!.*\\s).{8,}$")
+    return passwordPattern.matches(password)
 }
