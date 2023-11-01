@@ -1,13 +1,10 @@
-### GET all posts
-GET http://127.0.0.1:8080/drawings
-Accept: application/json
 
 ### GET post by user ID
 GET http://127.0.0.1:8080/drawings/user/tq9NwzxdyjfkMOOP8tEsLkoQLdC3/history
 Accept: application/json
 
-### GET feed by user ID
-GET http://127.0.0.1:8080/drawings/user/tq9NwzxdyjfkMOOP8tEsLkoQLdC3/feed
+### GET feed ( all posts )
+GET http://127.0.0.1:8080/drawingsd
 Accept: application/json
 
 ### POST create a new drawing

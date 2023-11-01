@@ -69,7 +69,7 @@ class ApiService {
     @Throws(Exception::class)
     suspend fun getCurrentUserFeed(userId: String): List<DrawingResponse> {
         Log.d("ApiService", "getCurrentUserFeed: $userId")
-        return httpClient.get("$URL_BASE/drawings/user/$userId/feed").body()
+        return httpClient.get("$URL_BASE/drawings").body()
     }
 
     @Throws(Exception::class)

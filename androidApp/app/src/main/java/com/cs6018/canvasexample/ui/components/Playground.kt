@@ -10,8 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
@@ -60,23 +64,27 @@ fun Playground(
 
     val currentPathProperty = viewModel.currentPathProperty
 
-    val activeDrawingInfo by apiViewModel.activeDrawingInfo.observeAsState()
-
-    Log.d("CanvasPage", "active image path: ${activeDrawingInfo?.imagePath}")
-
-    var backgroundImageUri: Uri? = null
-
-    try {
-        backgroundImageUri = Uri.parse(activeDrawingInfo?.imagePath)
-    } catch (e: Exception) {
-        Log.d("CanvasPage", "Uri.parse failed $e")
+    var uri by remember {
+        mutableStateOf<Uri?>(null)
     }
 
-    Log.d("CanvasPage", "backgroundImageUri: $backgroundImageUri")
+    val activeDrawingBackgroundImageReference by apiViewModel.activeDrawingBackgroundImageReference.observeAsState()
+
+    Log.d("CanvasPage", "active image path: $activeDrawingBackgroundImageReference")
+
+
+    LaunchedEffect(key1 = activeDrawingBackgroundImageReference) {
+        if (activeDrawingBackgroundImageReference != null) {
+            val imageReference = activeDrawingBackgroundImageReference
+            uri = Uri.parse(imageReference)
+        }
+    }
+
+    Log.d("CanvasPage", "activeDrawingBackgroundImageReference: $activeDrawingBackgroundImageReference")
 
     val basePainter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(backgroundImageUri)
+            .data(uri)
             .size(coil.size.Size.ORIGINAL)
             .allowHardware(false)
             .build()
@@ -107,7 +115,7 @@ fun Playground(
                         image = baseImageBitmap,
                         topLeft = Offset.Zero,
                     )
-                    Log.d("CanvasPage", "draw behind $backgroundImageUri")
+                    Log.d("CanvasPage", "draw background image")
                 } else {
                     drawRect(
                         color = Color.White,

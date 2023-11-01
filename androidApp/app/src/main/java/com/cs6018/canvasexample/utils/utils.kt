@@ -8,8 +8,9 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.core.net.toUri
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -58,53 +59,8 @@ fun saveImage(bitmap: Bitmap, context: Context): String? {
         ).show()
     }
 
-    return null // Return null in case of an error
+    return null
 }
-
-fun doesFileExist(filePath: String?): Boolean {
-    if (filePath != null) {
-        val imageFile = File(Uri.parse(filePath).path ?: "")
-        return imageFile.exists()
-    }
-
-    return false
-}
-
-fun deleteImageFile(imagePath: String?, context: Context): Boolean {
-    if (imagePath != null) {
-        try {
-            val imageFile = File(Uri.parse(imagePath).path ?: "")
-            if (imageFile.exists()) {
-                val deleted = imageFile.delete()
-                if (deleted) {
-                    Log.d("CanvasPage", "Image deleted: $imagePath")
-                    Toast.makeText(context, "Image deleted", Toast.LENGTH_LONG).show()
-                    return true
-                } else {
-                    Log.e("CanvasPage", "Failed to delete image: $imagePath")
-                    Toast.makeText(context, "Failed to delete image", Toast.LENGTH_LONG).show()
-                }
-            } else {
-                Log.e("CanvasPage", "Image file not found: $imagePath")
-                Toast.makeText(context, "Image file not found", Toast.LENGTH_LONG).show()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("CanvasPage", "Error occurred while deleting image: ${e.message}")
-            Toast.makeText(
-                context,
-                "Error occurred while deleting image: ${e.message}",
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    } else {
-        Log.e("CanvasPage", "Invalid image path")
-        Toast.makeText(context, "Invalid image path", Toast.LENGTH_LONG).show()
-    }
-
-    return false
-}
-
 
 fun overwriteCurrentImageFile(bitmap: Bitmap, context: Context, filePath: String): String? {
     Log.d("CanvasPage", "Overwriting the current image file at $filePath")
@@ -158,4 +114,28 @@ fun base64StringToBitmap(base64String: String): Bitmap {
     val byteArray = android.util.Base64.decode(base64String, android.util.Base64.DEFAULT)
     return BitmapFactory
         .decodeByteArray(byteArray, 0, byteArray.size)
+}
+
+fun isValidEmail(email: String): Boolean {
+    val emailRegex = "^[A-Za-z](.*)(@)(.+)([.])(.+)$"
+    return email.matches(emailRegex.toRegex())
+}
+
+/*
+Password must contain:
+At least one uppercase letter ((?=.*[A-Z])).
+At least one lowercase letter ((?=.*[a-z])).
+At least one digit ((?=.*\\d)).
+At least one special character from the set of characters @#$%^&+= ((?=.*[@#$%^&+=])).
+Minimum password length of 8 characters (.{8,}).
+No whitespace characters allowed ((?!.*\\s)).
+*/
+
+fun isValidPassword(password: String): Boolean {
+    val passwordPattern = Regex("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=])(?!.*\\s).{8,}$")
+    return passwordPattern.matches(password)
+}
+
+fun getCurrentUserId(): String {
+    return Firebase.auth.currentUser?.uid ?: ""
 }

@@ -14,7 +14,21 @@ class ApiRepository(private val scope: CoroutineScope, private val apiService: A
 
     var activeDrawingInfo: MutableLiveData<DrawingResponse?> = MutableLiveData(null)
 
+    var activeDrawingBackgroundImageReference: MutableLiveData<String?> = MutableLiveData(null)
+
     var activeDrawingTitle: MutableLiveData<String?> = MutableLiveData("Untitled")
+
+    fun resetData() {
+        currentUserExploreFeed.postValue(listOf())
+        currentUserDrawingHistory.postValue(listOf())
+        activeDrawingInfo.postValue(null)
+        activeDrawingBackgroundImageReference.postValue(null)
+        activeDrawingTitle.postValue("Untitled")
+    }
+
+    fun setActiveDrawingBackgroundImageReference(imageReference: String?) {
+        activeDrawingBackgroundImageReference.postValue(imageReference)
+    }
 
     suspend fun updateDrawingTitleById(title: String, thumbnail: String) {
         val drawingId = activeDrawingInfo.value?.id ?: 0
@@ -69,6 +83,7 @@ class ApiRepository(private val scope: CoroutineScope, private val apiService: A
                 Log.d("ApiRepository", "setActiveDrawingInfoById: ${drawings[0]}")
                 activeDrawingInfo.postValue(drawings[0])
                 setActiveDrawingInfoTitle(drawings[0].title)
+                setActiveDrawingBackgroundImageReference(drawings[0].imagePath)
             }
         }
     }

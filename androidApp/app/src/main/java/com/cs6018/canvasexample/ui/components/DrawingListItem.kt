@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,18 +31,18 @@ import com.cs6018.canvasexample.utils.formatDate
 import kotlinx.coroutines.delay
 import java.util.Date
 
+
 @Composable
-fun ExploreFeedDrawingCard(drawingInfo: DrawingResponse) {
+fun ExploreFeedDrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
     val url = Uri.parse(drawingInfo.imagePath)
     Log.d("ExploreFeedDrawingCard", "url: $url")
 
     AsyncImage(
         model = url,
-        contentScale = ContentScale.Crop,
+        contentScale = ContentScale.Fit,
         contentDescription = null,
         modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
+            .clickable { onClick() }
     )
 }
 
