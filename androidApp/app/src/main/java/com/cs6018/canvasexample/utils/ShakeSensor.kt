@@ -278,5 +278,4 @@ class ShakeDetector(private val listener: Listener) :
         LIGHT(11),
         HARD(12)
     }
-
 }

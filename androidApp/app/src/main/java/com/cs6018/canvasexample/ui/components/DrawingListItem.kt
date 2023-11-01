@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,6 +30,7 @@ import com.cs6018.canvasexample.utils.formatDate
 import kotlinx.coroutines.delay
 import java.util.Date
 
+
 @Composable
 fun ExploreFeedDrawingCard(drawingInfo: DrawingResponse) {
     val url = Uri.parse(drawingInfo.imagePath)
@@ -38,11 +38,8 @@ fun ExploreFeedDrawingCard(drawingInfo: DrawingResponse) {
 
     AsyncImage(
         model = url,
-        contentScale = ContentScale.Crop,
+        contentScale = ContentScale.Fit,
         contentDescription = null,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
     )
 }
 
