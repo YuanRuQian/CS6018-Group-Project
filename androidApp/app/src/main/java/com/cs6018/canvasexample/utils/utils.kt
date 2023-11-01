@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.ThumbnailUtils
 import android.util.Log
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.cs6018.canvasexample.network.UserDrawing
@@ -57,11 +58,10 @@ fun sortDrawingsByLastModifiedDate(drawings: List<UserDrawing>): List<UserDrawin
     return drawings.sortedByDescending { it.lastModifiedDate }
 }
 
-fun convertByteArrayToImageBitmap(byteArray: ByteArray): ImageBitmap {
-    val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-    return bitmap.asImageBitmap()
-}
-
 fun convertByteArrayToBitmap(byteArray: ByteArray): Bitmap {
     return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+}
+
+fun scaleBitmapToCertainSize(bitmap: Bitmap, size: Size): Bitmap {
+    return Bitmap.createScaledBitmap(bitmap, size.width.toInt(), size.height.toInt(), false)
 }

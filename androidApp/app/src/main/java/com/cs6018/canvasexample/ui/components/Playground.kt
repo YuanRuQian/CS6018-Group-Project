@@ -1,5 +1,6 @@
 package com.cs6018.canvasexample.ui.components
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -21,8 +22,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.positionChange
@@ -33,8 +34,9 @@ import com.cs6018.canvasexample.data.PathPropertiesViewModel
 import com.cs6018.canvasexample.network.ApiViewModel
 import com.cs6018.canvasexample.network.loadImageFromCloudStorage
 import com.cs6018.canvasexample.utils.MotionEvent
-import com.cs6018.canvasexample.utils.convertByteArrayToImageBitmap
+import com.cs6018.canvasexample.utils.convertByteArrayToBitmap
 import com.cs6018.canvasexample.utils.dragMotionEvent
+import com.cs6018.canvasexample.utils.scaleBitmapToCertainSize
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import dev.shreyaspatil.capturable.controller.CaptureController
@@ -65,8 +67,8 @@ fun Playground(
 
     Log.d("CanvasPage", "active drawing background image reference: $activeDrawingBackgroundImageReference")
 
-    var baseImageBitmap by remember {
-        mutableStateOf<ImageBitmap?>(null)
+    var backgroundImageBitmap by remember {
+        mutableStateOf<Bitmap?>(null)
     }
 
     LaunchedEffect(key1 = activeDrawingBackgroundImageReference) {
@@ -74,19 +76,19 @@ fun Playground(
         if (imagePath != null) {
             val storageRef = Firebase.storage.reference
             storageRef.child(imagePath).getBytes(Long.MAX_VALUE).addOnSuccessListener {
-                baseImageBitmap = convertByteArrayToImageBitmap(it)
+                backgroundImageBitmap = convertByteArrayToBitmap(it)
                 Log.d("CanvasPage", "image bitmap is set")
             }.addOnFailureListener {
-                Log.d("CanvasPage", "image bitmap is not set")
+                Log.d("CanvasPage", "Background image bitmap is not set")
             }
 
             val onSuccess: (ByteArray) -> Unit = { byteArray: ByteArray ->
-                baseImageBitmap = convertByteArrayToImageBitmap(byteArray)
-                Log.d("CanvasPage", "Image bitmap has been set.")
+                backgroundImageBitmap = convertByteArrayToBitmap(byteArray)
+                Log.d("CanvasPage", "Background image bitmap has been set.")
             }
 
             val onError: (Exception) -> Unit = { exception: Exception ->
-                Log.d("CanvasPage", "Failed to set image bitmap. Encountered exception: $exception")
+                Log.d("CanvasPage", "Failed to set background image bitmap. Encountered exception: $exception")
             }
 
             loadImageFromCloudStorage(
@@ -105,9 +107,9 @@ fun Playground(
     ) {
         val drawModifier = Modifier
             .drawBehind {
-                if (baseImageBitmap != null) {
+                if (backgroundImageBitmap != null) {
                     drawImage(
-                        image = baseImageBitmap!!,
+                        image = scaleBitmapToCertainSize(backgroundImageBitmap!!, size).asImageBitmap(),
                         topLeft = Offset.Zero,
                     )
                 } else {
