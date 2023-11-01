@@ -35,10 +35,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -281,22 +279,11 @@ fun CanvasPage(
     val shakeDetector = ShakeDetector(shakeDetectorListener)
     val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
-    var drawingTitle by remember {
-        mutableStateOf(
-            apiViewModel.activeDrawingTitle.value ?: "Untitled"
-        )
-    }
+    val drawingTitle by apiViewModel.activeDrawingTitle.observeAsState()
 
     LaunchedEffect(key1 = true) {
         // reference: https://github.com/square/seismic/issues/24#issuecomment-954231517
         shakeDetector.start(sensorManager, SensorManager.SENSOR_DELAY_GAME)
-    }
-
-    // Use LaunchedEffect to reset drawingTitle when activeDrawingInfo?.drawingTitle changes
-    LaunchedEffect(apiViewModel.activeDrawingTitle.value) {
-        val newDrawingTitle = apiViewModel.activeDrawingTitle.value ?: "Untitled"
-        drawingTitle = newDrawingTitle
-        Log.d("CanvasPage", "LaunchedEffect | update drawing title: $newDrawingTitle")
     }
 
     DisposableEffect(Unit) {
@@ -325,9 +312,8 @@ fun CanvasPage(
                 title = {
                     TextField(
                         textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-                        value = drawingTitle,
+                        value = drawingTitle ?: "Untitled",
                         onValueChange = {
-                            drawingTitle = it
                             apiViewModel.setActiveDrawingInfoTitle(it)
                         },
                         singleLine = true,
