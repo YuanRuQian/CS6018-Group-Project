@@ -51,7 +51,8 @@ fun AuthenticationScreen(
     navigateToDrawingList: () -> Unit,
     preloadCurrentUserDrawingHistory: (String) -> Unit,
 ) {
-    val invalidPasswordTooltip = "Password must include at least one uppercase letter, one lowercase letter, one digit, one special character, be at least 8 characters long, and contain no spaces."
+    val invalidPasswordTooltip =
+        "Password must include at least one uppercase letter, one lowercase letter, one digit, one special character, be at least 8 characters long, and contain no spaces."
     val invalidEmailTooltip = "Invalid email address"
     var email by rememberSaveable { mutableStateOf("") }
     var isEmailError by remember { mutableStateOf(false) }
@@ -82,68 +83,66 @@ fun AuthenticationScreen(
                 .padding(16.dp)
         )
 
-        Column {
-            OutlinedTextField(
-                value = email,
-                singleLine = true,
-                onValueChange = {
-                    email = it
-                },
-                label = { Text("Email") },
-                leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email") },
-                placeholder = { Text("example@gmail.com") },
-                isError = isEmailError,
-                supportingText = {
-                    if (isEmailError) {
-                        Text(
-                            text = invalidEmailTooltip,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
-                trailingIcon = {
-                    if (isEmailError)
-                        Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
-                },
-                keyboardActions = KeyboardActions { preCheckEmailError() },
-            )
-        }
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 56.dp),
+            value = email,
+            singleLine = true,
+            onValueChange = {
+                email = it
+            },
+            label = { Text("Email") },
+            leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email") },
+            placeholder = { Text("example@gmail.com") },
+            isError = isEmailError,
+            supportingText = {
+                if (isEmailError) {
+                    Text(
+                        text = invalidEmailTooltip,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            },
+            trailingIcon = {
+                if (isEmailError)
+                    Icon(Icons.Filled.Error, "error", tint = MaterialTheme.colorScheme.error)
+            },
+            keyboardActions = KeyboardActions { preCheckEmailError() },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+        )
 
-        Column {
-            OutlinedTextField(
-                value = password,
-                singleLine = true,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                leadingIcon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Password") },
-                placeholder = { Text("********") },
-                visualTransformation =
-                if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    IconButton(onClick = { passwordHidden = !passwordHidden }) {
-                        val visibilityIcon =
-                            if (passwordHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                        val description = if (passwordHidden) "Show password" else "Hide password"
-                        Icon(imageVector = visibilityIcon, contentDescription = description)
-                    }
-                },
-                isError = isPasswordError,
-                supportingText = {
-                    if (isPasswordError) {
-                        Text(
-                            text = invalidPasswordTooltip,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
-                keyboardActions = KeyboardActions { preCheckPasswordError() },
-            )
-        }
-
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 56.dp),
+            value = password,
+            singleLine = true,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            leadingIcon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Password") },
+            placeholder = { Text("********") },
+            visualTransformation =
+            if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                IconButton(onClick = { passwordHidden = !passwordHidden }) {
+                    val visibilityIcon =
+                        if (passwordHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    val description = if (passwordHidden) "Show password" else "Hide password"
+                    Icon(imageVector = visibilityIcon, contentDescription = description)
+                }
+            },
+            isError = isPasswordError,
+            supportingText = {
+                if (isPasswordError) {
+                    Text(
+                        text = invalidPasswordTooltip,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            keyboardActions = KeyboardActions { preCheckPasswordError() },
+        )
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Sign Up Button
@@ -197,7 +196,6 @@ fun AuthenticationScreen(
                 Text("Log In")
             }
         }
-
     }
 }
 
