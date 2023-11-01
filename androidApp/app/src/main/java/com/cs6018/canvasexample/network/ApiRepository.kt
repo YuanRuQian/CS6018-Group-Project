@@ -18,6 +18,14 @@ class ApiRepository(private val scope: CoroutineScope, private val apiService: A
 
     var activeDrawingTitle: MutableLiveData<String?> = MutableLiveData("Untitled")
 
+    fun resetData() {
+        currentUserExploreFeed.postValue(listOf())
+        currentUserDrawingHistory.postValue(listOf())
+        activeDrawingInfo.postValue(null)
+        activeDrawingBackgroundImageReference.postValue(null)
+        activeDrawingTitle.postValue("Untitled")
+    }
+
     fun setActiveDrawingBackgroundImageReference(imageReference: String?) {
         activeDrawingBackgroundImageReference.postValue(imageReference)
     }

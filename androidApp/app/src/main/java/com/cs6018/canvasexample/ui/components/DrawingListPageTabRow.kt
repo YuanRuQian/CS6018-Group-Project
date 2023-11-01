@@ -52,6 +52,7 @@ fun DrawingListPageTabRow(
             // TODO: first pop up a dialog to confirm sign out then call signOut
             scope.launch {
                 Firebase.auth.signOut()
+                apiViewModel.resetData()
                 delay(500)
                 navigateToSplashScreen()
             }

@@ -109,4 +109,8 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
     fun setActiveDrawingBackgroundImageReference(imageReference: String?) {
         repository.setActiveDrawingBackgroundImageReference(imageReference)
     }
+
+    fun resetData() {
+        repository.resetData()
+    }
 }
