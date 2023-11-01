@@ -9,6 +9,8 @@ import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.core.net.toUri
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -132,4 +134,8 @@ No whitespace characters allowed ((?!.*\\s)).
 fun isValidPassword(password: String): Boolean {
     val passwordPattern = Regex("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=])(?!.*\\s).{8,}$")
     return passwordPattern.matches(password)
+}
+
+fun getCurrentUserId(): String {
+    return Firebase.auth.currentUser?.uid ?: ""
 }

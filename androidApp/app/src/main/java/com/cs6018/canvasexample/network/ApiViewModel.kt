@@ -26,6 +26,9 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
 
     private val activeCapturedImage: LiveData<Bitmap?> = MutableLiveData(null)
 
+    var activeDrawingBackgroundImageReference: LiveData<String?> =
+        repository.activeDrawingBackgroundImageReference
+
     fun setActiveDrawingInfoTitle(title: String) {
         repository.setActiveDrawingInfoTitle(title)
         Log.d("ApiViewModel", "setActiveDrawingInfoTitle: ${activeDrawingInfo.value}")
@@ -101,5 +104,9 @@ class ApiViewModel(private val repository: ApiRepository) : ViewModel() {
 
     fun deleteDrawingById(id: Int) {
         repository.deleteDrawingById(id)
+    }
+
+    fun setActiveDrawingBackgroundImageReference(imageReference: String?) {
+        repository.setActiveDrawingBackgroundImageReference(imageReference)
     }
 }

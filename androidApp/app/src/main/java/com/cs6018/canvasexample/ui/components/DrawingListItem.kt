@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,7 +33,7 @@ import java.util.Date
 
 
 @Composable
-fun ExploreFeedDrawingCard(drawingInfo: DrawingResponse) {
+fun ExploreFeedDrawingCard(drawingInfo: DrawingResponse, onClick: () -> Unit) {
     val url = Uri.parse(drawingInfo.imagePath)
     Log.d("ExploreFeedDrawingCard", "url: $url")
 
@@ -40,6 +41,8 @@ fun ExploreFeedDrawingCard(drawingInfo: DrawingResponse) {
         model = url,
         contentScale = ContentScale.Fit,
         contentDescription = null,
+        modifier = Modifier
+            .clickable { onClick() }
     )
 }
 

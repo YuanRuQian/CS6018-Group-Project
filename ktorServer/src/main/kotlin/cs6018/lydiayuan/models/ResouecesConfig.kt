@@ -30,7 +30,7 @@ fun mapRowToDrawingObject(row: ResultRow): DrawingObject {
 fun Application.configureResources() {
     install(Resources)
     routing {
-        // Get all drawings ordered by last modified date descending
+        // Get all drawings ordered by last modified date descending, as the public feed for all users across the app
         get<Drawings> {
             call.respond(
                 newSuspendedTransaction(Dispatchers.IO) {
@@ -53,17 +53,6 @@ fun Application.configureResources() {
                     .map { resultRow ->
                         mapRowToDrawingObject(resultRow)
                     }
-            }
-            call.respond(drawings)
-        }
-
-        // get feed by user id, aka every other drawing from other users order by last modified date descending
-        get<Drawings.User.UserId.Feed> {
-            val userId = it.parent.userId
-            val drawings = newSuspendedTransaction(Dispatchers.IO) {
-                Drawing.select { Drawing.creatorId neq userId }.map { resultRow ->
-                    mapRowToDrawingObject(resultRow)
-                }
             }
             call.respond(drawings)
         }
@@ -100,7 +89,7 @@ fun Application.configureResources() {
         }
 
         // update a drawing by id
-        put<Drawings.Drawing.DrawingId> { it ->
+        put<Drawings.Drawing.DrawingId> {
             val drawingId = it.drawingId
             val drawingData = call.receive<DrawingData>()
             newSuspendedTransaction(Dispatchers.IO, DBSettings.db) {
@@ -114,7 +103,7 @@ fun Application.configureResources() {
         }
 
         // delete a drawing by id
-        delete<Drawings.Drawing.DrawingId> { it ->
+        delete<Drawings.Drawing.DrawingId> {
             val drawingId = it.drawingId
             newSuspendedTransaction(Dispatchers.IO, DBSettings.db) {
                 Drawing.deleteWhere { Drawing.id eq drawingId }
@@ -137,8 +126,6 @@ class Drawings {
         class UserId(val parent: User = User(), val userId: String) {
             @Resource("history")
             class History(val parent: UserId = UserId(parent = User(), userId = ""))
-            @Resource("feed")
-            class Feed(val parent: UserId = UserId(parent = User(), userId = ""))
         }
     }
 

@@ -44,6 +44,7 @@ fun DrawingListPageTabRow(
             }
         },
         TabInfo("Create", Icons.Filled.Add) {
+            apiViewModel.setActiveDrawingBackgroundImageReference(null)
             navigateToCanvasPage()
         },
         // TODO: add sign out
