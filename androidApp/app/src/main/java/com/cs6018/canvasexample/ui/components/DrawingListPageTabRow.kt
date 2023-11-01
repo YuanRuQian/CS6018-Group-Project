@@ -52,6 +52,7 @@ fun DrawingListPageTabRow(
             scope.launch {
                 Firebase.auth.signOut()
                 delay(500)
+                apiViewModel.resetData()
                 navigateToSplashScreen()
             }
         }

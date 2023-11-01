@@ -1,6 +1,5 @@
 package com.cs6018.canvasexample.network
 
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 
@@ -15,6 +14,14 @@ class ApiRepository {
     var activeDrawingBackgroundImageReference: MutableLiveData<String?> = MutableLiveData(null)
 
     var activeDrawingTitle: MutableLiveData<String?> = MutableLiveData("Untitled")
+
+    fun resetData() {
+        currentUserExploreFeed.postValue(listOf())
+        currentUserDrawingHistory.postValue(listOf())
+        activeDrawingInfo = MutableLiveData(null)
+        activeDrawingBackgroundImageReference = MutableLiveData(null)
+        activeDrawingTitle = MutableLiveData("Untitled")
+    }
 
     fun updateDrawingByDrawingId(title: String, thumbnail: String) {
         val drawingId = activeDrawingInfo.value?.id ?: ""
