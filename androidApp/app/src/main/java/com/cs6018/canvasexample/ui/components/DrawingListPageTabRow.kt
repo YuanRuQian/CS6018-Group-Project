@@ -26,7 +26,7 @@ fun DrawingListPageTabRow(
     currentActiveTabIndex: Int,
     updateCurrentActiveTabIndex: (Int) -> Unit,
     navigateToCanvasPage: () -> Unit,
-    navigateToSplashScreen: () -> Unit
+    navigateToAuthenticationScreen: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -54,7 +54,7 @@ fun DrawingListPageTabRow(
                 Firebase.auth.signOut()
                 apiViewModel.resetData()
                 delay(500)
-                navigateToSplashScreen()
+                navigateToAuthenticationScreen()
             }
         }
     )

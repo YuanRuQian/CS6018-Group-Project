@@ -128,7 +128,7 @@ fun DrawingListScreen(
     currentUserDrawingHistory: List<DrawingResponse>?,
     currentUserExploreFeed: List<DrawingResponse>?,
     removeListItem: (Int) -> Unit,
-    navigateToSplashScreen: () -> Unit
+    navigateToAuthenticationScreen: () -> Unit
 ) {
     val state = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -182,7 +182,7 @@ fun DrawingListScreen(
                         currentActiveIndex,
                         updateCurrentActiveIndex,
                         navigateToCanvasPage,
-                        navigateToSplashScreen
+                        navigateToAuthenticationScreen
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
