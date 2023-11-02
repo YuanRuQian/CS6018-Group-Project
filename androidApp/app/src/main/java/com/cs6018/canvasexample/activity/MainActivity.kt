@@ -174,8 +174,7 @@ fun Navigation(
         password: String,
         onSuccess: (FirebaseUser?) -> Unit,
         onFailure: () -> Unit
-    ) -> Unit,
-    isTest: Boolean = false
+    ) -> Unit
 ) {
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
     val currentPathProperty by pathPropertiesViewModel.currentPathProperty.collectAsState()
@@ -192,7 +191,19 @@ fun Navigation(
     }
 
     val navigateToDrawingList = {
-        navController.navigate("drawingList")
+        navController.navigate("drawingList") {
+            popUpTo(navController.graph.id) {
+                inclusive = true
+            }
+        }
+    }
+
+    val navigateToAuthenticationScreen = {
+        navController.navigate("authentication") {
+            popUpTo(navController.graph.id) {
+                inclusive = true
+            }
+        }
     }
 
     val navigateToSplashScreen = {
@@ -225,7 +236,7 @@ fun Navigation(
                 } else {
                     navController.navigate("authentication")
                 }
-            }, isTest)
+            })
         }
 
         composable("canvasPage") {
@@ -256,7 +267,7 @@ fun Navigation(
                 currentUserDrawingHistory,
                 currentUserExploreFeed,
                 apiViewModel::deleteDrawing,
-                navigateToSplashScreen,
+                navigateToAuthenticationScreen,
                 apiViewModel::setActiveDrawingBackgroundImageReference
             )
         }

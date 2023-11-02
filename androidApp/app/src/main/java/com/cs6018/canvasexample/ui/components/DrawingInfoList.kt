@@ -133,7 +133,7 @@ fun DrawingListScreen(
     currentUserDrawingHistory: List<UserDrawing>?,
     currentUserExploreFeed: List<UserDrawing>?,
     removeListItem: (String) -> Unit,
-    navigateToSplashScreen: () -> Unit,
+    navigateToAuthenticationScreen: () -> Unit,
     setActiveDrawingBackgroundImageReference: (String?) -> Unit
 ) {
     val state = rememberLazyListState()
@@ -187,7 +187,7 @@ fun DrawingListScreen(
                         currentActiveIndex,
                         updateCurrentActiveIndex,
                         navigateToCanvasPage,
-                        navigateToSplashScreen
+                        navigateToAuthenticationScreen
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
