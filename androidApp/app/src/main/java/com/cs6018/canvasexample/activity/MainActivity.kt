@@ -177,7 +177,6 @@ fun Navigation(
         onSuccess: (FirebaseUser?) -> Unit,
         onFailure: (String) -> Unit
     ) -> Unit,
-    isTest: Boolean = false
 ) {
     val hexColorCodeString by pathPropertiesViewModel.hexColorCode.collectAsState()
     val currentPathProperty by pathPropertiesViewModel.currentPathProperty.collectAsState()
@@ -194,11 +193,19 @@ fun Navigation(
     }
 
     val navigateToDrawingList = {
-        navController.navigate("drawingList")
+        navController.navigate("drawingList") {
+            popUpTo(navController.graph.id) {
+                inclusive = true
+            }
+        }
     }
 
-    val navigateToSplashScreen = {
-        navController.navigate("splash")
+    val navigateToAuthenticationScreen = {
+        navController.navigate("authentication") {
+            popUpTo(navController.graph.id) {
+                inclusive = true
+            }
+        }
     }
 
     val currentUserDrawingHistory by apiViewModel.currentUserDrawingHistory.observeAsState()
@@ -218,7 +225,7 @@ fun Navigation(
         }
 
         composable("splash") {
-            SplashScreen({
+            SplashScreen {
                 val currentUser = Firebase.auth.currentUser
                 val isSignedIn = currentUser != null
                 if (isSignedIn) {
@@ -227,7 +234,7 @@ fun Navigation(
                 } else {
                     navController.navigate("authentication")
                 }
-            }, isTest)
+            }
         }
 
         composable("canvasPage") {
@@ -258,7 +265,7 @@ fun Navigation(
                 currentUserDrawingHistory,
                 currentUserExploreFeed,
                 apiViewModel::deleteDrawingById,
-                navigateToSplashScreen
+                navigateToAuthenticationScreen
             )
         }
     }
@@ -266,8 +273,7 @@ fun Navigation(
 
 @Composable
 fun SplashScreen(
-    onSplashScreenComplete: () -> Unit,
-    isTest: Boolean = false
+    onSplashScreenComplete: () -> Unit
 ) {
 
     val scale = remember {
@@ -289,15 +295,11 @@ fun SplashScreen(
             )
             delay(1500)
         } catch (e: Exception) {
-            if (!isTest) {
-                // Log the error for debugging purposes
-                Log.e("SplashScreen", "Error: The SplashScreen image was not loaded correctly! ")
-            }
+            // Log the error for debugging purposes
+            Log.e("SplashScreen", "Error: The SplashScreen image was not loaded correctly! ")
         } finally {
-            if (!isTest) {
-                coroutineScope.launch {
-                    onSplashScreenComplete()
-                }
+            coroutineScope.launch {
+                onSplashScreenComplete()
             }
         }
     }
